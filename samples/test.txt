@@ -1,0 +1,21 @@
+thisIsAString
+THIS IS A STRING
+this is a string
+this-is-a-string
+this_is_a_string
+this/is/a/string
+THIS_IS_A_STRING
+this.is.a.string
+ThisIsAString
+This Is A String
+
+thisIsAString
+THIS IS A STRING
+this is a string
+this-is-a-string
+this_is_a_string
+this/is/a/string
+THIS_IS_A_STRING
+this.is.a.string
+ThisIsAString
+This Is A String
