@@ -12,9 +12,9 @@ function utils.get_region(vmode)
 
   return {
     start_row = sln[1],
-    start_col = sln[2],
+    start_col = sln[2] + 1,
     end_row = eln[1],
-    end_col = math.min(eln[2], vim.fn.getline(eln[1]):len() - 1),
+    end_col = math.min(eln[2], vim.fn.getline(eln[1]):len()) + 1,
   }
 end
 
@@ -55,11 +55,11 @@ function utils.tablelength(T)
 end
 
 function utils.map(tbl, f)
-    local t = {}
-    for k,v in pairs(tbl) do
-        t[k] = f(v)
-    end
-    return t
+  local t = {}
+  for k, v in pairs(tbl) do
+    t[k] = f(v)
+  end
+  return t
 end
 
 function utils.escape_string(str)
@@ -91,7 +91,7 @@ function utils.is_cursor_in_range(point, start_point, end_point)
 
   if mode == "\22" then
     local is_inside_square = point[1] >= start_point[1] and point[1] <= end_point[1]
-      and point[2] >= start_point[2] and point[2] <= end_point[2]
+        and point[2] >= start_point[2] and point[2] <= end_point[2]
 
     return is_inside_square
   end
@@ -156,16 +156,14 @@ function utils.get_list(str)
   local selection_start = vim.api.nvim_buf_get_mark(0, "<")
   local selection_end = vim.api.nvim_buf_get_mark(0, ">")
 
-  while
-    initial == nil or (
+  while initial == nil or (
       not utils.is_empty_position(next)
-      and not utils.is_same_position(next, initial)
-    )
-  do
+          and not utils.is_same_position(next, initial)
+      ) do
     if not utils.is_empty_position(next) then
       limit = 1 + limit
       if initial == nil then
-        initial = {next[1], next[2]}
+        initial = { next[1], next[2] }
       end
     end
     next = vim.fn.searchpos(str)
@@ -184,9 +182,7 @@ function utils.get_list(str)
       if utils.is_cursor_in_range(initial, selection_start, selection_end) then return initial end
     end
 
-    while
-      not utils.is_cursor_in_range(next, selection_start, selection_end)
-    do
+    while not utils.is_cursor_in_range(next, selection_start, selection_end) do
       limit = limit - 1
       next = vim.fn.searchpos(str)
       if utils.is_empty_position(next) then return nil end
@@ -202,4 +198,3 @@ function utils.get_list(str)
 end
 
 return utils
-

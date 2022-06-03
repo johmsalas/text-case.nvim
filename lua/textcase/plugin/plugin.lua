@@ -28,8 +28,12 @@ function M.register_keybindings(method_table, keybindings, opts)
     'current_word',
   }) do
     if keybindings[feature] ~= nil then
+      local mode = 'n'
+      if feature == 'visual' then
+        mode = 'v'
+      end
       vim.api.nvim_set_keymap(
-        "n",
+        mode,
         keybindings[feature],
         "<cmd>lua require('" .. constants.namespace .. "')." .. feature .. "('" .. method_table.desc .. "')<cr>",
         { noremap = true }
@@ -147,7 +151,7 @@ function M.operator_callback(vmode)
       end
     end
 
-    -- vim.pretty_print(region)
+    vim.pretty_print(region)
 
     conversion.do_substitution(
       region.start_row,

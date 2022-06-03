@@ -27,17 +27,18 @@ function M.do_substitution(start_row, start_col, end_row, end_col, method)
     start_row - 1,
     start_col - 1,
     end_row - 1,
-    end_col - 1
+    end_col
   )
+
+  vim.pretty_print(lines)
   local transformed = utils.map(lines, method)
-  -- vim.pretty_print(end_col)
 
   local cursor_pos = vim.fn.getpos(".")
   vim.api.nvim_buf_set_text(0,
     start_row - 1,
     start_col - 1,
     end_row - 1,
-    end_col - 1,
+    end_col,
     transformed
   )
   local new_cursor_pos = cursor_pos
@@ -46,7 +47,6 @@ function M.do_substitution(start_row, start_col, end_row, end_col, method)
       ) then
     new_cursor_pos = { 0, start_row, start_col }
   end
-  vim.pretty_print({ cursor_pos, new_cursor_pos, start_row, start_col })
   vim.fn.setpos(".", new_cursor_pos)
 end
 

@@ -4,7 +4,7 @@ local plugin = require('textcase.plugin.plugin')
 local api = require('textcase.plugin.api')
 
 M.setup = function(opts)
-  local prefix = opts and opts.prefix or 'cr'
+  local prefix = opts and opts.prefix or 'ga'
 
   plugin.register_keybindings(api.to_constant_case, {
     current_word = prefix .. 'n',
