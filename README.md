@@ -68,3 +68,7 @@ use { "johmsalas/text-case.nvim",
   end
 }
 ```
+
+## How to use it
+
+[Visit the wiki](https://github.com/johmsalas/text-case.nvim/wiki)
