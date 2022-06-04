@@ -1,6 +1,52 @@
 # text-case.nvim
 
+WORK IN PROGRESS
+
+An all in one plugin for converting text case in Neovim
+
+
+## Features
+
+### Quick conversion
+
+Only 3 keys to convert the current text. Smartly guesses the current object using the following strategies:
+
+* Tree Sitter (if available) [WIP]
+* Word under cursor
+* Ignore word separators
+
+<sub>Repeatable using `.`</sub>
+
+### LSP conversion
+
+Converts the word under cursor in all its references
+
+<sub>Repeatable using `.`</sub>
+
+### Targeted conversion
+
+Converts given objects, it might require more key presses than the quick conversion but allows to control the specific target. 
+
+Supported targets:
+
+* Vim objects: w, iw, aw, e, p, ...
+* Selected text in visual mode
+* Complete line
+* Until end of line
+
+<sub>Repeatable using `.`</sub>
+
+### Bulk smart replacement
+
+Converts all forms of a specific text, the replaced text will keep the original text case.
+
+If not specified, it replaces every instance of the text in the current file; But it could be also scoped to the selected block:
+
+![animation: Bulk Replacement](screens/bulk-change-case-visual-block.gif)
+
 ### String case conversions
+
+It is also a library of text case conversion methods. Useful for your LUA code.
 
 |      Case     | Example     | Method                     |
 |---------------|-------------|----------------------------|
@@ -16,3 +62,12 @@
 | Path case     | lorem/ipsum | textcase.api.to_path_case     |
 | Phrase case   | Lorem ipsum | textcase.api.to_phrase_case   |
 
+## Setup
+
+With packer.nvim
+
+use { "johmsalas/text-case.nvim",
+  config = function()
+    require('textcase').setup {}
+  end
+}
