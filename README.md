@@ -1,31 +1,30 @@
 # text-case.nvim
 
-WORK IN PROGRESS
-
 An all in one plugin for converting text case in Neovim
-
 
 ## Features
 
 ### Quick conversion
 
-Only 3 keys to convert the current text. Smartly guesses the current object using the following strategies:
+Only 3 keys to convert the current text. 
+<sub>Repeatable using `.`</sub>
+
+Smartly guesses the current object using the following strategies:
 
 * Tree Sitter (if available) [WIP]
 * Word under cursor
 * Ignore word separators
 
-<sub>Repeatable using `.`</sub>
 
 ### LSP conversion
 
-Converts the word under cursor in all its references
-
+Use Language Server Protocol to modify the definition, references and usages of the word under cursor
 <sub>Repeatable using `.`</sub>
 
 ### Targeted conversion
 
 Converts given objects, it might require more key presses than the quick conversion but allows to control the specific target. 
+<sub>Repeatable using `.`</sub>
 
 Supported targets:
 
@@ -34,7 +33,6 @@ Supported targets:
 * Complete line
 * Until end of line
 
-<sub>Repeatable using `.`</sub>
 
 ### Bulk smart replacement
 
@@ -66,8 +64,10 @@ It is also a library of text case conversion methods. Useful for your LUA code.
 
 With packer.nvim
 
+```lua
 use { "johmsalas/text-case.nvim",
   config = function()
     require('textcase').setup {}
   end
 }
+```
