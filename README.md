@@ -30,9 +30,6 @@ Supported targets:
 
 * Vim objects: w, iw, aw, e, p, ...
 * Selected text in visual mode
-* Complete line
-* Until end of line
-
 
 ### Bulk smart replacement
 
