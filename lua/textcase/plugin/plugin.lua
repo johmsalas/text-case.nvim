@@ -261,6 +261,7 @@ function M.current_word(case_desc)
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@aW", "i", false)
+  vim.api.nvim_feedkeys("g@aw", "i", false)
 end
 
 function M.replace_word_under_cursor(command)

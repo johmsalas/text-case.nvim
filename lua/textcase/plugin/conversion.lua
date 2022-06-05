@@ -30,7 +30,6 @@ function M.do_substitution(start_row, start_col, end_row, end_col, method)
     end_col
   )
 
-  vim.pretty_print(lines)
   local transformed = utils.map(lines, method)
 
   local cursor_pos = vim.fn.getpos(".")
