@@ -2,7 +2,7 @@ local utils = require("textcase.shared.utils")
 local constants = require("textcase.shared.constants")
 local conversion = require("textcase.plugin.conversion")
 local config = require("textcase.plugin.config")
-local flag_incremental_preview = vim.fn.has("nvim-0.8-dev+374-ge13dcdf16")
+local flag_incremental_preview = vim.fn.has("nvim-0.8-dev+374-ge13dcdf16") == 1
 
 local M = {}
 
@@ -131,11 +131,11 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
       if preview_ns ~= nil then
         vim.api.nvim_buf_add_highlight(
           buf,
-	  1,
-	  "Search",
-	  match[1] - 1,
-	  match[2] - 1,
-	  match[2] - 1 + #transformed_dest
+          1,
+          "Search",
+          match[1] - 1,
+          match[2] - 1,
+          match[2] - 1 + #transformed_dest
         )
       end
     end
