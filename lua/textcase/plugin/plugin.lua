@@ -2,6 +2,7 @@ local utils = require("textcase.shared.utils")
 local constants = require("textcase.shared.constants")
 local conversion = require("textcase.plugin.conversion")
 local config = require("textcase.plugin.config")
+local flag_incremental_preview = vim.fn.has("nvim-0.8-dev+374-ge13dcdf16") == 1
 
 local M = {}
 
@@ -12,6 +13,7 @@ M.state = {
   change_type = nil,
   current_method = nil, -- Since curried vim func operators are not yet supported
   match = nil,
+  substitute = {},
 }
 
 function M.register_keybindings(method_table, keybindings, opts)
@@ -54,53 +56,6 @@ function M.register_keys(method_table, keybindings)
   })
 end
 
-local function trim_space(opts, preview_ns, preview_buf)
-  local line1 = opts.line1
-  local line2 = opts.line2
-  local buf = vim.api.nvim_get_current_buf()
-  local lines = vim.api.nvim_buf_get_lines(buf, line1 - 1, line2, 0)
-  local new_lines = {}
-  local preview_buf_line = 0
-  for i, line in ipairs(lines) do
-    local startidx, endidx = string.find(line, '%s+$')
-    if startidx ~= nil then
-      -- Highlight the match if in command preview mode
-      if preview_ns ~= nil then
-        vim.api.nvim_buf_add_highlight(
-          buf, preview_ns, 'Substitute', line1 + i - 2, startidx - 1,
-          endidx
-        )
-        -- Add lines and highlight to the preview buffer
-        -- if inccommand=split
-        if preview_buf ~= nil then
-          local prefix = string.format('|%d| ', line1 + i - 1)
-          vim.api.nvim_buf_set_lines(
-            preview_buf, preview_buf_line, preview_buf_line, 0,
-            { prefix .. line }
-          )
-          vim.api.nvim_buf_add_highlight(
-            preview_buf, preview_ns, 'Substitute', preview_buf_line,
-            #prefix + startidx - 1, #prefix + endidx
-          )
-          preview_buf_line = preview_buf_line + 1
-        end
-      end
-    end
-    if not preview_ns then
-      new_lines[#new_lines + 1] = string.gsub(line, '%s+$', '')
-    end
-  end
-  -- Don't make any changes to the buffer if previewing
-  if not preview_ns then
-    vim.api.nvim_buf_set_lines(buf, line1 - 1, line2, 0, new_lines)
-  end
-  -- When called as a preview callback, return the value of the
-  -- preview type
-  if preview_ns ~= nil then
-    return 2
-  end
-end
-
 function M.register_replace_command(command, method_keys)
   -- TODO: validate command
   M.state.methods_by_command[command] = {}
@@ -109,17 +64,17 @@ function M.register_replace_command(command, method_keys)
     table.insert(M.state.methods_by_command[command], method)
   end
 
-  -- if vim.has("v0.9.0-dev+359-g9745941ef") == 1 then
-  --   vim.api.nvim_create_user_command(
-  --     command,
-  --     trim_space,
-  --     { nargs = '1', range = '0', addr = 'lines', preview = trim_space }
-  --   )
-  -- else
-  vim.cmd([[
+  if flag_incremental_preview then
+    vim.api.nvim_create_user_command(
+      command,
+      M.incremental_substitute,
+      { nargs = 1, range = 0, addr = 'lines', preview = M.incremental_substitute }
+    )
+  else
+    vim.cmd([[
       command! -nargs=1 -bang -bar -range=0 ]] .. command .. [[ :lua require("]] .. constants.namespace .. [[").dispatcher( "]] .. command .. [[" ,<q-args>)
     ]])
-  -- end
+  end
 end
 
 function M.clear_match(command_namespace)
@@ -150,6 +105,47 @@ local function add_match(command, str)
       autocmd CursorMoved * lua require("]] .. constants.namespace .. [[").clear_match("]] .. command_namespace .. [[")
     augroup END
   ]])
+end
+
+function M.incremental_substitute(opts, preview_ns, preview_buf)
+  local command = "Subs"
+  local params = vim.split(opts.args, '/')
+  local source, dest = params[2], params[3]
+  local buf = (preview_ns ~= nil) and preview_buf or vim.api.nvim_get_current_buf()
+
+  if M.state.substitute.list == nil then
+
+  end
+
+  local cursor_pos = vim.fn.getpos(".")
+  vim.api.nvim_buf_clear_namespace(buf, 1, 0, -1)
+
+
+  for _, method in ipairs(M.state.methods_by_command[command]) do
+    local transformed_source = method.apply(source)
+    local transformed_dest = method.apply(dest)
+
+    local get_match = utils.get_list(utils.escape_string(transformed_source))
+    for match in get_match do
+      conversion.replace_matches(match, transformed_source, transformed_dest, false)
+      if preview_ns ~= nil then
+        vim.api.nvim_buf_add_highlight(
+          buf,
+          1,
+          "Search",
+          match[1] - 1,
+          match[2] - 1,
+          match[2] - 1 + #transformed_dest
+        )
+      end
+    end
+  end
+
+  vim.fn.setpos(".", cursor_pos)
+
+  if preview_ns ~= nil then
+    return 2
+  end
 end
 
 function M.dispatcher(command, args)
@@ -205,8 +201,6 @@ function M.operator_callback(vmode)
         region = jumper(lines, region)
       end
     end
-
-    vim.pretty_print(region)
 
     conversion.do_substitution(
       region.start_row,
