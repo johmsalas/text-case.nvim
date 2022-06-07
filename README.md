@@ -1,12 +1,12 @@
 # text-case.nvim
 
-An all in one plugin for converting text case in Neovim
+An all in one plugin for converting text case in Neovim. It converts a piece of text to an indicated string case and also is capable of bulk replacing texts without changing cases
 
 ## Features
 
 ### Quick conversion
 
-Only 3 keys to convert the current text. 
+Converts text under cursor to another case. Only 3 keys to convert the current text. 
 <sub>Repeatable using `.`</sub>
 
 Smartly guesses the current object using the following strategies:
@@ -18,7 +18,7 @@ Smartly guesses the current object using the following strategies:
 
 ### LSP conversion
 
-Use Language Server Protocol to modify the definition, references and usages of the word under cursor
+Converts definition under cursor to another case. Use Language Server Protocol to modify the definition, references and usages of the word under cursor
 <sub>Repeatable using `.`</sub>
 
 ### Targeted conversion
