@@ -1,7 +1,6 @@
 local utils = require("textcase.shared.utils")
 local constants = require("textcase.shared.constants")
 local conversion = require("textcase.plugin.conversion")
-local whichkey = require("textcase.extensions.whichkey")
 local flag_incremental_preview = vim.fn.has("nvim-0.8-dev+374-ge13dcdf16") == 1
 
 local M = {}
@@ -49,12 +48,6 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
         { desc = desc }
       )
 
-      -- whichkey.add({
-      --   mode = mode,
-      --   keybind = keybindings[feature],
-      --   command = "<cmd>lua require('" .. constants.namespace .. "')." .. feature .. "('" .. method_table.desc .. "')<cr>",
-      --   desc = desc
-      -- })
     end
   end
 

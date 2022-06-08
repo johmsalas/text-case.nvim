@@ -2,9 +2,25 @@ local M = {}
 
 local plugin = require('textcase.plugin.plugin')
 local api = require('textcase.plugin.api')
+local whichkey = require("textcase.extensions.whichkey")
 
 M.setup = function(opts)
   local prefix = opts and opts.prefix or 'ga'
+
+  whichkey.register('v', {
+    [prefix] = {
+      name = 'text-case',
+    }
+  })
+
+  whichkey.register('n', {
+    [prefix] = {
+      name = 'text-case',
+      o = {
+        name = 'Pending mode operator'
+      }
+    }
+  })
 
   plugin.register_keybindings(prefix, api.to_constant_case, {
     prefix = prefix,
