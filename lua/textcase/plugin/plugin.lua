@@ -1,6 +1,7 @@
 local utils = require("textcase.shared.utils")
 local constants = require("textcase.shared.constants")
 local conversion = require("textcase.plugin.conversion")
+local config = require("textcase.plugin.config")
 local flag_incremental_preview = vim.fn.has("nvim-0.8-dev+374-ge13dcdf16") == 1
 
 local M = {}
@@ -15,7 +16,7 @@ M.state = {
   substitute = {},
 }
 
-function M.register_keybindings(prefix, method_table, keybindings, opts)
+function M.register_keybindings(method_table, keybindings, opts)
   -- TODO: validate method_table
   M.state.methods_by_desc[method_table.desc] = method_table
   M.state.methods_by_desc[method_table.desc].opts = opts
@@ -33,30 +34,19 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
       if feature == 'visual' then
         mode = 'v'
       end
-      local desc = method_table.desc
-
-      if feature == 'current_word' then
-        desc = 'Convert ' .. desc
-      elseif feature == 'lsp_rename' then
-        desc = 'LSP rename ' .. desc
-      end
-
-      vim.keymap.set(
+      vim.api.nvim_set_keymap(
         mode,
-        prefix .. keybindings[feature],
+        keybindings[feature],
         "<cmd>lua require('" .. constants.namespace .. "')." .. feature .. "('" .. method_table.desc .. "')<cr>",
-        { desc = desc }
+        { noremap = true }
       )
-
     end
   end
-
-  -- whichkey.register_batch(prefix)
 end
 
-function M.register_keys(prefix, method_table, keybindings)
+function M.register_keys(method_table, keybindings)
   -- Sugar syntax
-  M.register_keybindings(prefix, method_table, {
+  M.register_keybindings(method_table, {
     line = keybindings[1],
     eol = keybindings[2],
     visual = keybindings[3],
@@ -122,6 +112,10 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
   local params = vim.split(opts.args, '/')
   local source, dest = params[2], params[3]
   local buf = (preview_ns ~= nil) and preview_buf or vim.api.nvim_get_current_buf()
+
+  if M.state.substitute.list == nil then
+
+  end
 
   local cursor_pos = vim.fn.getpos(".")
   vim.api.nvim_buf_clear_namespace(buf, 1, 0, -1)
