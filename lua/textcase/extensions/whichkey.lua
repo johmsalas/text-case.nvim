@@ -18,11 +18,10 @@ function M.register(mode, mappings)
     }
   }
 
-  pcall(
-    require("which-key").register,
-    mappings,
-    opts[mode]
-  )
+  local ok, whichkey = pcall(require, 'which-key')
+  if ok then
+    whichkey.register(mappings, opts[mode])
+  end
 end
 
 return M
