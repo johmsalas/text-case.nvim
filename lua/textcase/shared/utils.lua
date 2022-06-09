@@ -27,11 +27,19 @@ function utils.nvim_buf_get_text(buffer, start_row, start_col, end_row, end_col)
   return lines
 end
 
+local callableTable = {
+  __call = function(self, ...)
+    return self.apply(...)
+  end
+}
+
 function utils.create_wrapped_method(desc, method)
-  return {
+  local wrapper = {
     desc = desc,
-    apply = method
+    apply = method,
   }
+  setmetatable(wrapper, callableTable)
+  return wrapper
 end
 
 function utils.get_default_register()

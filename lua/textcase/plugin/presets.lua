@@ -4,6 +4,34 @@ local plugin = require('textcase.plugin.plugin')
 local api = require('textcase.plugin.api')
 local whichkey = require("textcase.extensions.whichkey")
 
+Initialize = function()
+  plugin.register_methods(api.to_upper_case)
+  plugin.register_methods(api.to_lower_case)
+  plugin.register_methods(api.to_snake_case)
+  plugin.register_methods(api.to_dash_case)
+  plugin.register_methods(api.to_constant_case)
+  plugin.register_methods(api.to_dot_case)
+  plugin.register_methods(api.to_phrase_case)
+  plugin.register_methods(api.to_camel_case)
+  plugin.register_methods(api.to_pascal_case)
+  plugin.register_methods(api.to_title_case)
+  plugin.register_methods(api.to_path_case)
+
+  plugin.register_replace_command('Subs', {
+    api.to_upper_case,
+    api.to_lower_case,
+    api.to_snake_case,
+    api.to_dash_case,
+    api.to_constant_case,
+    api.to_dot_case,
+    api.to_phrase_case,
+    api.to_camel_case,
+    api.to_pascal_case,
+    api.to_title_case,
+    api.to_path_case,
+  })
+end
+
 M.setup = function(opts)
   local prefix = opts and opts.prefix or 'ga'
 
@@ -65,19 +93,8 @@ M.setup = function(opts)
     lsp_rename = 'L',
   })
 
-  plugin.register_replace_command('Subs', {
-    api.to_upper_case,
-    api.to_lower_case,
-    api.to_snake_case,
-    api.to_dash_case,
-    api.to_constant_case,
-    api.to_dot_case,
-    api.to_phrase_case,
-    api.to_camel_case,
-    api.to_pascal_case,
-    api.to_title_case,
-    api.to_path_case,
-  })
 end
+
+Initialize()
 
 return M

@@ -15,11 +15,13 @@ M.state = {
   substitute = {},
 }
 
-function M.register_keybindings(prefix, method_table, keybindings, opts)
+function M.register_methods(method_table, opts)
   -- TODO: validate method_table
   M.state.methods_by_desc[method_table.desc] = method_table
   M.state.methods_by_desc[method_table.desc].opts = opts
+end
 
+function M.register_keybindings(prefix, method_table, keybindings, opts)
   for _, feature in ipairs({
     'line',
     'eol',
