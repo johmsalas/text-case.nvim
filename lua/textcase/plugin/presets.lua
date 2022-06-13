@@ -4,7 +4,7 @@ local plugin = require('textcase.plugin.plugin')
 local api = require('textcase.plugin.api')
 local whichkey = require("textcase.extensions.whichkey")
 
-Initialize = function()
+M.Initialize = function()
   plugin.register_methods(api.to_upper_case)
   plugin.register_methods(api.to_lower_case)
   plugin.register_methods(api.to_snake_case)
@@ -92,9 +92,6 @@ M.setup = function(opts)
     operator = 'ol',
     lsp_rename = 'L',
   })
-
 end
-
-Initialize()
 
 return M
