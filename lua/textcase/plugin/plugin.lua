@@ -253,7 +253,7 @@ function M.lsp_rename(case_desc)
   M.state.change_type = constants.change_type.LSP_RENAME
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
-  vim.api.nvim_feedkeys("g@aW", "i", false)
+  vim.api.nvim_feedkeys("g@aw", "i", false)
 end
 
 function M.current_word(case_desc)
