@@ -47,6 +47,7 @@ local M = {
   eol = plugin.eol,
   visual = plugin.visual,
   lsp_rename = plugin.lsp_rename,
+  quick_replace = plugin.quick_replace,
   clear_match = plugin.clear_match,
 }
 

@@ -53,7 +53,14 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
     end
   end
 
-  -- whichkey.register_batch(prefix)
+  if keybindings['quick_replace'] ~= nil then
+    local keybind = prefix .. keybindings['quick_replace']
+    local desc = 'Convert' .. method_table.desc
+    local command = "<cmd>lua require('" .. constants.namespace .. "')." .. 'quick_replace' .. "('" .. method_table.desc .. "')<cr>"
+
+    vim.keymap.set('n', keybind, command, { desc = desc })
+    vim.keymap.set('v', keybind, command, { desc = desc })
+  end
 end
 
 function M.register_keys(prefix, method_table, keybindings)
@@ -193,9 +200,12 @@ function M.operator_callback(vmode)
   if M.state.change_type == constants.change_type.LSP_RENAME then
     conversion.do_lsp_rename(apply)
   else
+    local mode = vim.api.nvim_get_mode().mode
     local region = utils.get_region(vmode)
+    local should_guess_region = M.state.change_type == constants.change_type.CURRENT_WORD
+        or (M.state.change_type == constants.change_type.QUICK_REPLACE and mode == 'n')
 
-    if M.state.change_type == constants.change_type.CURRENT_WORD then
+    if should_guess_region then
       local jumper = method.opts and method.opts.jumper or nil
 
       if jumper ~= nil then
@@ -251,6 +261,7 @@ function M.lsp_rename(case_desc)
   M.state.register = vim.v.register
   M.state.current_method = case_desc
   M.state.change_type = constants.change_type.LSP_RENAME
+  vim.pretty_print(case_desc)
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@aw", "i", false)
@@ -263,6 +274,20 @@ function M.current_word(case_desc)
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@aw", "i", false)
+end
+
+function M.quick_replace(case_desc)
+  M.state.register = vim.v.register
+  M.state.current_method = case_desc
+  vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
+  M.state.change_type = constants.change_type.QUICK_REPLACE
+
+  if vim.api.nvim_get_mode().mode == 'v' then
+    vim.api.nvim_feedkeys("g@`>", "i", false)
+  else
+    vim.api.nvim_feedkeys("g@aw", "i", false)
+  end
+
 end
 
 function M.replace_word_under_cursor(command)
