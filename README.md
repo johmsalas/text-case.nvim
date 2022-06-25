@@ -75,7 +75,7 @@ Example in VimScript using Plug. Custom keybinding
 
 ```vimscript
 call plug#begin('~/.local/share/nvim/plugged')
-Plug 'johmsalas/text-case.nvim', {'branch': 'issue-6_provide-key-mapping-desc'}
+Plug 'johmsalas/text-case.nvim'
 call plug#end()
 
 -- Example of custom keymapping

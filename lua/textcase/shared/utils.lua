@@ -1,21 +1,59 @@
 local utils = {}
+local constants = require("textcase.shared.constants")
 
 function utils.get_region(vmode)
+  local visual_mode = vmode:match("[vV]") or vmode ~= "block" and constants.visual_mode.INLINE or constants.visual_mode.BLOCK
+  return utils.get_visual_region(0, visual_mode)
+end
+
+function utils.get_visual_mode()
+  local mode = vim.api.nvim_get_mode().mode
+  if mode == 'v' then
+    return constants.visual_mode.INLINE
+  elseif mode == '\22' then
+    return constants.visual_mode.BLOCK
+  end
+end
+
+function utils.get_visual_region(buffer, visual_mode, updated)
   local sln, eln
-  if vmode:match("[vV]") then
-    sln = vim.api.nvim_buf_get_mark(0, "<")
-    eln = vim.api.nvim_buf_get_mark(0, ">")
+  if updated == true then
+    local spos = vim.fn.getpos("v")
+    local epos = vim.fn.getpos(".")
+    sln = { spos[2], spos[3] - 1 }
+    eln = { epos[2], epos[3] - 1 }
   else
-    sln = vim.api.nvim_buf_get_mark(0, "[")
-    eln = vim.api.nvim_buf_get_mark(0, "]")
+    if visual_mode == constants.visual_mode.INLINE then
+      sln = vim.api.nvim_buf_get_mark(buffer or 0, "<")
+      eln = vim.api.nvim_buf_get_mark(buffer or 0, ">")
+    else
+      sln = vim.api.nvim_buf_get_mark(buffer or 0, "[")
+      eln = vim.api.nvim_buf_get_mark(buffer or 0, "]")
+    end
   end
 
   return {
+    mode = visual_mode,
     start_row = sln[1],
     start_col = sln[2] + 1,
     end_row = eln[1],
     end_col = math.min(eln[2], vim.fn.getline(eln[1]):len()) + 1,
   }
+end
+
+function utils.set_visual_region(visual_mode, buffer)
+  local sln = { visual_mode.start_row, visual_mode.start_col - 1 }
+  local eln = { visual_mode.end_row, visual_mode.end_col - 1 }
+
+  local start_reg = "<"
+  local end_reg = ">"
+  if visual_mode.mode == constants.visual_mode.BLOCK then
+    start_reg = "["
+    end_reg = "]"
+  end
+
+  vim.api.nvim_buf_set_mark(buffer or 0, start_reg, sln[1], sln[2], {})
+  vim.api.nvim_buf_set_mark(buffer or 0, end_reg, eln[1], eln[2], {})
 end
 
 function utils.nvim_buf_get_text(buffer, start_row, start_col, end_row, end_col)

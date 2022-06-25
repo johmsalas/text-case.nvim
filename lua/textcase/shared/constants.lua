@@ -10,4 +10,10 @@ M.change_type = {
   VISUAL = 'VISUAL'
 }
 
+M.visual_mode = {
+  NONE = 'NONE',
+  INLINE = 'INLINE',
+  BLOCK = 'BLOCK',
+}
+
 return M
