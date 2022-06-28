@@ -280,7 +280,6 @@ function M.visual(case_desc)
   else
     vim.api.nvim_feedkeys("g@`>", "i", false)
   end
-
 end
 
 function M.lsp_rename(case_desc)

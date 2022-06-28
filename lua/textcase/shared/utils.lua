@@ -2,7 +2,13 @@ local utils = {}
 local constants = require("textcase.shared.constants")
 
 function utils.get_region(vmode)
-  local visual_mode = vmode:match("[vV]") or vmode ~= "block" and constants.visual_mode.INLINE or constants.visual_mode.BLOCK
+  local visual_mode = constants.visual_mode.NONE
+  if vmode:match("[vV]") then
+    visual_mode = constants.visual_mode.INLINE
+  elseif vmode == "block" then
+    visual_mode = constants.visual_mode.BLOCK
+  end
+
   return utils.get_visual_region(0, visual_mode)
 end
 
