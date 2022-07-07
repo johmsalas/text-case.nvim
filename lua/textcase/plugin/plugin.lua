@@ -314,15 +314,24 @@ function M.quick_replace(case_desc)
   end
 end
 
-function M.open_telescope()
+function M.open_telescope(filter)
   local mode = vim.api.nvim_get_mode().mode
   M.state.telescope_previous_mode = mode
   M.state.telescope_previous_buffer = vim.api.nvim_get_current_buf()
-  if mode == 'n' then
-    vim.cmd("Telescope textcase normal_mode")
+  if (filter == 'quick_change') then
+
+    vim.cmd("Telescope textcase normal_mode_quick_change")
+
+  elseif (filter == 'lsp_change') then
+
+    vim.cmd("Telescope textcase normal_mode_lsp_change")
   else
-    M.state.telescope_previous_visual_region = utils.get_visual_region(0, utils.get_visual_mode(), true)
-    vim.cmd("Telescope textcase visual_mode")
+    if mode == 'n' then
+      vim.cmd("Telescope textcase normal_mode")
+    else
+      M.state.telescope_previous_visual_region = utils.get_visual_region(0, utils.get_visual_mode(), true)
+      vim.cmd("Telescope textcase visual_mode")
+    end
   end
 
 end
