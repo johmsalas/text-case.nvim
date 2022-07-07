@@ -75,7 +75,7 @@ Example in VimScript using Plug. Custom keybinding
 
 ```vimscript
 call plug#begin('~/.local/share/nvim/plugged')
-Plug 'johmsalas/text-case.nvim', {'branch': 'issue-6_provide-key-mapping-desc'}
+Plug 'johmsalas/text-case.nvim'
 call plug#end()
 
 -- Example of custom keymapping
@@ -119,3 +119,25 @@ nnoremap gef :lua require('textcase').operator('to_path_case')<CR>
 ## How to use it
 
 [Visit the wiki](https://github.com/johmsalas/text-case.nvim/wiki)
+
+## Telescope integration
+
+To list conversion options using Telescope, register the extension in telescope and setup keybindings for normal and visual mode
+
+```lua
+config = function()
+  require('textcase').setup {}
+  require('telescope').load_extension('textcase')
+  vim.api.nvim_set_keymap('n', 'ga.', '<cmd>TextCaseOpenTelescope<CR>', { desc = "Telescope" })
+  vim.api.nvim_set_keymap('v', 'ga.', "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
+end
+```
+
+In the example above, when using in normal mode, it shows options for quick and LSP conversion of the string. It is also possible to trigger a list of options only for Quick Conversion, or only for LSP conversion
+It only works for normal mode, because LSP does not make sense for visual mode
+
+```
+vim.api.nvim_set_keymap('n', 'gaa', "<cmd>TextCaseOpenTelescopeQuickChange<CR>", { desc = "Telescope Quick Change" })
+vim.api.nvim_set_keymap('n', 'gai', "<cmd>TextCaseOpenTelescopeLSPChange<CR>", { desc = "Telescope LSP Change" })
+```
+

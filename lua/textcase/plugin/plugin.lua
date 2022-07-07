@@ -13,6 +13,10 @@ M.state = {
   current_method = nil, -- Since curried vim func operators are not yet supported
   match = nil,
   substitute = {},
+  telescope_previous_mode = nil,
+  telescope_previous_visual_region = nil,
+  telescope_previous_visual_register = nil,
+  telescope_previous_buffer = nil,
 }
 
 function M.register_methods(method_table, opts)
@@ -53,7 +57,14 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
     end
   end
 
-  -- whichkey.register_batch(prefix)
+  if keybindings['quick_replace'] ~= nil then
+    local keybind = prefix .. keybindings['quick_replace']
+    local desc = 'Convert' .. method_table.desc
+    local command = "<cmd>lua require('" .. constants.namespace .. "')." .. 'quick_replace' .. "('" .. method_table.desc .. "')<cr>"
+
+    vim.keymap.set('n', keybind, command, { desc = desc })
+    vim.keymap.set('v', keybind, command, { desc = desc })
+  end
 end
 
 function M.register_keys(prefix, method_table, keybindings)
@@ -193,14 +204,17 @@ function M.operator_callback(vmode)
   if M.state.change_type == constants.change_type.LSP_RENAME then
     conversion.do_lsp_rename(apply)
   else
-    local region = utils.get_region(vmode)
+    local mode = M.state.telescope_previous_mode or vim.api.nvim_get_mode().mode
+    local region = M.state.telescope_previous_visual_region or utils.get_region(vmode)
+    local should_guess_region = M.state.change_type == constants.change_type.CURRENT_WORD
+        or (M.state.change_type == constants.change_type.QUICK_REPLACE and mode == 'n')
 
-    if M.state.change_type == constants.change_type.CURRENT_WORD then
+    if should_guess_region then
       local jumper = method.opts and method.opts.jumper or nil
 
       if jumper ~= nil then
         local lines = utils.nvim_buf_get_text(
-          0,
+          M.state.telescope_previous_buffer or 0,
           region.start_row,
           region.start_col,
           region.end_row,
@@ -210,14 +224,29 @@ function M.operator_callback(vmode)
       end
     end
 
-    conversion.do_substitution(
-      region.start_row,
-      region.start_col,
-      region.end_row,
-      region.end_col,
-      apply
-    )
+    if (region.mode == constants.visual_mode.BLOCK) then
+      conversion.do_block_substitution(
+        region.start_row,
+        region.start_col,
+        region.end_row,
+        region.end_col,
+        apply
+      )
+    else
+      conversion.do_substitution(
+        region.start_row,
+        region.start_col,
+        region.end_row,
+        region.end_col,
+        apply
+      )
+    end
   end
+
+  M.state.telescope_previous_mode = nil
+  M.state.telescope_previous_visual_region = nil
+  M.state.telescope_previous_buffer = nil
+  M.state.telescope_previous_visual_register = nil
 end
 
 function M.line(case_desc)
@@ -244,7 +273,13 @@ function M.visual(case_desc)
   M.state.register = vim.v.register
   M.state.current_method = case_desc
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
-  vim.api.nvim_feedkeys("g@`>", "i", false)
+
+  if M.state.telescope_previous_visual_region ~= nil then
+    utils.set_visual_region(M.state.telescope_previous_visual_region)
+    vim.api.nvim_feedkeys("gvg@", "i", false)
+  else
+    vim.api.nvim_feedkeys("g@`>", "i", false)
+  end
 end
 
 function M.lsp_rename(case_desc)
@@ -263,6 +298,42 @@ function M.current_word(case_desc)
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@aw", "i", false)
+end
+
+function M.quick_replace(case_desc)
+  M.state.register = vim.v.register
+  M.state.current_method = case_desc
+  vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
+  M.state.change_type = constants.change_type.QUICK_REPLACE
+
+  local mode = vim.api.nvim_get_mode().mode
+  if mode == 'v' or mode == '\22' then
+    vim.api.nvim_feedkeys("g@`>", "i", false)
+  else
+    vim.api.nvim_feedkeys("g@aw", "i", false)
+  end
+end
+
+function M.open_telescope(filter)
+  local mode = vim.api.nvim_get_mode().mode
+  M.state.telescope_previous_mode = mode
+  M.state.telescope_previous_buffer = vim.api.nvim_get_current_buf()
+  if (filter == 'quick_change') then
+
+    vim.cmd("Telescope textcase normal_mode_quick_change")
+
+  elseif (filter == 'lsp_change') then
+
+    vim.cmd("Telescope textcase normal_mode_lsp_change")
+  else
+    if mode == 'n' then
+      vim.cmd("Telescope textcase normal_mode")
+    else
+      M.state.telescope_previous_visual_region = utils.get_visual_region(0, utils.get_visual_mode(), true)
+      vim.cmd("Telescope textcase visual_mode")
+    end
+  end
+
 end
 
 function M.replace_word_under_cursor(command)

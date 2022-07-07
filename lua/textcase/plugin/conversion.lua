@@ -49,6 +49,27 @@ function M.do_substitution(start_row, start_col, end_row, end_col, method)
   vim.fn.setpos(".", new_cursor_pos)
 end
 
+function M.do_block_substitution(start_row, start_col, end_row, end_col, method)
+  local cursor_pos = vim.fn.getpos(".")
+
+  local s_col = start_col - 1
+  local e_col = end_col
+
+  for row = start_row - 1, end_row - 1 do
+    local lines = utils.nvim_buf_get_text(0, row, s_col, row, e_col)
+    local transformed = utils.map(lines, method)
+    vim.api.nvim_buf_set_text(0, row, s_col, row, e_col, transformed)
+  end
+
+  local new_cursor_pos = cursor_pos
+  if cursor_pos[1] ~= start_row or (
+      cursor_pos[2] < start_col
+      ) then
+    new_cursor_pos = { 0, start_row, start_col }
+  end
+  vim.fn.setpos(".", new_cursor_pos)
+end
+
 function M.do_lsp_rename(method)
   local current_word = vim.fn.expand('<cword>')
   local params = lsp.util.make_position_params()

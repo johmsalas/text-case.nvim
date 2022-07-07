@@ -6,6 +6,14 @@ M.namespace = 'textcase'
 M.change_type = {
   LSP_RENAME = 'LSP_RENAME',
   CURRENT_WORD = 'CURRENT_WORD',
+  QUICK_REPLACE = 'QUICK_REPLACE',
+  VISUAL = 'VISUAL'
+}
+
+M.visual_mode = {
+  NONE = 'NONE',
+  INLINE = 'INLINE',
+  BLOCK = 'BLOCK',
 }
 
 return M
