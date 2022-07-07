@@ -276,7 +276,7 @@ function M.visual(case_desc)
 
   if M.state.telescope_previous_visual_region ~= nil then
     utils.set_visual_region(M.state.telescope_previous_visual_region)
-    vim.api.nvim_feedkeys("<esc>gvg@", "i", false)
+    vim.api.nvim_feedkeys("gvg@", "i", false)
   else
     vim.api.nvim_feedkeys("g@`>", "i", false)
   end
