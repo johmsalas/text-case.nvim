@@ -120,7 +120,9 @@ nnoremap gef :lua require('textcase').operator('to_path_case')<CR>
 
 [Visit the wiki](https://github.com/johmsalas/text-case.nvim/wiki)
 
-## Telescope integration
+## Integrations
+
+### Telescope integration
 
 To list conversion options using Telescope, register the extension in telescope and setup keybindings for normal and visual mode
 
@@ -141,3 +143,8 @@ vim.api.nvim_set_keymap('n', 'gaa', "<cmd>TextCaseOpenTelescopeQuickChange<CR>",
 vim.api.nvim_set_keymap('n', 'gai', "<cmd>TextCaseOpenTelescopeLSPChange<CR>", { desc = "Telescope LSP Change" })
 ```
 
+### Which key integration
+
+If which-key is preset, text-case.nvim registers descriptions for the conversion groups
+
+![screenshot: which-key menu](screens/whichkey.png)
