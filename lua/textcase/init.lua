@@ -50,6 +50,7 @@ local M = {
   quick_replace = plugin.quick_replace,
   clear_match = plugin.clear_match,
   open_telescope = plugin.open_telescope,
+  start_replacing_command = plugin.start_replacing_command,
 }
 
 return M

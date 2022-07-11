@@ -336,6 +336,30 @@ function M.open_telescope(filter)
 
 end
 
+function M.start_replacing_command()
+  local mode = vim.api.nvim_get_mode().mode
+  M.state.telescope_previous_mode = mode
+  M.state.telescope_previous_buffer = vim.api.nvim_get_current_buf()
+
+  if mode == 'n' then
+    local current_word = vim.fn.expand('<cword>')
+    vim.api.nvim_feedkeys(":Subs/" .. current_word .. "/", 'i', true)
+  else
+    local region = utils.get_visual_region(0, true)
+    local text = utils.nvim_buf_get_text(
+      0,
+      region.start_row - 1,
+      region.start_col - 1,
+      region.start_row - 1,
+      region.end_col
+    )
+
+    local clean_range_key = vim.api.nvim_replace_termcodes("<C-u>", true, false, true)
+    vim.api.nvim_feedkeys(":" .. clean_range_key .. "Subs/" .. text[1] .. "/", 'i', false)
+  end
+
+end
+
 function M.replace_word_under_cursor(command)
   local current_word = vim.fn.expand('<cword>')
   vim.api.nvim_feedkeys(":" .. command .. '/' .. current_word .. '/', "i", false)
