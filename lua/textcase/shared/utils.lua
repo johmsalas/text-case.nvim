@@ -1,35 +1,68 @@
 local utils = {}
 local constants = require("textcase.shared.constants")
 
-function utils.get_region(vmode)
-  local visual_mode = constants.visual_mode.NONE
-  if vmode:match("[vV]") then
-    visual_mode = constants.visual_mode.INLINE
-  elseif vmode == "block" then
-    visual_mode = constants.visual_mode.BLOCK
-  end
+-- function utils.get_region(vmode)
+--   local visual_mode = constants.visual_mode.NONE
+--   if vmode == nil then
+--     return utils.get_visual_region(0, visual_mode)
+--   elseif vmode:match("[vV]") then
+--     visual_mode = constants.visual_mode.INLINE
+--   elseif vmode == "block" then
+--     visual_mode = constants.visual_mode.BLOCK
+--   elseif vmode == "char" then
+--     visual_mode = constants.visual_mode.NONE
+--   end
 
-  return utils.get_visual_region(0, visual_mode)
-end
+--   return utils.get_visual_region(0, visual_mode)
+-- end
 
-function utils.get_visual_mode()
-  local mode = vim.api.nvim_get_mode().mode
+function Get_visual_mode(forced_mode)
+  local mode = forced_mode or vim.api.nvim_get_mode().mode
+
   if mode == 'v' then
     return constants.visual_mode.INLINE
+  elseif mode == 'V' then
+    return constants.visual_mode.LINE
   elseif mode == '\22' then
     return constants.visual_mode.BLOCK
   end
+
+  return constants.visual_mode.NONE
 end
 
-function utils.get_visual_region(buffer, visual_mode, updated)
-  local sln, eln
-  if updated == true then
+function utils.get_visual_region(buffer, updated, forced_mode)
+  buffer = buffer or 0
+  local sln, eln, visual_mode
+
+  -- vim.pretty_print({
+  --   a = vim.fn.getpos("v"),
+  --   b = vim.fn.getpos("."),
+  --   c = vim.api.nvim_buf_get_mark(buffer or 0, "<"),
+  --   d = vim.api.nvim_buf_get_mark(buffer or 0, ">"),
+  --   e = vim.api.nvim_buf_get_mark(buffer or 0, "["),
+  --   f = vim.api.nvim_buf_get_mark(buffer or 0, "]"),
+  --   mode = visual_mode,
+  -- })
+
+
+  if updated and not forced_mode then
     local spos = vim.fn.getpos("v")
     local epos = vim.fn.getpos(".")
     sln = { spos[2], spos[3] - 1 }
     eln = { epos[2], epos[3] - 1 }
+
+    visual_mode = utils.is_same_position(spos, epos)
+        and constants.visual_mode.NONE or Get_visual_mode(forced_mode)
   else
+    visual_mode = Get_visual_mode(forced_mode)
+
     if visual_mode == constants.visual_mode.INLINE then
+      sln = vim.api.nvim_buf_get_mark(buffer or 0, "<")
+      eln = vim.api.nvim_buf_get_mark(buffer or 0, ">")
+    elseif visual_mode == constants.visual_mode.LINE then
+      sln = vim.api.nvim_buf_get_mark(buffer or 0, "<")
+      eln = vim.api.nvim_buf_get_mark(buffer or 0, ">")
+    elseif forced_mode then
       sln = vim.api.nvim_buf_get_mark(buffer or 0, "<")
       eln = vim.api.nvim_buf_get_mark(buffer or 0, ">")
     else
@@ -38,13 +71,20 @@ function utils.get_visual_region(buffer, visual_mode, updated)
     end
   end
 
-  return {
+  if visual_mode == constants.visual_mode.LINE then
+    sln = { sln[1], 0 }
+    eln = { eln[1], vim.fn.getline(eln[1]):len() - 1 }
+  end
+
+  local region = {
     mode = visual_mode,
     start_row = sln[1],
     start_col = sln[2] + 1,
     end_row = eln[1],
     end_col = math.min(eln[2], vim.fn.getline(eln[1]):len()) + 1,
   }
+
+  return region
 end
 
 function utils.set_visual_region(visual_mode, buffer)
@@ -63,7 +103,7 @@ function utils.set_visual_region(visual_mode, buffer)
 end
 
 function utils.nvim_buf_get_text(buffer, start_row, start_col, end_row, end_col)
-  local lines = vim.api.nvim_buf_get_lines(buffer, start_row, end_row + 1, true)
+  local lines = vim.api.nvim_buf_get_lines(buffer, start_row, end_row + 1, false)
 
   lines[vim.tbl_count(lines)] = string.sub(lines[vim.tbl_count(lines)], 0, end_col)
   lines[1] = string.sub(lines[1], start_col + 1)
@@ -129,21 +169,20 @@ function utils.is_empty_position(pos)
   return pos[1] == 0 and pos[2] == 0
 end
 
-function utils.is_cursor_in_range(point, start_point, end_point)
-  if utils.is_empty_position(start_point) or utils.is_empty_position(end_point) then return true end
-  local mode = vim.fn.visualmode()
+function utils.is_cursor_in_range(point, region)
+  if region.mode == constants.visual_mode.NONE then return true end
 
-  if mode == 'v' then
-    local is_between_lines = point[1] > start_point[1] and point[1] < end_point[1]
-    local is_same_start_line_after = point[1] == start_point[1] and point[2] >= start_point[2]
-    local is_same_end_line_before = point[1] == end_point[1] and point[2] <= end_point[2]
+  if region.mode == constants.visual_mode.INLINE or region.vmode == constants.visual_mode.LINE then
+    local is_between_lines = point[1] > region.start_row and point[1] < region.end_row
+    local is_same_start_line_after = point[1] == region.start_row and point[2] >= region.start_col
+    local is_same_end_line_before = point[1] == region.end_row and point[2] <= region.end_col
 
     return is_between_lines or is_same_start_line_after or is_same_end_line_before
   end
 
-  if mode == "\22" then
-    local is_inside_square = point[1] >= start_point[1] and point[1] <= end_point[1]
-        and point[2] >= start_point[2] and point[2] <= end_point[2]
+  if region.mode == constants.visual_mode.BLOCK then
+    local is_inside_square = point[1] >= region.start_row and point[1] <= region.end_row
+        and point[2] >= region.start_col and point[2] <= region.end_col
 
     return is_inside_square
   end
@@ -201,12 +240,12 @@ function utils.trim_str(str, _trimmable_chars)
   return trim_info, trimmed_str
 end
 
-function utils.get_list(str)
+function utils.get_list(str, mode)
   local limit = 0
   local initial = nil
   local next = vim.fn.searchpos(str)
-  local selection_start = vim.api.nvim_buf_get_mark(0, "<")
-  local selection_end = vim.api.nvim_buf_get_mark(0, ">")
+
+  local region = utils.get_visual_region(nil, true, mode)
 
   while initial == nil or (
       not utils.is_empty_position(next)
@@ -228,19 +267,23 @@ function utils.get_list(str)
   return function()
     limit = limit - 1
     next = vim.fn.searchpos(str)
+
     if utils.is_empty_position(next) then return nil end
+
+
     if first_call then
       first_call = false
-      if utils.is_cursor_in_range(initial, selection_start, selection_end) then return initial end
+      if utils.is_cursor_in_range(initial, region) then return initial end
     end
 
-    while not utils.is_cursor_in_range(next, selection_start, selection_end) do
+    while not utils.is_cursor_in_range(next, region) do
       limit = limit - 1
       next = vim.fn.searchpos(str)
       if utils.is_empty_position(next) then return nil end
 
       if limit < 0 then return nil end
     end
+
 
     if limit < 0 then return nil end
     if utils.is_same_position(initial, next) then return nil end

@@ -53,7 +53,9 @@ function range.clear_match()
 end
 
 function range.operator_callback(vmode)
-  local region = utils.get_region(vmode)
+  -- local region = utils.get_region(vmode)
+  local region = utils.get_visual_region()
+
   if region.start_row ~= region.end_row then
     vim.notify("Multiline is not supported by stringcaseRange", vim.log.levels.INFO)
     return

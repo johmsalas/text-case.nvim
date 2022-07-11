@@ -16,6 +16,8 @@ M.Initialize = function()
   plugin.register_methods(api.to_pascal_case)
   plugin.register_methods(api.to_title_case)
   plugin.register_methods(api.to_path_case)
+  plugin.register_methods(api.to_upper_phrase_case)
+  plugin.register_methods(api.to_lower_phrase_case)
 
   plugin.register_replace_command('Subs', {
     api.to_upper_case,
@@ -29,6 +31,8 @@ M.Initialize = function()
     api.to_pascal_case,
     api.to_title_case,
     api.to_path_case,
+    api.to_upper_phrase_case,
+    api.to_lower_phrase_case,
   })
 end
 
