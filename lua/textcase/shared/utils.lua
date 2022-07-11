@@ -1,20 +1,18 @@
 local utils = {}
 local constants = require("textcase.shared.constants")
 
--- function utils.get_region(vmode)
---   local visual_mode = constants.visual_mode.NONE
---   if vmode == nil then
---     return utils.get_visual_region(0, visual_mode)
---   elseif vmode:match("[vV]") then
---     visual_mode = constants.visual_mode.INLINE
---   elseif vmode == "block" then
---     visual_mode = constants.visual_mode.BLOCK
---   elseif vmode == "char" then
---     visual_mode = constants.visual_mode.NONE
---   end
+function utils.get_mode_at_operator(vmode)
+  local visual_mode = nil
+  if vmode == 'v' then
+    visual_mode = constants.visual_mode.INLINE
+  elseif vmode == 'V' then
+    visual_mode = constants.visual_mode.LINE
+  elseif vmode == "block" then
+    visual_mode = constants.visual_mode.BLOCK
+  end
 
---   return utils.get_visual_region(0, visual_mode)
--- end
+  return visual_mode
+end
 
 function Get_visual_mode(forced_mode)
   local mode = forced_mode or vim.api.nvim_get_mode().mode
@@ -30,20 +28,9 @@ function Get_visual_mode(forced_mode)
   return constants.visual_mode.NONE
 end
 
-function utils.get_visual_region(buffer, updated, forced_mode)
+function utils.get_visual_region(buffer, updated, forced_mode, detected_mode)
   buffer = buffer or 0
   local sln, eln, visual_mode
-
-  -- vim.pretty_print({
-  --   a = vim.fn.getpos("v"),
-  --   b = vim.fn.getpos("."),
-  --   c = vim.api.nvim_buf_get_mark(buffer or 0, "<"),
-  --   d = vim.api.nvim_buf_get_mark(buffer or 0, ">"),
-  --   e = vim.api.nvim_buf_get_mark(buffer or 0, "["),
-  --   f = vim.api.nvim_buf_get_mark(buffer or 0, "]"),
-  --   mode = visual_mode,
-  -- })
-
 
   if updated and not forced_mode then
     local spos = vim.fn.getpos("v")
@@ -51,10 +38,10 @@ function utils.get_visual_region(buffer, updated, forced_mode)
     sln = { spos[2], spos[3] - 1 }
     eln = { epos[2], epos[3] - 1 }
 
-    visual_mode = utils.is_same_position(spos, epos)
+    visual_mode = detected_mode or utils.is_same_position(spos, epos)
         and constants.visual_mode.NONE or Get_visual_mode(forced_mode)
   else
-    visual_mode = Get_visual_mode(forced_mode)
+    visual_mode = detected_mode or Get_visual_mode(forced_mode)
 
     if visual_mode == constants.visual_mode.INLINE then
       sln = vim.api.nvim_buf_get_mark(buffer or 0, "<")
