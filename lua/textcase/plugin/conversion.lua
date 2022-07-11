@@ -56,9 +56,13 @@ function M.do_block_substitution(start_row, start_col, end_row, end_col, method)
   local e_col = end_col
 
   for row = start_row - 1, end_row - 1 do
-    local lines = utils.nvim_buf_get_text(0, row, s_col, row, e_col)
-    local transformed = utils.map(lines, method)
-    vim.api.nvim_buf_set_text(0, row, s_col, row, e_col, transformed)
+    local line_text = vim.fn.getline(row + 1)
+    local line_e_col = math.min(line_text:len() - 1, e_col)
+    if line_text:len() > 0 then
+      local lines = utils.nvim_buf_get_text(0, row, s_col, row, line_e_col)
+      local transformed = utils.map(lines, method)
+      vim.api.nvim_buf_set_text(0, row, s_col, row, line_e_col, transformed)
+    end
   end
 
   local new_cursor_pos = cursor_pos

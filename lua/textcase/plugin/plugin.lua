@@ -118,13 +118,10 @@ end
 function M.incremental_substitute(opts, preview_ns, preview_buf)
   local command = "Subs"
   local mode = (opts.range < 2 or opts.line1 == opts.line2) and 'n' or '\22'
-  vim.pretty_print({
-    mode = mode,
-    line1 = opts.line1,
-    line2 = opts.line2
-  })
   local params = vim.split(opts.args, '/')
   local source, dest = params[2], params[3]
+  source = MixStringConectors(source)
+  dest = MixStringConectors(dest)
   local buf = (preview_ns ~= nil) and preview_buf or vim.api.nvim_get_current_buf()
 
   local cursor_pos = vim.fn.getpos(".")
@@ -158,11 +155,15 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
   end
 end
 
+function MixStringConectors(str)
+  return str:gsub("_", '-'):gsub("-", ' '):gsub(" ", '_')
+end
+
 function M.dispatcher(mode, args)
   local params = vim.split(args, '/')
   local source, dest = params[2], params[3]
-  source = source:gsub(" ", '-'):gsub("-", ' ')
-  dest = dest:gsub(" ", '-'):gsub("-", ' ')
+  source = MixStringConectors(source)
+  dest = MixStringConectors(dest)
 
   local cursor_pos = vim.fn.getpos(".")
   -- vim.api.nvim_feedkeys("g@", "i", false)
@@ -195,7 +196,9 @@ function M.operator_callback(vmode)
     conversion.do_lsp_rename(apply)
   else
     local mode = M.state.telescope_previous_mode or vim.api.nvim_get_mode().mode
-    local region = M.state.telescope_previous_visual_region or utils.get_visual_region()
+    local region = M.state.telescope_previous_visual_region or utils.get_visual_region(
+      nil, false, nil, utils.get_mode_at_operator(vmode)
+    )
     local should_guess_region = M.state.change_type == constants.change_type.CURRENT_WORD
         or (M.state.change_type == constants.change_type.QUICK_REPLACE and mode == 'n')
 
@@ -298,7 +301,8 @@ function M.quick_replace(case_desc)
 
   local mode = vim.api.nvim_get_mode().mode
   if mode == 'v' or mode == '\22' or mode == 'V' then
-    M.state.telescope_previous_visual_region = utils.get_visual_region(0, true)
+    M.state.telescope_previous_visual_region = utils.get_visual_region(
+      0, true, nil, utils.get_mode_at_operator(mode))
     M.state.change_type = constants.change_type.VISUAL
     vim.api.nvim_feedkeys("g@", "i", false)
   else
@@ -322,7 +326,7 @@ function M.open_telescope(filter)
     if mode == 'n' then
       vim.cmd("Telescope textcase normal_mode")
     else
-      M.state.telescope_previous_visual_region = utils.get_visual_region(0, true)
+      M.state.telescope_previous_visual_region = utils.get_visual_region(0, true, nil, 'v')
       vim.cmd("Telescope textcase visual_mode")
     end
   end
