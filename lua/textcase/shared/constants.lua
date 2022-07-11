@@ -13,6 +13,7 @@ M.change_type = {
 M.visual_mode = {
   NONE = 'NONE',
   INLINE = 'INLINE',
+  LINE = 'LINE',
   BLOCK = 'BLOCK',
 }
 

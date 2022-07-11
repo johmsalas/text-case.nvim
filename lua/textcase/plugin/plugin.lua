@@ -59,7 +59,7 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
 
   if keybindings['quick_replace'] ~= nil then
     local keybind = prefix .. keybindings['quick_replace']
-    local desc = 'Convert' .. method_table.desc
+    local desc = 'Convert ' .. method_table.desc
     local command = "<cmd>lua require('" .. constants.namespace .. "')." .. 'quick_replace' .. "('" .. method_table.desc .. "')<cr>"
 
     vim.keymap.set('n', keybind, command, { desc = desc })
@@ -80,7 +80,6 @@ function M.register_keys(prefix, method_table, keybindings)
 end
 
 function M.register_replace_command(command, method_keys)
-  -- TODO: validate command
   M.state.methods_by_command[command] = {}
 
   for _, method in ipairs(method_keys) do
@@ -91,12 +90,15 @@ function M.register_replace_command(command, method_keys)
     vim.api.nvim_create_user_command(
       command,
       M.incremental_substitute,
-      { nargs = 1, range = 0, addr = 'lines', preview = M.incremental_substitute }
+      { nargs = 1, range = '%', addr = 'lines', preview = M.incremental_substitute }
     )
   else
     vim.cmd([[
-      command! -nargs=1 -bang -bar -range=0 ]] .. command .. [[ :lua require("]] .. constants.namespace .. [[").dispatcher( "]] .. command .. [[" ,<q-args>)
+      command! -range -nargs=? ]] .. command .. [[ <line1>,<line2>call TextCaseSubstituteLauncher(<q-args>)
     ]])
+    -- vim.cmd([[
+    --   command! -nargs=1 -bang -bar -range ]] .. command .. [[ <line1>,<line2>lua require("]] .. constants.namespace .. [[").dispatcher( "]] .. command .. [[" ,<q-args>)
+    -- ]])
   end
 end
 
@@ -113,25 +115,14 @@ function M.clear_match(command_namespace)
   ]])
 end
 
-local function add_match(command, str)
-  local command_namespace = constants.namespace .. command
-  M.state.match = vim.fn.matchadd(
-    command_namespace,
-    vim.fn.escape(str, "\\"),
-    2
-  )
-
-  vim.cmd([[
-    augroup ]] .. command_namespace .. [[ClearMatch
-      autocmd!
-      autocmd InsertEnter,WinLeave,BufLeave * lua require("]] .. constants.namespace .. [[").clear_match("]] .. command_namespace .. [[")
-      autocmd CursorMoved * lua require("]] .. constants.namespace .. [[").clear_match("]] .. command_namespace .. [[")
-    augroup END
-  ]])
-end
-
 function M.incremental_substitute(opts, preview_ns, preview_buf)
   local command = "Subs"
+  local mode = (opts.range < 2 or opts.line1 == opts.line2) and 'n' or '\22'
+  vim.pretty_print({
+    mode = mode,
+    line1 = opts.line1,
+    line2 = opts.line2
+  })
   local params = vim.split(opts.args, '/')
   local source, dest = params[2], params[3]
   local buf = (preview_ns ~= nil) and preview_buf or vim.api.nvim_get_current_buf()
@@ -144,7 +135,7 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
     local transformed_source = method.apply(source)
     local transformed_dest = method.apply(dest)
 
-    local get_match = utils.get_list(utils.escape_string(transformed_source))
+    local get_match = utils.get_list(utils.escape_string(transformed_source), mode)
     for match in get_match do
       conversion.replace_matches(match, transformed_source, transformed_dest, false)
       if preview_ns ~= nil then
@@ -167,21 +158,20 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
   end
 end
 
-function M.dispatcher(command, args)
+function M.dispatcher(mode, args)
   local params = vim.split(args, '/')
   local source, dest = params[2], params[3]
+  source = source:gsub(" ", '-'):gsub("-", ' ')
+  dest = dest:gsub(" ", '-'):gsub("-", ' ')
 
-  -- TODO: Hightlight matches
-  -- stringcase.state.match = vim.fn.matchadd("Search", vim.fn.escape(source, "\\"), 2)
   local cursor_pos = vim.fn.getpos(".")
+  -- vim.api.nvim_feedkeys("g@", "i", false)
 
-  for _, method in ipairs(M.state.methods_by_command[command]) do
+  for _, method in ipairs(M.state.methods_by_command['Subs']) do
     local transformed_source = method.apply(source)
     local transformed_dest = method.apply(dest)
 
-    add_match(command, transformed_source)
-
-    local get_match = utils.get_list(utils.escape_string(transformed_source))
+    local get_match = utils.get_list(utils.escape_string(transformed_source), mode)
     for match in get_match do
       conversion.replace_matches(match, transformed_source, transformed_dest, false)
     end
@@ -205,7 +195,7 @@ function M.operator_callback(vmode)
     conversion.do_lsp_rename(apply)
   else
     local mode = M.state.telescope_previous_mode or vim.api.nvim_get_mode().mode
-    local region = M.state.telescope_previous_visual_region or utils.get_region(vmode)
+    local region = M.state.telescope_previous_visual_region or utils.get_visual_region()
     local should_guess_region = M.state.change_type == constants.change_type.CURRENT_WORD
         or (M.state.change_type == constants.change_type.QUICK_REPLACE and mode == 'n')
 
@@ -307,9 +297,12 @@ function M.quick_replace(case_desc)
   M.state.change_type = constants.change_type.QUICK_REPLACE
 
   local mode = vim.api.nvim_get_mode().mode
-  if mode == 'v' or mode == '\22' then
-    vim.api.nvim_feedkeys("g@`>", "i", false)
+  if mode == 'v' or mode == '\22' or mode == 'V' then
+    M.state.telescope_previous_visual_region = utils.get_visual_region(0, true)
+    M.state.change_type = constants.change_type.VISUAL
+    vim.api.nvim_feedkeys("g@", "i", false)
   else
+    M.state.change_type = constants.change_type.CURRENT_WORD
     vim.api.nvim_feedkeys("g@aw", "i", false)
   end
 end
@@ -329,7 +322,7 @@ function M.open_telescope(filter)
     if mode == 'n' then
       vim.cmd("Telescope textcase normal_mode")
     else
-      M.state.telescope_previous_visual_region = utils.get_visual_region(0, utils.get_visual_mode(), true)
+      M.state.telescope_previous_visual_region = utils.get_visual_region(0, true)
       vim.cmd("Telescope textcase visual_mode")
     end
   end
