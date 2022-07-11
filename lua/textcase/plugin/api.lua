@@ -16,5 +16,7 @@ M.to_camel_case = c('to_camel_case', stringcase.to_camel_case)
 M.to_pascal_case = c('to_pascal_case', stringcase.to_pascal_case)
 M.to_title_case = c('to_title_case', stringcase.to_title_case)
 M.to_path_case = c('to_path_case', stringcase.to_path_case)
+M.to_upper_phrase_case = c('to_upper_phrase_case', stringcase.to_upper_phrase_case)
+M.to_lower_phrase_case = c('to_lower_phrase_case', stringcase.to_lower_phrase_case)
 
 return M
