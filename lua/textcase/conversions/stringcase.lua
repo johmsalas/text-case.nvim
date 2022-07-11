@@ -34,6 +34,14 @@ function M.to_camel_case(str)
   return ''
 end
 
+function M.to_upper_phrase_case(str)
+  return M.to_dash_case(str):upper():gsub("-", " ")
+end
+
+function M.to_lower_phrase_case(str)
+  return M.to_dash_case(str):lower():gsub("-", " ")
+end
+
 function M.to_phrase_case(str)
   local lower = M.to_dash_case(str):lower()
   lower = lower:gsub("-", " ")
