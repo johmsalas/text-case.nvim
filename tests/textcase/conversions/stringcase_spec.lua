@@ -200,6 +200,13 @@ describe("to_path_case", function()
   end)
 end)
 
+describe("to_constant_case", function()
+  it("keep empty spaces around the word", function()
+    assert.are.same(' ' .. CONSTANT_STRING, ' ' .. casing.to_constant_case(CAMEL_STRING))
+    assert.are.same(' t_task', casing.to_snake_case(' tTask'))
+  end)
+end)
+
 -- to_upper_case
 -- to_lower_case
 -- to_snake_case
