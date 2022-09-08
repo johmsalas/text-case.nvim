@@ -60,7 +60,8 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
   if keybindings['quick_replace'] ~= nil then
     local keybind = prefix .. keybindings['quick_replace']
     local desc = 'Convert ' .. method_table.desc
-    local command = "<cmd>lua require('" .. constants.namespace .. "')." .. 'quick_replace' .. "('" .. method_table.desc .. "')<cr>"
+    local command = "<cmd>lua require('" ..
+        constants.namespace .. "')." .. 'quick_replace' .. "('" .. method_table.desc .. "')<cr>"
 
     vim.keymap.set('n', keybind, command, { desc = desc })
     vim.keymap.set('v', keybind, command, { desc = desc })
@@ -281,7 +282,7 @@ function M.lsp_rename(case_desc)
   M.state.change_type = constants.change_type.LSP_RENAME
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
-  vim.api.nvim_feedkeys("g@aw", "i", false)
+  vim.api.nvim_feedkeys("g@iw", "i", false)
 end
 
 function M.current_word(case_desc)
