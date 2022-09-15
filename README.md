@@ -148,3 +148,12 @@ vim.api.nvim_set_keymap('n', 'gai', "<cmd>TextCaseOpenTelescopeLSPChange<CR>", {
 If which-key is preset, text-case.nvim registers descriptions for the conversion groups
 
 ![screenshot: which-key menu](screens/whichkey.png)
+
+## Troubleshooting
+
+* Conversion based on LSP not working
+
+A requirement for LSP rename to work is to have LSP set in the buffer and the Language Server should have the rename capability enabled.
+
+To triage it, trigger LSP renaming using `:lua vim.lsp.buf.rename()` while the cursor is on the symbol. If it works, file an issue on this plugin
+
