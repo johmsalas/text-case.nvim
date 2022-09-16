@@ -106,9 +106,11 @@ function Smart_analysis(str)
   return has_lower_case_characters, has_upper_case_characters, separators
 end
 
-function M.to_dash_case(str)
+function M.to_dash_case(_str)
   local previous = nil
   local items = {}
+
+  local trim_info, str = utils.trim_str(_str)
 
   local ends_with_space = string.sub(str, -1) == " "
   local has_lower_case_characters, _, separators = Smart_analysis(str)
@@ -144,7 +146,8 @@ function M.to_dash_case(str)
     { unpack(items, 1, ends_with_space and (#items - 1) or #items) },
     string.lower
   ), "-") .. (ends_with_space and ' ' or '')
-  return result
+
+  return utils.untrim_str(result, trim_info)
 end
 
 return M
