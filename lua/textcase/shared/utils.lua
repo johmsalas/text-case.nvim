@@ -261,7 +261,10 @@ function utils.get_list(str, mode)
 
     if first_call then
       first_call = false
-      if utils.is_cursor_in_range(initial, region) then return initial end
+      initial = next
+      if utils.is_cursor_in_range(initial, region) then
+        return initial
+      end
     end
 
     while not utils.is_cursor_in_range(next, region) do
