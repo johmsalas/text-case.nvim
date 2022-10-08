@@ -91,15 +91,12 @@ function M.register_replace_command(command, method_keys)
     vim.api.nvim_create_user_command(
       command,
       M.incremental_substitute,
-      { nargs = 1, range = '%', addr = 'lines', preview = M.incremental_substitute }
+      { nargs = '?', range = '%', addr = 'lines', preview = M.incremental_substitute }
     )
   else
     vim.cmd([[
       command! -range -nargs=? ]] .. command .. [[ <line1>,<line2>call TextCaseSubstituteLauncher(<q-args>)
     ]])
-    -- vim.cmd([[
-    --   command! -nargs=1 -bang -bar -range ]] .. command .. [[ <line1>,<line2>lua require("]] .. constants.namespace .. [[").dispatcher( "]] .. command .. [[" ,<q-args>)
-    -- ]])
   end
 end
 
@@ -122,28 +119,30 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
   local params = vim.split(opts.args, '/')
   local source, dest = params[2], params[3]
   source = MixStringConectors(source)
-  dest = MixStringConectors(dest)
+  dest = MixStringConectors(dest or '')
   local buf = (preview_ns ~= nil) and preview_buf or vim.api.nvim_get_current_buf()
 
   local cursor_pos = vim.fn.getpos(".")
   vim.api.nvim_buf_clear_namespace(buf, 1, 0, -1)
 
-
   for _, method in ipairs(M.state.methods_by_command[command]) do
     local transformed_source = method.apply(source)
-    local transformed_dest = method.apply(dest)
+    local transformed_dest = dest == '' and '' or method.apply(dest)
 
     local get_match = utils.get_list(utils.escape_string(transformed_source), mode)
     for match in get_match do
-      conversion.replace_matches(match, transformed_source, transformed_dest, false)
+      if dest ~= '' then
+        conversion.replace_matches(match, transformed_source, transformed_dest, false, buf)
+      end
+      local length = transformed_dest == '' and #transformed_source or #transformed_dest
       if preview_ns ~= nil then
         vim.api.nvim_buf_add_highlight(
           buf,
-          1,
+          preview_ns,
           "Search",
           match[1] - 1,
           match[2] - 1,
-          match[2] - 1 + #transformed_dest
+          match[2] - 1 + length
         )
       end
     end
