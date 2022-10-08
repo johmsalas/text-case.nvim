@@ -3,27 +3,28 @@ local lsp = vim.lsp
 
 local M = {}
 
-function M.replace_matches(match, source, dest, try_lsp)
+function M.replace_matches(match, source, dest, try_lsp, buf)
   if utils.is_empty_position(match) then return end
+  buf = buf or 0
 
   local row, start_col = match[1] - 1, match[2] - 1
   local source_end_col = start_col + string.len(source)
-  local current = utils.nvim_buf_get_text(0, row, start_col, row, source_end_col)
+  local current = utils.nvim_buf_get_text(buf, row, start_col, row, source_end_col)
   if current[1] == source then
     if try_lsp then
       -- not used yet, hard coded to false
       local params = lsp.util.make_position_params()
       params.newName = dest
-      lsp.buf_request(0, 'textDocument/rename', params)
+      lsp.buf_request(buf, 'textDocument/rename', params)
     else
-      vim.api.nvim_buf_set_text(0, row, start_col, row, source_end_col, { dest })
+      vim.api.nvim_buf_set_text(buf, row, start_col, row, source_end_col, { dest })
     end
   end
 end
 
-function M.do_substitution(start_row, start_col, end_row, end_col, method)
-  local lines = utils.nvim_buf_get_text(
-    0,
+function M.do_substitution(start_row, start_col, end_row, end_col, method, buf)
+  buf = buf or 0
+  local lines = utils.nvim_buf_get_text(buf,
     start_row - 1,
     start_col - 1,
     end_row - 1,
@@ -33,7 +34,7 @@ function M.do_substitution(start_row, start_col, end_row, end_col, method)
   local transformed = utils.map(lines, method)
 
   local cursor_pos = vim.fn.getpos(".")
-  vim.api.nvim_buf_set_text(0,
+  vim.api.nvim_buf_set_text(buf,
     start_row - 1,
     start_col - 1,
     end_row - 1,
