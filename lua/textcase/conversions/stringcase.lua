@@ -81,6 +81,11 @@ function M.to_constant_case(str)
   return table.concat(utils.map(parts, string.upper), "_")
 end
 
+function M.to_title_dash_case(str)
+  local parts = vim.split(M.to_dash_case(str), '-')
+  return table.concat(utils.map(parts, toTitle), "-")
+end
+
 function Smart_analysis(str)
   local has_lower_case_characters = false
   local has_upper_case_characters = false
