@@ -106,7 +106,7 @@ local callableTable = {
 
 function utils.create_wrapped_method(desc, method)
   local wrapper = {
-    desc = method(desc),
+    desc = desc,
     apply = method,
   }
   setmetatable(wrapper, callableTable)
