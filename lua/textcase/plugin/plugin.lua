@@ -290,7 +290,13 @@ function M.current_word(case_desc)
   M.state.change_type = constants.change_type.CURRENT_WORD
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
-  vim.api.nvim_feedkeys("g@aw", "i", false)
+
+  local mode = vim.api.nvim_get_mode().mode
+  if mode == 'v' or mode == '\22' or mode == 'V' then
+    vim.api.nvim_feedkeys("g@a", "i", false)
+  else
+    vim.api.nvim_feedkeys("g@aw", "i", false)
+  end
 end
 
 function M.quick_replace(case_desc)
