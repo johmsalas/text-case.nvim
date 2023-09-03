@@ -9,6 +9,7 @@ M.Initialize = function()
   plugin.register_methods(api.to_lower_case)
   plugin.register_methods(api.to_snake_case)
   plugin.register_methods(api.to_dash_case)
+  plugin.register_methods(api.to_title_dash_case)
   plugin.register_methods(api.to_constant_case)
   plugin.register_methods(api.to_dot_case)
   plugin.register_methods(api.to_phrase_case)
@@ -24,6 +25,7 @@ M.Initialize = function()
     api.to_lower_case,
     api.to_snake_case,
     api.to_dash_case,
+    api.to_title_dash_case,
     api.to_constant_case,
     api.to_dot_case,
     api.to_phrase_case,

@@ -29,6 +29,7 @@ local function Create_resulting_cases(prefix_text, conversion_type)
     api.to_lower_case,
     api.to_snake_case,
     api.to_dash_case,
+    api.to_title_dash_case,
     api.to_constant_case,
     api.to_dot_case,
     api.to_phrase_case,

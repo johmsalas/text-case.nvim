@@ -12,6 +12,7 @@ local M = {
     to_lower_case = api.to_lower_case,
     to_snake_case = api.to_snake_case,
     to_dash_case = api.to_dash_case,
+    to_title_dash_case = api.to_title_dash_case,
     to_constant_case = api.to_constant_case,
     to_dot_case = api.to_dot_case,
     to_phrase_case = api.to_phrase_case,

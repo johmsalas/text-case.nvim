@@ -5,6 +5,7 @@ local UPPER_STRING = "LOREM IPSUM DOLOR SIT AMET"
 local LOWER_STRING = "lorem ipsum dolor sit amet"
 local SNAKE_STRING = "lorem_ipsum_dolor_sit_amet"
 local DASH_STRING = "lorem-ipsum-dolor-sit-amet"
+local TITLE_DASH_STRING = "Lorem-Ipsum-Dolor-Sit-Amet"
 local CONSTANT_STRING = "LOREM_IPSUM_DOLOR_SIT_AMET"
 local DOT_STRING = "lorem.ipsum.dolor.sit.amet"
 local PHRASE_STRING = "Lorem ipsum dolor sit amet"
@@ -78,6 +79,23 @@ describe("to_dash_case", function()
     assert.are.same(DASH_STRING, casing.to_dash_case(PASCAL_STRING))
     assert.are.same(DASH_STRING, casing.to_dash_case(TITLE_STRING))
     assert.are.same(DASH_STRING, casing.to_dash_case(PATH_STRING))
+  end)
+end)
+
+describe("to_title_dash_case", function()
+  it("should convert from other cases to dash_case", function()
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(UNFORMATTED_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(UPPER_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(LOWER_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(SNAKE_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(DASH_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(CONSTANT_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(DOT_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(PHRASE_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(CAMEL_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(PASCAL_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(TITLE_STRING))
+    assert.are.same(TITLE_DASH_STRING, casing.to_title_dash_case(PATH_STRING))
   end)
 end)
 
@@ -211,6 +229,7 @@ end)
 -- to_lower_case
 -- to_snake_case
 -- to_dash_case
+-- to_title_dash_case
 -- to_constant_case
 -- to_dot_case
 -- to_phrase_case
