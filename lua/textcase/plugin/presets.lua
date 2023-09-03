@@ -66,6 +66,12 @@ M.setup = function(opts)
     operator = 'oc',
     lsp_rename = 'C',
   })
+  plugin.register_keybindings(prefix, api.to_snake_case, {
+    prefix = prefix,
+    quick_replace = 's',
+    operator = 'os',
+    lsp_rename = 'S',
+  })
   plugin.register_keybindings(prefix, api.to_dash_case, {
     prefix = prefix,
     quick_replace = 'd',
