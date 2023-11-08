@@ -8,6 +8,7 @@ local M = {}
 M.state = {
   register = nil,
   methods_by_desc = {},
+  methods_by_method_name = {},
   methods_by_command = {},
   change_type = nil,
   current_method = nil, -- Since curried vim func operators are not yet supported
@@ -23,6 +24,8 @@ function M.register_methods(method_table, opts)
   -- TODO: validate method_table
   M.state.methods_by_desc[method_table.desc] = method_table
   M.state.methods_by_desc[method_table.desc].opts = opts
+  M.state.methods_by_method_name[method_table.method_name] = method_table
+  M.state.methods_by_method_name[method_table.method_name].opts = opts
 end
 
 function M.register_keybindings(prefix, method_table, keybindings, opts)
@@ -50,7 +53,7 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
       vim.keymap.set(
         mode,
         prefix .. keybindings[feature],
-        "<cmd>lua require('" .. constants.namespace .. "')." .. feature .. "('" .. method_table.desc .. "')<cr>",
+        "<cmd>lua require('" .. constants.namespace .. "')." .. feature .. "('" .. method_table.method_name .. "')<cr>",
         { desc = desc }
       )
 
@@ -61,7 +64,7 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
     local keybind = prefix .. keybindings['quick_replace']
     local desc = 'Convert ' .. method_table.desc
     local command = "<cmd>lua require('" ..
-        constants.namespace .. "')." .. 'quick_replace' .. "('" .. method_table.desc .. "')<cr>"
+        constants.namespace .. "')." .. 'quick_replace' .. "('" .. method_table.method_name .. "')<cr>"
 
     vim.keymap.set('n', keybind, command, { desc = desc })
     vim.keymap.set('v', keybind, command, { desc = desc })
@@ -189,7 +192,7 @@ function M.operator(method_key)
 end
 
 function M.operator_callback(vmode)
-  local method = M.state.methods_by_desc[M.state.current_method]
+  local method = M.state.methods_by_method_name[M.state.current_method]
   local apply = method.apply
 
   if M.state.change_type == constants.change_type.LSP_RENAME then
@@ -242,9 +245,9 @@ function M.operator_callback(vmode)
   M.state.telescope_previous_visual_register = nil
 end
 
-function M.line(case_desc)
+function M.line(case_method)
   M.state.register = vim.v.register
-  M.state.current_method = case_desc
+  M.state.current_method = case_method
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   local keys = vim.api.nvim_replace_termcodes(
     string.format("g@:normal! 0v%s$<cr>", vim.v.count > 0 and vim.v.count - 1 .. "j" or ""),
@@ -255,16 +258,16 @@ function M.line(case_desc)
   vim.api.nvim_feedkeys(keys, "i", false)
 end
 
-function M.eol(case_desc)
+function M.eol(case_method)
   M.state.register = vim.v.register
-  M.state.current_method = case_desc
+  M.state.current_method = case_method
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@$", "i", false)
 end
 
-function M.visual(case_desc)
+function M.visual(case_method)
   M.state.register = vim.v.register
-  M.state.current_method = case_desc
+  M.state.current_method = case_method
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
 
   if M.state.telescope_previous_visual_region ~= nil then
@@ -275,27 +278,27 @@ function M.visual(case_desc)
   end
 end
 
-function M.lsp_rename(case_desc)
+function M.lsp_rename(case_method)
   M.state.register = vim.v.register
-  M.state.current_method = case_desc
+  M.state.current_method = case_method
   M.state.change_type = constants.change_type.LSP_RENAME
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@iw", "i", false)
 end
 
-function M.current_word(case_desc)
+function M.current_word(case_method)
   M.state.register = vim.v.register
-  M.state.current_method = case_desc
+  M.state.current_method = case_method
   M.state.change_type = constants.change_type.CURRENT_WORD
 
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@aw", "i", false)
 end
 
-function M.quick_replace(case_desc)
+function M.quick_replace(case_method)
   M.state.register = vim.v.register
-  M.state.current_method = case_desc
+  M.state.current_method = case_method
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   M.state.change_type = constants.change_type.QUICK_REPLACE
 

@@ -12,11 +12,11 @@ local function invoke_replacement(prompt_bufnr)
     if type(change) ~= 'table' then return end
 
     if change.type == constants.change_type.CURRENT_WORD then
-      plugin.current_word(change.method_desc)
+      plugin.current_word(change.method_name)
     elseif change.type == constants.change_type.LSP_RENAME then
-      plugin.lsp_rename(change.method_desc)
+      plugin.lsp_rename(change.method_name)
     elseif change.type == constants.change_type.VISUAL then
-      plugin.visual(change.method_desc)
+      plugin.visual(change.method_name)
     end
   end
 end
@@ -40,7 +40,7 @@ local function Create_resulting_cases(prefix_text, conversion_type)
   }) do
     table.insert(results, {
       display = prefix_text .. method.desc,
-      method_desc = method.desc,
+      method_name = method.method_name,
       type = conversion_type,
     })
   end
