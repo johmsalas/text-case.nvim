@@ -11,3 +11,11 @@ jobs:
       uses: asdf-vm/actions/install@v2
     - name: Run StyLua
       run: stylua --check .
+  Tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install asdf & tools
+      uses: asdf-vm/actions/install@v2
+    - name: Run tests
+      run: ./tests/run.sh
