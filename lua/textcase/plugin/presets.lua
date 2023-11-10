@@ -1,7 +1,7 @@
 local M = {}
 
-local plugin = require('textcase.plugin.plugin')
-local api = require('textcase.plugin.api')
+local plugin = require("textcase.plugin.plugin")
+local api = require("textcase.plugin.api")
 local whichkey = require("textcase.extensions.whichkey")
 
 M.Initialize = function()
@@ -20,7 +20,7 @@ M.Initialize = function()
   plugin.register_methods(api.to_upper_phrase_case)
   plugin.register_methods(api.to_lower_phrase_case)
 
-  plugin.register_replace_command('Subs', {
+  plugin.register_replace_command("Subs", {
     api.to_upper_case,
     api.to_lower_case,
     api.to_snake_case,
@@ -39,64 +39,64 @@ M.Initialize = function()
 end
 
 M.setup = function(opts)
-  local prefix = opts and opts.prefix or 'ga'
+  local prefix = opts and opts.prefix or "ga"
 
-  whichkey.register('v', {
+  whichkey.register("v", {
     [prefix] = {
-      name = 'text-case',
-    }
+      name = "text-case",
+    },
   })
 
-  whichkey.register('n', {
+  whichkey.register("n", {
     [prefix] = {
-      name = 'text-case',
+      name = "text-case",
       o = {
-        name = 'Pending mode operator'
-      }
-    }
+        name = "Pending mode operator",
+      },
+    },
   })
 
   plugin.register_keybindings(prefix, api.to_constant_case, {
     prefix = prefix,
-    quick_replace = 'n',
-    operator = 'on',
-    lsp_rename = 'N',
+    quick_replace = "n",
+    operator = "on",
+    lsp_rename = "N",
   })
   plugin.register_keybindings(prefix, api.to_camel_case, {
     prefix = prefix,
-    quick_replace = 'c',
-    operator = 'oc',
-    lsp_rename = 'C',
+    quick_replace = "c",
+    operator = "oc",
+    lsp_rename = "C",
   })
   plugin.register_keybindings(prefix, api.to_snake_case, {
     prefix = prefix,
-    quick_replace = 's',
-    operator = 'os',
-    lsp_rename = 'S',
+    quick_replace = "s",
+    operator = "os",
+    lsp_rename = "S",
   })
   plugin.register_keybindings(prefix, api.to_dash_case, {
     prefix = prefix,
-    quick_replace = 'd',
-    operator = 'od',
-    lsp_rename = 'D',
+    quick_replace = "d",
+    operator = "od",
+    lsp_rename = "D",
   })
   plugin.register_keybindings(prefix, api.to_pascal_case, {
     prefix = prefix,
-    quick_replace = 'p',
-    operator = 'op',
-    lsp_rename = 'P',
+    quick_replace = "p",
+    operator = "op",
+    lsp_rename = "P",
   })
   plugin.register_keybindings(prefix, api.to_upper_case, {
     prefix = prefix,
-    quick_replace = 'u',
-    operator = 'ou',
-    lsp_rename = 'U',
+    quick_replace = "u",
+    operator = "ou",
+    lsp_rename = "U",
   })
   plugin.register_keybindings(prefix, api.to_lower_case, {
     prefix = prefix,
-    quick_replace = 'l',
-    operator = 'ol',
-    lsp_rename = 'L',
+    quick_replace = "l",
+    operator = "ol",
+    lsp_rename = "L",
   })
 end
 

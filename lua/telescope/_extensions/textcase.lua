@@ -1,15 +1,17 @@
-local plugin = require('textcase.plugin.plugin')
+local plugin = require("textcase.plugin.plugin")
 local constants = require("textcase.shared.constants")
-local api = require('textcase').api
-local actions = require "telescope.actions"
-local action_state = require "telescope.actions.state"
+local api = require("textcase").api
+local actions = require("telescope.actions")
+local action_state = require("telescope.actions.state")
 
 local function invoke_replacement(prompt_bufnr)
   return function()
     actions.close(prompt_bufnr)
     local selection = action_state.get_selected_entry()
     local change = selection.value
-    if type(change) ~= 'table' then return end
+    if type(change) ~= "table" then
+      return
+    end
 
     if change.type == constants.change_type.CURRENT_WORD then
       plugin.current_word(change.method_name)
@@ -46,65 +48,68 @@ local function Create_resulting_cases(prefix_text, conversion_type)
   end
 
   return results
-
 end
 
 local function telescope_normal_mode_quick_change(opts)
   opts = opts or require("telescope.themes").get_cursor()
-  local results = Create_resulting_cases('Convert to ', constants.change_type.CURRENT_WORD)
+  local results = Create_resulting_cases("Convert to ", constants.change_type.CURRENT_WORD)
 
-  require("telescope.pickers").new(opts, {
-    prompt_title = "Text Case",
-    finder = require("telescope.finders").new_table({
-      results = results,
-      entry_maker = function(entry)
-        return {
-          value = entry,
-          display = entry.display,
-          ordinal = entry.display,
-        }
+  require("telescope.pickers")
+    .new(opts, {
+      prompt_title = "Text Case",
+      finder = require("telescope.finders").new_table({
+        results = results,
+        entry_maker = function(entry)
+          return {
+            value = entry,
+            display = entry.display,
+            ordinal = entry.display,
+          }
+        end,
+      }),
+      sorter = require("telescope.config").values.generic_sorter(opts),
+      attach_mappings = function(prompt_bufnr, map)
+        local curried_method = invoke_replacement(prompt_bufnr)
+        map("i", "<CR>", curried_method)
+        map("n", "<CR>", curried_method)
+        return true
       end,
-    }),
-    sorter = require("telescope.config").values.generic_sorter(opts),
-    attach_mappings = function(prompt_bufnr, map)
-      local curried_method = invoke_replacement(prompt_bufnr)
-      map("i", "<CR>", curried_method)
-      map("n", "<CR>", curried_method)
-      return true
-    end,
-  }):find()
+    })
+    :find()
 end
 
 local function telescope_normal_mode_lsp_change(opts)
   opts = opts or require("telescope.themes").get_cursor()
-  local results = Create_resulting_cases('LSP rename ', constants.change_type.LSP_RENAME)
+  local results = Create_resulting_cases("LSP rename ", constants.change_type.LSP_RENAME)
 
-  require("telescope.pickers").new(opts, {
-    prompt_title = "Text Case",
-    finder = require("telescope.finders").new_table({
-      results = results,
-      entry_maker = function(entry)
-        return {
-          value = entry,
-          display = entry.display,
-          ordinal = entry.display,
-        }
+  require("telescope.pickers")
+    .new(opts, {
+      prompt_title = "Text Case",
+      finder = require("telescope.finders").new_table({
+        results = results,
+        entry_maker = function(entry)
+          return {
+            value = entry,
+            display = entry.display,
+            ordinal = entry.display,
+          }
+        end,
+      }),
+      sorter = require("telescope.config").values.generic_sorter(opts),
+      attach_mappings = function(prompt_bufnr, map)
+        local curried_method = invoke_replacement(prompt_bufnr)
+        map("i", "<CR>", curried_method)
+        map("n", "<CR>", curried_method)
+        return true
       end,
-    }),
-    sorter = require("telescope.config").values.generic_sorter(opts),
-    attach_mappings = function(prompt_bufnr, map)
-      local curried_method = invoke_replacement(prompt_bufnr)
-      map("i", "<CR>", curried_method)
-      map("n", "<CR>", curried_method)
-      return true
-    end,
-  }):find()
+    })
+    :find()
 end
 
 local function telescope_normal_mode_change(opts)
   opts = opts or require("telescope.themes").get_cursor()
-  local resultsQuickConversion = Create_resulting_cases('Convert to ', constants.change_type.CURRENT_WORD)
-  local resultsLSPConversion = Create_resulting_cases('LSP rename ', constants.change_type.LSP_RENAME)
+  local resultsQuickConversion = Create_resulting_cases("Convert to ", constants.change_type.CURRENT_WORD)
+  local resultsLSPConversion = Create_resulting_cases("LSP rename ", constants.change_type.LSP_RENAME)
 
   local results = {}
   local k = 1
@@ -117,54 +122,57 @@ local function telescope_normal_mode_change(opts)
     k = k + 1
   end
 
-
-  require("telescope.pickers").new(opts, {
-    prompt_title = "Text Case",
-    finder = require("telescope.finders").new_table({
-      results = results,
-      entry_maker = function(entry)
-        return {
-          value = entry,
-          display = entry.display,
-          ordinal = entry.display,
-        }
+  require("telescope.pickers")
+    .new(opts, {
+      prompt_title = "Text Case",
+      finder = require("telescope.finders").new_table({
+        results = results,
+        entry_maker = function(entry)
+          return {
+            value = entry,
+            display = entry.display,
+            ordinal = entry.display,
+          }
+        end,
+      }),
+      sorter = require("telescope.config").values.generic_sorter(opts),
+      attach_mappings = function(prompt_bufnr, map)
+        local curried_method = invoke_replacement(prompt_bufnr)
+        map("i", "<CR>", curried_method)
+        map("n", "<CR>", curried_method)
+        return true
       end,
-    }),
-    sorter = require("telescope.config").values.generic_sorter(opts),
-    attach_mappings = function(prompt_bufnr, map)
-      local curried_method = invoke_replacement(prompt_bufnr)
-      map("i", "<CR>", curried_method)
-      map("n", "<CR>", curried_method)
-      return true
-    end,
-  }):find()
+    })
+    :find()
 end
 
 local function telescope_visual_mode_change(opts)
   opts = opts or require("telescope.themes").get_cursor()
 
-  local results = Create_resulting_cases('Convert to ', constants.change_type.VISUAL)
+  local results = Create_resulting_cases("Convert to ", constants.change_type.VISUAL)
 
-  require("telescope.pickers").new(opts, {
-    prompt_title = "Text Case",
-    finder = require("telescope.finders").new_table({
-      results = results,
-      entry_maker = function(entry)
-        return {
-          value = entry,
-          display = entry.display,
-          ordinal = entry.display,
-        }
+  require("telescope.pickers")
+    .new(opts, {
+      prompt_title = "Text Case",
+      finder = require("telescope.finders").new_table({
+        results = results,
+        entry_maker = function(entry)
+          return {
+            value = entry,
+            display = entry.display,
+            ordinal = entry.display,
+          }
+        end,
+      }),
+      sorter = require("telescope.config").values.generic_sorter(opts),
+      attach_mappings = function(prompt_bufnr, map)
+        local curried_method = invoke_replacement(prompt_bufnr)
+        map("i", "<CR>", curried_method)
+        map("n", "<CR>", curried_method)
+        return true
       end,
-    }),
-    sorter = require("telescope.config").values.generic_sorter(opts),
-    attach_mappings = function(prompt_bufnr, map)
-      local curried_method = invoke_replacement(prompt_bufnr)
-      map("i", "<CR>", curried_method)
-      map("n", "<CR>", curried_method)
-      return true
-    end,
-  }):find()
+    })
+    :find()
 end
 
 return require("telescope").register_extension({

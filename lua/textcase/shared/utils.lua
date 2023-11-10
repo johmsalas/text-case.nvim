@@ -3,9 +3,9 @@ local constants = require("textcase.shared.constants")
 
 function utils.get_mode_at_operator(vmode)
   local visual_mode = nil
-  if vmode == 'v' then
+  if vmode == "v" then
     visual_mode = constants.visual_mode.INLINE
-  elseif vmode == 'V' then
+  elseif vmode == "V" then
     visual_mode = constants.visual_mode.LINE
   elseif vmode == "block" then
     visual_mode = constants.visual_mode.BLOCK
@@ -17,11 +17,11 @@ end
 function Get_visual_mode(forced_mode)
   local mode = forced_mode or vim.api.nvim_get_mode().mode
 
-  if mode == 'v' then
+  if mode == "v" then
     return constants.visual_mode.INLINE
-  elseif mode == 'V' then
+  elseif mode == "V" then
     return constants.visual_mode.LINE
-  elseif mode == '\22' then
+  elseif mode == "\22" then
     return constants.visual_mode.BLOCK
   end
 
@@ -38,8 +38,9 @@ function utils.get_visual_region(buffer, updated, forced_mode, detected_mode)
     sln = { spos[2], spos[3] - 1 }
     eln = { epos[2], epos[3] - 1 }
 
-    visual_mode = detected_mode or utils.is_same_position(spos, epos)
-        and constants.visual_mode.NONE or Get_visual_mode(forced_mode)
+    visual_mode = detected_mode
+      or utils.is_same_position(spos, epos) and constants.visual_mode.NONE
+      or Get_visual_mode(forced_mode)
   else
     visual_mode = detected_mode or Get_visual_mode(forced_mode)
 
@@ -101,7 +102,7 @@ end
 local callableTable = {
   __call = function(self, ...)
     return self.apply(...)
-  end
+  end,
 }
 
 function utils.create_wrapped_method(method_name, method, desc)
@@ -130,7 +131,9 @@ end
 
 function utils.tablelength(T)
   local count = 0
-  for _ in pairs(T) do count = count + 1 end
+  for _ in pairs(T) do
+    count = count + 1
+  end
   return count
 end
 
@@ -154,12 +157,16 @@ function utils.is_same_position(a, b)
 end
 
 function utils.is_empty_position(pos)
-  if (pos == nil) then return true end
+  if pos == nil then
+    return true
+  end
   return pos[1] == 0 and pos[2] == 0
 end
 
 function utils.is_cursor_in_range(point, region)
-  if region.mode == constants.visual_mode.NONE then return true end
+  if region.mode == constants.visual_mode.NONE then
+    return true
+  end
 
   if region.mode == constants.visual_mode.INLINE or region.vmode == constants.visual_mode.LINE then
     local is_between_lines = point[1] > region.start_row and point[1] < region.end_row
@@ -170,8 +177,10 @@ function utils.is_cursor_in_range(point, region)
   end
 
   if region.mode == constants.visual_mode.BLOCK then
-    local is_inside_square = point[1] >= region.start_row and point[1] <= region.end_row
-        and point[2] >= region.start_col and point[2] <= region.end_col
+    local is_inside_square = point[1] >= region.start_row
+      and point[1] <= region.end_row
+      and point[2] >= region.start_col
+      and point[2] <= region.end_col
 
     return is_inside_square
   end
@@ -185,7 +194,7 @@ function utils.trim_str(str, _trimmable_chars)
   local chars = vim.split(str, "")
   local startCount = 0
   local endCount = 0
-  local trimmable_chars = _trimmable_chars or { ' ', '\'', '"', '{', '}', ',' }
+  local trimmable_chars = _trimmable_chars or { " ", "'", '"', "{", "}", "," }
   local trimmable_chars_by_char = {}
 
   for i = 1, #trimmable_chars, 1 do
@@ -220,11 +229,7 @@ function utils.trim_str(str, _trimmable_chars)
     end_trim = string.sub(str, #chars - endCount + 1),
   }
 
-  local trimmed_str = string.sub(
-    str,
-    startCount + 1,
-    #chars - endCount
-  ) or ''
+  local trimmed_str = string.sub(str, startCount + 1, #chars - endCount) or ""
 
   return trim_info, trimmed_str
 end
@@ -236,10 +241,7 @@ function utils.get_list(str, mode)
 
   local region = utils.get_visual_region(nil, true, mode)
 
-  while initial == nil or (
-      not utils.is_empty_position(next)
-          and not utils.is_same_position(next, initial)
-      ) do
+  while initial == nil or (not utils.is_empty_position(next) and not utils.is_same_position(next, initial)) do
     if not utils.is_empty_position(next) then
       limit = 1 + limit
       if initial == nil then
@@ -248,7 +250,9 @@ function utils.get_list(str, mode)
     end
     next = vim.fn.searchpos(str)
 
-    if initial == nil then initial = false end
+    if initial == nil then
+      initial = false
+    end
   end
 
   local first_call = true
@@ -257,8 +261,9 @@ function utils.get_list(str, mode)
     limit = limit - 1
     next = vim.fn.searchpos(str)
 
-    if utils.is_empty_position(next) then return nil end
-
+    if utils.is_empty_position(next) then
+      return nil
+    end
 
     if first_call then
       first_call = false
@@ -271,14 +276,21 @@ function utils.get_list(str, mode)
     while not utils.is_cursor_in_range(next, region) do
       limit = limit - 1
       next = vim.fn.searchpos(str)
-      if utils.is_empty_position(next) then return nil end
+      if utils.is_empty_position(next) then
+        return nil
+      end
 
-      if limit < 0 then return nil end
+      if limit < 0 then
+        return nil
+      end
     end
 
-
-    if limit < 0 then return nil end
-    if utils.is_same_position(initial, next) then return nil end
+    if limit < 0 then
+      return nil
+    end
+    if utils.is_same_position(initial, next) then
+      return nil
+    end
 
     return next
   end
