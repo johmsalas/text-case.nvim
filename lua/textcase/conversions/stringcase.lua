@@ -2,15 +2,42 @@ local utils = require("textcase.shared.utils")
 
 local M = {}
 
-local codes = {
-  a = string.byte("a"),
-  z = string.byte("z"),
-  A = string.byte("A"),
-  Z = string.byte("Z"),
-}
+local is_special = function(b)
+  return b <= 0x2F or (b >= 0x3A and b <= 0x3F) or (b >= 0x5B and b <= 0x60) or (b >= 0x7B and b <= 0x7F)
+end
+
+local is_upper = function(b)
+  return b >= 0x41 and b <= 0x5A
+end
 
 local toTitle = function(str)
   return string.sub(str, 1, 1):upper() .. string.sub(str, 2):lower()
+end
+
+function M.to_parts(str)
+  local has_lower = str:find("[a-z]") ~= nil
+
+  local parts = {}
+  local new_part = true
+  for i = 1, str:len() do
+    local b = str:byte(i)
+    if is_special(b) then
+      new_part = true
+    else
+      if is_upper(b) and has_lower then
+        new_part = true
+      end
+
+      if new_part then
+        table.insert(parts, "")
+        new_part = false
+      end
+
+      parts[#parts] = parts[#parts] .. str:sub(i, i)
+    end
+  end
+
+  return parts
 end
 
 function M.to_pascal_case(str)
@@ -82,72 +109,11 @@ function M.to_title_dash_case(str)
   return table.concat(utils.map(parts, toTitle), "-")
 end
 
-function Smart_analysis(str)
-  local has_lower_case_characters = false
-  local has_upper_case_characters = false
-  local separators_dict = {}
-  local separators = {}
+function M.to_dash_case(str)
+  local trim_info, s = utils.trim_str(str)
 
-  for current in str:gmatch(".") do
-    local code = string.byte(current)
-    local is_lower = code >= codes.a and code <= codes.z
-    local is_upper = code >= codes.A and code <= codes.Z
-
-    if is_lower then
-      has_lower_case_characters = true
-    end
-    if is_upper then
-      has_upper_case_characters = true
-    end
-
-    if current == "." or current == "-" or current == "_" or current == " " then
-      if separators_dict[current] == nil then
-        separators_dict[current] = current
-        table.insert(separators, current)
-      end
-    end
-  end
-
-  return has_lower_case_characters, has_upper_case_characters, separators
-end
-
-function M.to_dash_case(_str)
-  local previous = nil
-  local items = {}
-
-  local trim_info, str = utils.trim_str(_str)
-
-  local ends_with_space = string.sub(str, -1) == " "
-  local has_lower_case_characters, _, separators = Smart_analysis(str)
-
-  for current in str:gmatch(".") do
-    local previous_code = previous and string.byte(previous) or 0
-    local current_code = string.byte(current)
-
-    local is_previous_lower = previous_code >= codes.a and previous_code <= codes.z
-    local is_previous_upper = previous_code >= codes.A and previous_code <= codes.Z
-    local is_current_lower = current_code >= codes.a and current_code <= codes.z
-    local is_current_upper = current_code >= codes.A and current_code <= codes.Z
-
-    local is_previous_alphabet = is_previous_lower or is_previous_upper
-    local current_can_continue_word = is_current_lower
-      or (is_current_upper and not has_lower_case_characters and #separators > 0)
-
-    if previous == nil or (is_previous_alphabet and not current_can_continue_word) then
-      table.insert(items, "")
-    end
-
-    if is_current_upper or is_current_lower then
-      items[#items] = items[#items] .. current
-    end
-
-    previous = current
-  end
-
-  local result = table.concat(
-    utils.map({ unpack(items, 1, ends_with_space and (#items - 1) or #items) }, string.lower),
-    "-"
-  ) .. (ends_with_space and " " or "")
+  local parts = M.to_parts(s)
+  local result = table.concat(utils.map(parts, string.lower), "-")
 
   return utils.untrim_str(result, trim_info)
 end
