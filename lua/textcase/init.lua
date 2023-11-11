@@ -1,8 +1,8 @@
-local plugin = require('textcase.plugin.plugin')
-local utils = require('textcase.shared.utils')
-local sniplua = require('textcase.extensions.sniplua')
-local presets = require('textcase.plugin.presets')
-local api = require('textcase.plugin.api')
+local plugin = require("textcase.plugin.plugin")
+local utils = require("textcase.shared.utils")
+local sniplua = require("textcase.extensions.sniplua")
+local presets = require("textcase.plugin.presets")
+local api = require("textcase.plugin.api")
 
 local c = utils.create_wrapped_method
 

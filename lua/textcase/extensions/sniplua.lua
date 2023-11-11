@@ -1,19 +1,19 @@
 local M = {}
 
 function M.from_snip_input(string_convert)
-  local ls = require"luasnip"
+  local ls = require("luasnip")
   local sn = ls.snippet_node
   local i = ls.insert_node
   local t = ls.text_node
 
   return function(args)
-    if args[1][1] == '' then
+    if args[1][1] == "" then
       return sn(nil, {
-        i(1)
+        i(1),
       })
     else
       return sn(nil, {
-        t(M.flatten_multilines(string_convert)(args))
+        t(M.flatten_multilines(string_convert)(args)),
       })
     end
   end
@@ -21,7 +21,9 @@ end
 
 function M.flatten_multilines(string_convert)
   return function(args)
-    if (args == nil) then return string_convert('') end
+    if args == nil then
+      return string_convert("")
+    end
 
     local output = {}
     for _, lines in ipairs(args) do

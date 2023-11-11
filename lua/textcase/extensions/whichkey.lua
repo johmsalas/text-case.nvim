@@ -15,10 +15,10 @@ function M.register(mode, mappings)
       silent = true,
       noremap = true,
       nowait = true,
-    }
+    },
   }
 
-  local ok, whichkey = pcall(require, 'which-key')
+  local ok, whichkey = pcall(require, "which-key")
   if ok then
     whichkey.register(mappings, opts[mode])
   end

@@ -1,10 +1,12 @@
-local utils = require('textcase.shared.utils')
+local utils = require("textcase.shared.utils")
 local lsp = vim.lsp
 
 local M = {}
 
 function M.replace_matches(match, source, dest, try_lsp, buf)
-  if utils.is_empty_position(match) then return end
+  if utils.is_empty_position(match) then
+    return
+  end
   buf = buf or 0
 
   local row, start_col = match[1] - 1, match[2] - 1
@@ -15,7 +17,7 @@ function M.replace_matches(match, source, dest, try_lsp, buf)
       -- not used yet, hard coded to false
       local params = lsp.util.make_position_params()
       params.newName = dest
-      lsp.buf_request(buf, 'textDocument/rename', params)
+      lsp.buf_request(buf, "textDocument/rename", params)
     else
       vim.api.nvim_buf_set_text(buf, row, start_col, row, source_end_col, { dest })
     end
@@ -24,27 +26,14 @@ end
 
 function M.do_substitution(start_row, start_col, end_row, end_col, method, buf)
   buf = buf or 0
-  local lines = utils.nvim_buf_get_text(buf,
-    start_row - 1,
-    start_col - 1,
-    end_row - 1,
-    end_col
-  )
+  local lines = utils.nvim_buf_get_text(buf, start_row - 1, start_col - 1, end_row - 1, end_col)
 
   local transformed = utils.map(lines, method)
 
   local cursor_pos = vim.fn.getpos(".")
-  vim.api.nvim_buf_set_text(buf,
-    start_row - 1,
-    start_col - 1,
-    end_row - 1,
-    end_col,
-    transformed
-  )
+  vim.api.nvim_buf_set_text(buf, start_row - 1, start_col - 1, end_row - 1, end_col, transformed)
   local new_cursor_pos = cursor_pos
-  if cursor_pos[1] ~= start_row or (
-      cursor_pos[2] < start_col
-      ) then
+  if cursor_pos[1] ~= start_row or (cursor_pos[2] < start_col) then
     new_cursor_pos = { 0, start_row, start_col }
   end
   vim.fn.setpos(".", new_cursor_pos)
@@ -67,19 +56,17 @@ function M.do_block_substitution(start_row, start_col, end_row, end_col, method)
   end
 
   local new_cursor_pos = cursor_pos
-  if cursor_pos[1] ~= start_row or (
-      cursor_pos[2] < start_col
-      ) then
+  if cursor_pos[1] ~= start_row or (cursor_pos[2] < start_col) then
     new_cursor_pos = { 0, start_row, start_col }
   end
   vim.fn.setpos(".", new_cursor_pos)
 end
 
 function M.do_lsp_rename(method)
-  local current_word = vim.fn.expand('<cword>')
+  local current_word = vim.fn.expand("<cword>")
   local params = lsp.util.make_position_params()
   params.newName = method(current_word)
-  lsp.buf_request(0, 'textDocument/rename', params)
+  lsp.buf_request(0, "textDocument/rename", params)
 end
 
 return M
