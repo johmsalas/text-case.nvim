@@ -1,4 +1,4 @@
-local stringcase = require("textcase.plugin.plugin")
+local textcase = require("textcase")
 
 local function get_buf_lines()
   local result = vim.api.nvim_buf_get_lines(0, 0, vim.api.nvim_buf_line_count(0), false)
@@ -10,16 +10,16 @@ local function execute_keys(feedkeys)
   vim.api.nvim_feedkeys(keys, "x", false)
 end
 
-describe("stringcase", function()
+describe("plugin", function()
   before_each(function()
-    stringcase.setup()
+    -- Init has to be called in the plugin tests because in normal usage it is
+    -- loaded in the plugin/start.vim file
+    textcase.init()
+
+    textcase.setup()
 
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_command("buffer " .. buf)
-
-    vim.api.nvim_set_keymap("n", "gsUU", "<cmd>lua require('stringcase').line('uppercase')<cr>", { noremap = true })
-    vim.api.nvim_set_keymap("n", "gSU", "<cmd>lua require('stringcase').eol('uppercase')<cr>", { noremap = true })
-    vim.api.nvim_set_keymap("n", "gsU", "<cmd>lua require('stringcase').operator('uppercase')<cr>", { noremap = true })
 
     vim.api.nvim_buf_set_lines(0, 0, -1, true, {
       "Lorem",
@@ -30,13 +30,19 @@ describe("stringcase", function()
     })
   end)
 
-  -- it("should stringcase line", function()
-  --   execute_keys("yw")
-  --   execute_keys("j")
-  --   execute_keys("gsUU")
+  it("should text-case word", function()
+    execute_keys("j")
+    execute_keys("gau")
 
-  --   assert.are.same({ "Lorem", "IPSUM", "dolor", "sit", "amet" }, get_buf_lines())
-  -- end)
+    assert.are.same({ "Lorem", "IPSUM", "dolor", "sit", "amet" }, get_buf_lines())
+  end)
+
+  it("should text-case word with lua function", function()
+    execute_keys("j")
+    execute_keys("<CMD>lua require('textcase').current_word('to_upper_case')<CR>")
+
+    assert.are.same({ "Lorem", "IPSUM", "dolor", "sit", "amet" }, get_buf_lines())
+  end)
 
   -- it("should stringcase line from register", function()
   --   vim.fn.setreg("a", "stringcase", "")
