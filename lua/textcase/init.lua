@@ -35,6 +35,7 @@ local M = {
     toggle_boolean = presets.toggle_boolean,
   },
   setup = presets.setup,
+  init = presets.Initialize,
   register_keybindings = plugin.register_keybindings,
   register_keys = plugin.register_keys,
   register_replace_command = plugin.register_replace_command,
