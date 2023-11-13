@@ -13,9 +13,22 @@ jobs:
       run: stylua --check .
   Tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # For all versions see https://github.com/neovim/neovim/tags
+          - neovim: 0.8.3
+          - neovim: 0.9.4
+          - neovim: nightly
+    name: "Test with Neovim ${{ matrix.neovim }}"
     steps:
     - uses: actions/checkout@v4
     - name: Install asdf & tools
       uses: asdf-vm/actions/install@v2
+      with:
+        tool_versions: |
+          neovim ${{ matrix.neovim }}
     - name: Run tests
-      run: ./tests/run.sh
+      run: |
+        nvim --version
+        ./tests/run.sh
