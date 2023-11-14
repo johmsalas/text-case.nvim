@@ -19,7 +19,6 @@ jobs:
           # For all versions see https://github.com/neovim/neovim/tags
           - neovim: 0.8.3
           - neovim: 0.9.4
-          - neovim: nightly
     name: "Test with Neovim ${{ matrix.neovim }}"
     steps:
     - uses: actions/checkout@v4
