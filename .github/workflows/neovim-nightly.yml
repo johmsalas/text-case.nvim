@@ -1,11 +1,14 @@
 name: Neovim Nightly
 
-on: [pull_request]
+on: 
+  schedule:
+    # Checks daily
+    - cron: '17 11 * * *'
 
 jobs:
   TestsOnNightly:
     runs-on: ubuntu-latest
-    name: "Test with Neovim Nightly"
+    name: "Tests with Neovim Nightly"
     steps:
     - uses: actions/checkout@v4
     - name: Install asdf & tools
