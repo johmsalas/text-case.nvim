@@ -1,0 +1,19 @@
+name: Neovim Nightly
+
+on: [pull_request]
+
+jobs:
+  TestsOnNightly:
+    runs-on: ubuntu-latest
+    name: "Test with Neovim Nightly"
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install asdf & tools
+      uses: asdf-vm/actions/install@v2
+      with:
+        tool_versions: |
+          neovim nightly
+    - name: Run Tests on Nightly Neovim
+      run: |
+        nvim --version
+        ./tests/run.sh
