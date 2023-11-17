@@ -9,7 +9,7 @@ An all in one plugin for converting text case in Neovim. It converts a piece of 
 
 ### Quick conversion
 
-Converts text under cursor to another case. Only 3 keys to convert the current text. 
+Converts text under cursor to another case. Only 3 keys to convert the current text.
 <sub>Repeatable using `.`</sub>
 
 Smartly guesses the current object using the following strategies:
@@ -26,7 +26,7 @@ Converts definition under cursor to another case. Use Language Server Protocol t
 
 ### Targeted conversion
 
-Converts given objects, it might require more key presses than the quick conversion but allows to control the specific target. 
+Converts given objects, it might require more key presses than the quick conversion but allows to control the specific target.
 <sub>Repeatable using `.`</sub>
 
 Supported targets:
@@ -161,3 +161,6 @@ A requirement for LSP rename to work is to have LSP set in the buffer and the La
 
 To triage it, trigger LSP renaming using `:lua vim.lsp.buf.rename()` while the cursor is on the symbol. If it works, file an issue on this plugin
 
+## Development
+
+Useful commands are defined in the [`Justfile`](Justfile) and can be listed with [`just`](https://github.com/casey/just).
