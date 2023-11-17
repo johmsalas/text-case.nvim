@@ -1,6 +1,8 @@
 local utils = require("textcase.shared.utils")
 local lsp = vim.lsp
 
+local flag_buf_request_all = vim.fn.has("nvim-0.10") == 1
+
 local M = {}
 
 function M.replace_matches(match, source, dest, try_lsp, buf)
@@ -63,12 +65,47 @@ function M.do_block_substitution(start_row, start_col, end_row, end_col, method)
 end
 
 function M.do_lsp_rename(method)
+  local did_apply_lsp_rename = false
+
+  local lsp_clients = vim.lsp.get_active_clients()
+
+  local lsp_handler_rename = vim.lsp.handlers["textDocument/rename"]
+  local handleLSPRenameFinished = function(applied_lsp_rename)
+    if not applied_lsp_rename then
+      vim.print("LSP rename failed. Verify attached Language Server supports it.")
+    end
+  end
+
   local current_word = vim.fn.expand("<cword>")
   local params = lsp.util.make_position_params()
   params.newName = method(current_word)
-  lsp.buf_request(0, "textDocument/rename", params, function(err, result, context, config)
-    vim.lsp.handlers["textDocument/rename"](nil, result, context)
-  end)
+  if flag_buf_request_all then
+    lsp.buf_request_all(0, "textDocument/rename", params, function(results)
+      for _, res in pairs(results or {}) do
+        vim.print(res)
+        if res.result and vim.tbl_count(res.result.changes) > 0 then
+          -- TODO: Call default handler
+          -- lsp_handler_rename(res.result.err, result, context)
+          did_apply_lsp_rename = true
+        end
+      end
+      handleLSPRenameFinished(did_apply_lsp_rename)
+    end)
+  else
+    local processed_clients = 0
+    lsp.buf_request(0, "textDocument/rename", params, function(err, result, context)
+      lsp_handler_rename(err, result, context)
+
+      processed_clients = processed_clients + 1
+      if not err then
+        did_apply_lsp_rename = true
+      end
+
+      if processed_clients == vim.tbl_count(lsp_clients) then
+        handleLSPRenameFinished(did_apply_lsp_rename)
+      end
+    end)
+  end
 end
 
 return M
