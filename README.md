@@ -18,9 +18,9 @@ Converts text under cursor to another case. Only 3 keys to convert the current t
 
 Smartly guesses the current object using the following strategies:
 
-* Tree Sitter (if available) [WIP]
-* Word under cursor
-* Ignore word separators
+- Tree Sitter (if available) [WIP]
+- Word under cursor
+- Ignore word separators
 
 ### LSP conversion
 
@@ -34,8 +34,8 @@ Converts given objects, it might require more key presses than the quick convers
 
 Supported targets:
 
-* Vim objects: w, iw, aw, e, p, ...
-* Selected text in visual mode
+- Vim objects: w, iw, aw, e, p, ...
+- Selected text in visual mode
 
 ### Bulk smart replacement
 
@@ -49,8 +49,8 @@ If not specified, it replaces every instance of the text in the current file; Bu
 
 It is also a library of text case conversion methods. Useful for your LUA code.
 
-|      Case       | Example     | Method                          |
-|-----------------|-------------|---------------------------------|
+| Case            | Example     | Method                          |
+| --------------- | ----------- | ------------------------------- |
 | Upper case      | LOREM IPSUM | textcase.api.to_constant_case   |
 | Lower case      | lorem ipsum | textcase.api.to_lower_case      |
 | Snake case      | lorem_ipsum | textcase.api.to_snake_case      |
@@ -88,6 +88,26 @@ use { "johmsalas/text-case.nvim",
   -- of the keymappings, e.g. `gau ` executes the `current_word` method with `to_upper_case`
   -- and `gaou` executes the `operator` method with `to_upper_case`.
   prefix = "ga",
+  -- By default, all methods are enabled. If you set this option with some methods omitted,
+  -- these methods will not be registered in the default keymappings. The methods will still
+  -- be accessible when calling the exact lua function e.g.:
+  -- "<CMD>lua require('textcase').current_word('to_snake_case')<CR>"
+  enabled_methods = {
+    "to_upper_case",
+    "to_lower_case",
+    "to_snake_case",
+    "to_dash_case",
+    "to_title_dash_case",
+    "to_constant_case",
+    "to_dot_case",
+    "to_phrase_case",
+    "to_camel_case",
+    "to_pascal_case",
+    "to_title_case",
+    "to_path_case",
+    "to_upper_phrase_case",
+    "to_lower_phrase_case",
+  },
 }
 ```
 
@@ -171,7 +191,7 @@ If which-key is preset, text-case.nvim registers descriptions for the conversion
 
 ## Troubleshooting
 
-* Conversion based on LSP not working
+- Conversion based on LSP not working
 
 A requirement for LSP rename to work is to have LSP set in the buffer and the Language Server should have the rename capability enabled.
 
