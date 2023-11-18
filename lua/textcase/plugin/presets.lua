@@ -4,43 +4,7 @@ local plugin = require("textcase.plugin.plugin")
 local api = require("textcase.plugin.api")
 local whichkey = require("textcase.extensions.whichkey")
 
-M.Initialize = function()
-  plugin.register_methods(api.to_upper_case)
-  plugin.register_methods(api.to_lower_case)
-  plugin.register_methods(api.to_snake_case)
-  plugin.register_methods(api.to_dash_case)
-  plugin.register_methods(api.to_title_dash_case)
-  plugin.register_methods(api.to_constant_case)
-  plugin.register_methods(api.to_dot_case)
-  plugin.register_methods(api.to_phrase_case)
-  plugin.register_methods(api.to_camel_case)
-  plugin.register_methods(api.to_pascal_case)
-  plugin.register_methods(api.to_title_case)
-  plugin.register_methods(api.to_path_case)
-  plugin.register_methods(api.to_upper_phrase_case)
-  plugin.register_methods(api.to_lower_phrase_case)
-
-  plugin.register_replace_command("Subs", {
-    api.to_upper_case,
-    api.to_lower_case,
-    api.to_snake_case,
-    api.to_dash_case,
-    api.to_title_dash_case,
-    api.to_constant_case,
-    api.to_dot_case,
-    api.to_phrase_case,
-    api.to_camel_case,
-    api.to_pascal_case,
-    api.to_title_case,
-    api.to_path_case,
-    api.to_upper_phrase_case,
-    api.to_lower_phrase_case,
-  })
-end
-
-M.setup = function(opts)
-  local prefix = opts and opts.prefix or "ga"
-
+local function setup_default_keymappings(prefix)
   whichkey.register("v", {
     [prefix] = {
       name = "text-case",
@@ -98,6 +62,53 @@ M.setup = function(opts)
     operator = "ol",
     lsp_rename = "L",
   })
+end
+
+M.Initialize = function()
+  plugin.register_methods(api.to_upper_case)
+  plugin.register_methods(api.to_lower_case)
+  plugin.register_methods(api.to_snake_case)
+  plugin.register_methods(api.to_dash_case)
+  plugin.register_methods(api.to_title_dash_case)
+  plugin.register_methods(api.to_constant_case)
+  plugin.register_methods(api.to_dot_case)
+  plugin.register_methods(api.to_phrase_case)
+  plugin.register_methods(api.to_camel_case)
+  plugin.register_methods(api.to_pascal_case)
+  plugin.register_methods(api.to_title_case)
+  plugin.register_methods(api.to_path_case)
+  plugin.register_methods(api.to_upper_phrase_case)
+  plugin.register_methods(api.to_lower_phrase_case)
+
+  plugin.register_replace_command("Subs", {
+    api.to_upper_case,
+    api.to_lower_case,
+    api.to_snake_case,
+    api.to_dash_case,
+    api.to_title_dash_case,
+    api.to_constant_case,
+    api.to_dot_case,
+    api.to_phrase_case,
+    api.to_camel_case,
+    api.to_pascal_case,
+    api.to_title_case,
+    api.to_path_case,
+    api.to_upper_phrase_case,
+    api.to_lower_phrase_case,
+  })
+end
+
+M.setup = function(opts)
+  local prefix = opts and opts.prefix or "ga"
+
+  local default_keymappings_enabled = true
+  if opts and opts.default_keymappings_enabled ~= nil then
+    default_keymappings_enabled = opts.default_keymappings_enabled
+  end
+
+  if default_keymappings_enabled then
+    setup_default_keymappings(prefix)
+  end
 end
 
 return M
