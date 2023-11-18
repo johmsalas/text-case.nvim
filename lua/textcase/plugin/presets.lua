@@ -1,4 +1,5 @@
 local M = {}
+M.options = {}
 
 local plugin = require("textcase.plugin.plugin")
 local api = require("textcase.plugin.api")
@@ -21,15 +22,15 @@ local allMethods = {
 }
 
 -- Setup default keymappings for the plugin but only for the methods that are enabled.
-local function setup_default_keymappings(prefix, enabled_methods_set)
+local function setup_default_keymappings()
   whichkey.register("v", {
-    [prefix] = {
+    [M.options.prefix] = {
       name = "text-case",
     },
   })
 
   whichkey.register("n", {
-    [prefix] = {
+    [M.options.prefix] = {
       name = "text-case",
       o = {
         name = "Pending mode operator",
@@ -48,9 +49,9 @@ local function setup_default_keymappings(prefix, enabled_methods_set)
   }
 
   for _, keymapping_definition in ipairs(default_keymapping_definitions) do
-    if enabled_methods_set[keymapping_definition.method_name] then
-      plugin.register_keybindings(prefix, api[keymapping_definition.method_name], {
-        prefix = prefix,
+    if M.options.enabled_methods_set[keymapping_definition.method_name] then
+      plugin.register_keybindings(M.options.prefix, api[keymapping_definition.method_name], {
+        prefix = M.options.prefix,
         quick_replace = keymapping_definition.quick_replace,
         operator = keymapping_definition.operator,
         lsp_rename = keymapping_definition.lsp_rename,
@@ -69,23 +70,25 @@ M.Initialize = function()
   plugin.register_replace_command("Subs", replace_command_methods)
 end
 
+M.enabled_methods_set = {}
+
 M.setup = function(opts)
-  local prefix = opts and opts.prefix or "ga"
+  M.options.prefix = opts and opts.prefix or "ga"
 
-  local default_keymappings_enabled = true
+  M.options.default_keymappings_enabled = true
   if opts and opts.default_keymappings_enabled ~= nil then
-    default_keymappings_enabled = opts.default_keymappings_enabled
+    M.options.default_keymappings_enabled = opts.default_keymappings_enabled
   end
 
-  local enabled_methods = opts and opts.enabled_methods or allMethods
+  M.options.enabled_methods = opts and opts.enabled_methods or allMethods
   -- Turn the enabled_methods into a set for faster lookup
-  local enabled_methods_set = {}
-  for _, method_name in ipairs(enabled_methods) do
-    enabled_methods_set[method_name] = true
+  M.options.enabled_methods_set = {}
+  for _, method_name in ipairs(M.options.enabled_methods) do
+    M.options.enabled_methods_set[method_name] = true
   end
 
-  if default_keymappings_enabled then
-    setup_default_keymappings(prefix)
+  if M.options.default_keymappings_enabled then
+    setup_default_keymappings()
   end
 end
 

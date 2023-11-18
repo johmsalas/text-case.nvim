@@ -36,6 +36,7 @@ local M = {
   },
   setup = presets.setup,
   init = presets.Initialize,
+  options = presets.options,
   register_keybindings = plugin.register_keybindings,
   register_keys = plugin.register_keys,
   register_replace_command = plugin.register_replace_command,
