@@ -16,7 +16,7 @@ TEST_WHICHKEY_DIR="$REPO_DIR/.tests/whichkey/site/pack/deps/start"
 # The Tests Runner runs tests for all the environments
 # TODO: Support running subset of tests
 
-function clone() {
+clone() {
   repo=$1
   dest=$2
   if [ ! -d "$dest" ] ; then
