@@ -5,6 +5,11 @@ An all in one plugin for converting text case in Neovim. It converts a piece of 
 ![CI/CD](https://github.com/johmsalas/text-case.nvim/actions/workflows/ci.yml/badge.svg)
 ![Tests Neovim Nightly](https://github.com/johmsalas/text-case.nvim/actions/workflows/neovim-nightly.yml/badge.svg)
 
+This plugin runs its tests against the following versions of Neovim:
+
+- `0.9.4`
+- `0.8.3`
+
 ## Features
 
 ### Quick conversion
