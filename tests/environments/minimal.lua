@@ -6,14 +6,12 @@ function M.root(root)
 end
 
 -- TODO: Call setup method from the utils file
-function M.setup(root_env)
-  vim.cmd([[set runtimepath=$VIMRUNTIME]])
-  vim.opt.runtimepath:append(M.root())
-  vim.opt.packpath = { M.root(root_env) }
-end
+function M.setup(root_env) end
 
 function M.init()
-  M.setup(".tests/minimal")
+  vim.cmd([[set runtimepath=$VIMRUNTIME]])
+  vim.opt.runtimepath:append(M.root())
+  vim.opt.packpath = { M.root(".tests/minimal/site") }
 end
 
 M.init()
