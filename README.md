@@ -8,7 +8,6 @@ An all in one plugin for converting text case in Neovim. It converts a piece of 
 This plugin runs its tests against the following versions of Neovim:
 
 - `0.9.4`
-- `0.8.3`
 
 ## Features
 
