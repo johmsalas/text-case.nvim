@@ -12,10 +12,6 @@ end
 
 describe("plugin", function()
   before_each(function()
-    -- Init has to be called in the plugin tests because in normal usage it is
-    -- loaded in the plugin/start.vim file
-    textcase.init()
-
     textcase.setup()
 
     local buf = vim.api.nvim_create_buf(false, true)

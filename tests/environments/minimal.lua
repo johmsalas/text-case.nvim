@@ -5,13 +5,14 @@ function M.root(root)
   return vim.fn.fnamemodify(f, ":p:h:h:h") .. "/" .. (root or "")
 end
 
--- TODO: Call setup method from the utils file
-function M.setup(root_env) end
-
 function M.init()
   vim.cmd([[set runtimepath=$VIMRUNTIME]])
   vim.opt.runtimepath:append(M.root())
   vim.opt.packpath = { M.root(".tests/minimal/site") }
+  vim.cmd([[
+    packadd plenary.nvim
+    runtime plugin/start.vim
+  ]])
 end
 
 M.init()
