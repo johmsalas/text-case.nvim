@@ -1,14 +1,5 @@
 local textcase = require("textcase")
-
-local function get_buf_lines()
-  local result = vim.api.nvim_buf_get_lines(0, 0, vim.api.nvim_buf_line_count(0), false)
-  return result
-end
-
-local function execute_keys(feedkeys)
-  local keys = vim.api.nvim_replace_termcodes(feedkeys, true, false, true)
-  vim.api.nvim_feedkeys(keys, "x", false)
-end
+local test_helpers = require("tests.test_helpers")
 
 describe("plugin", function()
   before_each(function()
@@ -44,9 +35,9 @@ describe("plugin", function()
       it("should work for keys `" .. test_case.keys .. "`", function()
         vim.api.nvim_buf_set_lines(0, 0, -1, true, test_case.buffer_lines)
 
-        execute_keys(test_case.keys)
+        test_helpers.execute_keys(test_case.keys)
 
-        assert.are.same(test_case.expected, get_buf_lines())
+        assert.are.same(test_case.expected, test_helpers.get_buf_lines())
       end)
     end
   end)
@@ -73,9 +64,9 @@ describe("plugin", function()
       it("should work with argument `" .. test_case.method_name .. "`", function()
         vim.api.nvim_buf_set_lines(0, 0, -1, true, test_case.buffer_lines)
 
-        execute_keys("<CMD>lua require('textcase').current_word('" .. test_case.method_name .. "')<CR>")
+        test_helpers.execute_keys("<CMD>lua require('textcase').current_word('" .. test_case.method_name .. "')<CR>")
 
-        assert.are.same(test_case.expected, get_buf_lines())
+        assert.are.same(test_case.expected, test_helpers.get_buf_lines())
       end)
     end
   end)
@@ -102,9 +93,9 @@ describe("plugin", function()
       it("should work with argument `" .. test_case.method_name .. "`", function()
         vim.api.nvim_buf_set_lines(0, 0, -1, true, test_case.buffer_lines)
 
-        execute_keys("<CMD>lua require('textcase').operator('" .. test_case.method_name .. "')<CR>2w")
+        test_helpers.execute_keys("<CMD>lua require('textcase').operator('" .. test_case.method_name .. "')<CR>2w")
 
-        assert.are.same(test_case.expected, get_buf_lines())
+        assert.are.same(test_case.expected, test_helpers.get_buf_lines())
       end)
     end
   end)
@@ -143,9 +134,9 @@ describe("plugin", function()
       it("should work for keys `" .. test_case.keys .. "`", function()
         vim.api.nvim_buf_set_lines(0, 0, -1, true, test_case.buffer_lines)
 
-        execute_keys(test_case.keys)
+        test_helpers.execute_keys(test_case.keys)
 
-        assert.are.same(test_case.expected, get_buf_lines())
+        assert.are.same(test_case.expected, test_helpers.get_buf_lines())
       end)
     end
   end)
@@ -171,9 +162,9 @@ describe("plugin", function()
       it("should work for keys `" .. test_case.keys .. "`", function()
         vim.api.nvim_buf_set_lines(0, 0, -1, true, test_case.buffer_lines)
 
-        execute_keys(test_case.keys)
+        test_helpers.execute_keys(test_case.keys)
 
-        assert.are.same(test_case.expected, get_buf_lines())
+        assert.are.same(test_case.expected, test_helpers.get_buf_lines())
       end)
     end
   end)
