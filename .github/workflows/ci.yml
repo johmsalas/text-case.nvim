@@ -17,7 +17,6 @@ jobs:
       matrix:
         include:
           # For all versions see https://github.com/neovim/neovim/tags
-          - neovim: 0.8.3
           - neovim: 0.9.4
     name: "Test with Neovim ${{ matrix.neovim }}"
     steps:
