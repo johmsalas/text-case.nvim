@@ -5,9 +5,9 @@ M.get_buf_lines = function()
   return result
 end
 
-M.execute_keys = function(feedkeys)
+M.execute_keys = function(feedkeys, mode)
   local keys = vim.api.nvim_replace_termcodes(feedkeys, true, false, true)
-  vim.api.nvim_feedkeys(keys, "x", false)
+  vim.api.nvim_feedkeys(keys, mode or "x", false)
 end
 
 return M

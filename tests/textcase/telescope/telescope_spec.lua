@@ -1,18 +1,10 @@
+local feature_flags = require("feature_flags")
+if not feature_flags.is_feature_available("telescope") then
+  return
+end
+
 local textcase = require("textcase")
-
-local function get_buf_lines()
-  local result = vim.api.nvim_buf_get_lines(0, 0, vim.api.nvim_buf_line_count(0), false)
-  return result
-end
-
-local function escape_keys(keys)
-  return vim.api.nvim_replace_termcodes(keys, true, false, true)
-end
-
-local function execute_keys(feedkeys)
-  local keys = vim.api.nvim_replace_termcodes(feedkeys, true, false, true)
-  vim.api.nvim_feedkeys(keys, "x", false)
-end
+local test_helpers = require("tests.test_helpers")
 
 describe("Telescope Integration", function()
   before_each(function()
@@ -36,11 +28,11 @@ describe("Telescope Integration", function()
     for _, test_case in ipairs(test_cases) do
       it("Should open Telescope and apply `" .. test_case.name .. " case`", function()
         vim.api.nvim_buf_set_lines(0, 0, -1, true, test_case.buffer_lines)
-        execute_keys("<CMD>TextCaseOpenTelescopeQuickChange<CR>")
-        vim.api.nvim_feedkeys(escape_keys("i" .. test_case.query), "xmt", true)
+        test_helpers.execute_keys("<CMD>TextCaseOpenTelescopeQuickChange<CR>")
+        test_helpers.execute_keys("i" .. test_case.query, "xmt")
         vim.wait(50, function() end)
-        vim.api.nvim_feedkeys(escape_keys("<CR>"), "x", true)
-        assert.are.same(test_case.expected, get_buf_lines())
+        test_helpers.execute_keys("<CR>i")
+        assert.are.same(test_case.expected, test_helpers.get_buf_lines())
       end)
     end
   end)
