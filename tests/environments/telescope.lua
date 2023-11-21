@@ -8,7 +8,10 @@ end
 function M.init()
   vim.cmd([[set runtimepath=$VIMRUNTIME]])
   vim.opt.runtimepath:append(M.root())
-  vim.opt.packpath = { M.root(".tests/telescope/site") }
+  vim.opt.packpath = {
+    M.root(".tests/telescope/site"),
+    M.root("tests"),
+  }
   vim.cmd([[
     packadd plenary.nvim
     packadd telescope.nvim
