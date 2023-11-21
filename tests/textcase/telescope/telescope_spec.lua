@@ -1,3 +1,8 @@
+local feature_flags = require("feature_flags")
+if not feature_flags.is_feature_available("telescope") then
+  return
+end
+
 local textcase = require("textcase")
 local test_helpers = require("tests.test_helpers")
 
