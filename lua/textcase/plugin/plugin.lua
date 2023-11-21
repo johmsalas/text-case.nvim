@@ -136,14 +136,26 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
     local transformed_source = method.apply(source)
     local transformed_dest = dest == "" and "" or method.apply(dest)
 
-    local get_match = utils.get_list(utils.escape_string(transformed_source), mode)
-    for match in get_match do
-      if dest ~= "" then
-        conversion.replace_matches(match, transformed_source, transformed_dest, false, buf)
-      end
-      local length = transformed_dest == "" and #transformed_source or #transformed_dest
-      if preview_ns ~= nil then
-        vim.api.nvim_buf_add_highlight(buf, preview_ns, "Search", match[1] - 1, match[2] - 1, match[2] - 1 + length)
+    if
+      method.method_name == "to_lower_case"
+      and M.state.methods_by_method_name.to_snake_case(source) == transformed_source
+    then
+      -- Ignore to_lower_case if to_snake_case would yield the same result
+    elseif
+      method.method_name == "to_upper_case"
+      and M.state.methods_by_method_name.to_constant_case(source) == transformed_source
+    then
+      -- Ignore to_upper_case if to_constant_case would yield the same result
+    else
+      local get_match = utils.get_list(utils.escape_string(transformed_source), mode)
+      for match in get_match do
+        if dest ~= "" then
+          conversion.replace_matches(match, transformed_source, transformed_dest, false, buf)
+        end
+        local length = transformed_dest == "" and #transformed_source or #transformed_dest
+        if preview_ns ~= nil then
+          vim.api.nvim_buf_add_highlight(buf, preview_ns, "Search", match[1] - 1, match[2] - 1, match[2] - 1 + length)
+        end
       end
     end
   end
