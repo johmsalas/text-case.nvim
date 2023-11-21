@@ -28,7 +28,7 @@ clone() {
 
 mkdir -p $TEST_MINIMAL_DIR
 clone $GITHUB_PLENARY "$TEST_MINIMAL_DIR/plenary.nvim"
-nvim --headless -u tests/environments/minimal.lua -c "PlenaryBustedDirectory tests/textcase/conversion {minimal_init = 'tests/environments/minimal.lua', sequential = true}"
+nvim --headless -u tests/environments/minimal.lua -c "PlenaryBustedDirectory tests/textcase/conversions {minimal_init = 'tests/environments/minimal.lua', sequential = true}"
 nvim --headless -u tests/environments/minimal.lua -c "PlenaryBustedDirectory tests/textcase/plugin {minimal_init = 'tests/environments/minimal.lua', sequential = true}"
 
 # mkdir -p $TEST_LSP_DIR
