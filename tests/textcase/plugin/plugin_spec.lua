@@ -156,6 +156,19 @@ describe("plugin", function()
           "elit-sed dolor-sit amet",
         },
       },
+      {
+        keys = "<C-V>jjEE<CMD>Subs/lorem_ipsum/elit_sed/<CR>",
+        buffer_lines = {
+          "LoremIpsum DolorSit amet",
+          "lorem_ipsum dolor_sit amet",
+          "lorem-ipsum dolor-sit amet",
+        },
+        expected = {
+          "ElitSed DolorSit amet",
+          "elit_sed dolor_sit amet",
+          "elit-sed dolor-sit amet",
+        },
+      },
     }
 
     for _, test_case in ipairs(test_cases) do
