@@ -100,7 +100,7 @@ describe("plugin", function()
     end
   end)
 
-  describe("visuel modes", function()
+  describe("visual modes", function()
     local test_cases = {
       {
         keys = "Vjjgan",
@@ -127,6 +127,12 @@ describe("plugin", function()
           "LOREM_IPSUM_DOLOR_Sit amet",
           "lorem-ipsum dolor-sit amet",
         },
+      },
+      {
+        -- This test case visually selects backwards
+        keys = "flvFegau",
+        buffer_lines = { "LoremIpsum DolorSit amet" },
+        expected = { "LorEMIPSUM DOLorSit amet" },
       },
     }
 
