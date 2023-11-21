@@ -168,3 +168,7 @@ To triage it, trigger LSP renaming using `:lua vim.lsp.buf.rename()` while the c
 ## Development
 
 Useful commands are defined in the [`Justfile`](Justfile) and can be listed with [`just`](https://github.com/casey/just).
+
+### Required packages to run tests:
+- npm install -g typescript-language-server typescript
+- typescript-language-server

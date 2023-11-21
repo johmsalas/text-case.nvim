@@ -1,6 +1,8 @@
 local test_helpers = require("tests.test_helpers")
 local textcase = require("textcase")
 
+local cur_dir = vim.fn.expand("%:p:h")
+
 ---@param path string
 function M.read_file(path)
   local fd = vim.loop.fs_open(path, "r", 438)
@@ -17,14 +19,16 @@ describe("LSP", function()
     end)
 
     it("Should work", function()
-      local code = M.read_file("./tests/textcase/lsp/fixtures/component-camel-case.tsx")
-      local lines = {}
-      for line in code:gmatch("[^\r\n]+") do
-        table.insert(lines, line)
-      end
-      vim.api.nvim_buf_set_lines(0, 0, -1, true, lines)
+      local path = cur_dir .. "/tests/textcase/lsp/fixtures/component-camel-case.tsx"
+      vim.print(path)
+      local cmd = " silent exe 'e " .. path .. "'"
+      vim.cmd(cmd)
       test_helpers.execute_keys("/variableToBeTested<CR>")
-      test_helpers.execute_keys("gaS")
+
+      vim.cmd([[
+        lua require('textcase').lsp_rename('to_snake_case')
+      ]])
+      vim.wait(200, function() end)
       assert.are.same({ "aa" }, test_helpers.get_buf_lines())
     end)
   end)
