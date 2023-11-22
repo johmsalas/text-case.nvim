@@ -171,4 +171,3 @@ Useful commands are defined in the [`Justfile`](Justfile) and can be listed with
 
 ### Required packages to run tests:
 - npm install -g typescript-language-server typescript
-- typescript-language-server
