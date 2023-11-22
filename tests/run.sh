@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
 GITHUB="https://github.com"
 GITHUB_PLENARY="$GITHUB/nvim-lua/plenary.nvim"
@@ -6,7 +7,7 @@ GITHUB_TELESCOPE="$GITHUB/nvim-telescope/telescope.nvim"
 GITHUB_WHICHKEY="$GITHUB/nvim-telescope/folke/which-key.nvim"
 
 SCRIPT_FILE=$(readlink -f "${BASH_SOURCE[0]}")
-REPO_DIR=$(dirname "$(dirname "$script_file")")
+REPO_DIR=$(dirname "$(dirname "$SCRIPT_FILE")")
 
 TEST_MINIMAL_DIR="$REPO_DIR/.tests/minimal/site/pack/deps/start"
 TEST_TELESCOPE_DIR="$REPO_DIR/.tests/telescope/site/pack/deps/start"
