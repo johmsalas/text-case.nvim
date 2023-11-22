@@ -29,7 +29,7 @@ clone() {
 
 mkdir -p $TEST_MINIMAL_DIR
 clone $GITHUB_PLENARY "$TEST_MINIMAL_DIR/plenary.nvim"
-nvim --headless -u tests/environments/minimal.lua -c "PlenaryBustedDirectory tests/textcase/conversion {minimal_init = 'tests/environments/minimal.lua', sequential = true}"
+nvim --headless -u tests/environments/minimal.lua -c "PlenaryBustedDirectory tests/textcase/conversions {minimal_init = 'tests/environments/minimal.lua', sequential = true}"
 nvim --headless -u tests/environments/minimal.lua -c "PlenaryBustedDirectory tests/textcase/plugin {minimal_init = 'tests/environments/minimal.lua', sequential = true}"
 
 mkdir -p $TEST_LSP_DIR
@@ -37,13 +37,11 @@ clone $GITHUB_PLENARY "$TEST_LSP_DIR/plenary.nvim"
 clone $GITHUB_LSPCONFIG "$TEST_LSP_DIR/lspconfig.nvim"
 nvim --headless -u tests/environments/lsp.lua -c "PlenaryBustedDirectory tests/textcase/lsp {minimal_init = 'tests/environments/lsp.lua', sequential = true}"
 
-# # TODO: Skip if github version is lower than the version required by Telescope
 mkdir -p $TEST_TELESCOPE_DIR
 clone $GITHUB_PLENARY "$TEST_TELESCOPE_DIR/plenary.nvim"
 clone $GITHUB_TELESCOPE "$TEST_TELESCOPE_DIR/telescope.nvim"
 nvim --headless -u tests/environments/telescope.lua -c "PlenaryBustedDirectory tests/textcase/telescope/telescope_spec.lua {minimal_init = 'tests/environments/telescope.lua', sequential = true}"
-#
+
 # mkdir -p $TEST_WHICHKEY_DIR
-# clone $GITHUB_PLENARY "$TEST_TELESCOPE_DIR/plenary.nvim"
-# clone $GITHUB_WHICHKEY "$TEST_WHICHKEY_DIR/whichkey.nvim"
+# clone $GITHUB_PLENARY "$TEST_WHICHKEY_DIR/plenary.nvim"
 # nvim --headless -u tests/environments/which-key.lua -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/environments/which-key.lua', sequential = true}"

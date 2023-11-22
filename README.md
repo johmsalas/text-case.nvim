@@ -7,7 +7,10 @@ An all in one plugin for converting text case in Neovim. It converts a piece of 
 
 This plugin runs its tests against the following versions of Neovim:
 
-- `0.9.4`
+| Neovim version | Remarks                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| `0.9.4`        | All features work                                                                                      |
+| `0.8.3`        | The Telescope extension is not working because Telescope itself requires at least Neovim version 0.9.0 |
 
 ## Features
 
@@ -18,10 +21,9 @@ Converts text under cursor to another case. Only 3 keys to convert the current t
 
 Smartly guesses the current object using the following strategies:
 
-* Tree Sitter (if available) [WIP]
-* Word under cursor
-* Ignore word separators
-
+- Tree Sitter (if available) [WIP]
+- Word under cursor
+- Ignore word separators
 
 ### LSP conversion
 
@@ -35,8 +37,8 @@ Converts given objects, it might require more key presses than the quick convers
 
 Supported targets:
 
-* Vim objects: w, iw, aw, e, p, ...
-* Selected text in visual mode
+- Vim objects: w, iw, aw, e, p, ...
+- Selected text in visual mode
 
 ### Bulk smart replacement
 
@@ -50,8 +52,8 @@ If not specified, it replaces every instance of the text in the current file; Bu
 
 It is also a library of text case conversion methods. Useful for your LUA code.
 
-|      Case       | Example     | Method                          |
-|-----------------|-------------|---------------------------------|
+| Case            | Example     | Method                          |
+| --------------- | ----------- | ------------------------------- |
 | Upper case      | LOREM IPSUM | textcase.api.to_constant_case   |
 | Lower case      | lorem ipsum | textcase.api.to_lower_case      |
 | Snake case      | lorem_ipsum | textcase.api.to_snake_case      |
@@ -159,7 +161,7 @@ If which-key is preset, text-case.nvim registers descriptions for the conversion
 
 ## Troubleshooting
 
-* Conversion based on LSP not working
+- Conversion based on LSP not working
 
 A requirement for LSP rename to work is to have LSP set in the buffer and the Language Server should have the rename capability enabled.
 
