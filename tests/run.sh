@@ -35,7 +35,7 @@ clone $GITHUB_PLENARY "$TEST_MINIMAL_DIR/plenary.nvim"
 mkdir -p $TEST_LSP_DIR
 clone $GITHUB_PLENARY "$TEST_LSP_DIR/plenary.nvim"
 clone $GITHUB_LSPCONFIG "$TEST_LSP_DIR/lspconfig.nvim"
-nvim -u tests/environments/lsp.lua -c "PlenaryBustedDirectory tests/textcase/lsp {minimal_init = 'tests/environments/lsp.lua', sequential = true}"
+nvim --headless -u tests/environments/lsp.lua -c "PlenaryBustedDirectory tests/textcase/lsp {minimal_init = 'tests/environments/lsp.lua', sequential = true}"
 
 # # TODO: Skip if github version is lower than the version required by Telescope
 mkdir -p $TEST_TELESCOPE_DIR

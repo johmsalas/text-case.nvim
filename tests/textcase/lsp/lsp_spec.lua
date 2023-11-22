@@ -18,18 +18,21 @@ describe("LSP", function()
       textcase.setup({})
     end)
 
-    it("Should work", function()
+    it("Should be triggered on keybinding", function()
       local path = cur_dir .. "/tests/textcase/lsp/fixtures/component-camel-case.tsx"
       vim.print(path)
       local cmd = " silent exe 'e " .. path .. "'"
       vim.cmd(cmd)
-      test_helpers.execute_keys("/variableToBeTested<CR>")
-
-      vim.cmd([[
-        lua require('textcase').lsp_rename('to_snake_case')
-      ]])
+      vim.bo.filetype = "typescriptreact"
+      -- allow tsserver start
       vim.wait(200, function() end)
-      assert.are.same({ "aa" }, test_helpers.get_buf_lines())
+      test_helpers.execute_keys("/variableToBeTested<CR>gaS")
+
+      -- allow tsserver to rename the variable
+      vim.wait(200, function() end)
+      local content = test_helpers.get_buf_lines()
+      assert.is.truthy(string.find(content[4], "variable_to_be_tested"))
+      assert.is.truthy(string.find(content[7], "variable_to_be_tested"))
     end)
   end)
 end)
