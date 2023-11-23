@@ -64,6 +64,12 @@ describe("plugin", function()
           "lorem-ipsum-nunc dolor-sit amet",
         },
       },
+      -- This test case makes sure that we don't replace endlessly if <to> is 2*<from>
+      {
+        keys = "V:Subs/a/aa<CR>",
+        buffer_lines = { "a" },
+        expected = { "aa" },
+      },
     }
 
     for _, test_case in ipairs(test_cases) do
