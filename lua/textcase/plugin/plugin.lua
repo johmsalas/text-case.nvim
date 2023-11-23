@@ -132,21 +132,30 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
   local cursor_pos = vim.fn.getpos(".")
   vim.api.nvim_buf_clear_namespace(buf, 1, 0, -1)
 
+  -- Create a map from transformed source to method name in order to prevent
+  -- double replacements when two methods would yield the same result.
+  --
+  -- Examples for this are:
+  --   - to_lower_case and to_snake_case
+  --   - to_upper_case and to_constant_case
+  local method_names_by_transform_result = {}
   for _, method in ipairs(M.state.methods_by_command[command]) do
     local transformed_source = method.apply(source)
-    local transformed_dest = dest == "" and "" or method.apply(dest)
+    method_names_by_transform_result[transformed_source] = method.method_name
+  end
+  -- The filtered_method_names list contains all methods that are allowed to be applied.
+  -- This is a map for faster lookups.
+  local filtered_method_names = {}
+  for _, method_name in pairs(method_names_by_transform_result) do
+    filtered_method_names[method_name] = true
+  end
 
-    if
-      method.method_name == "to_lower_case"
-      and M.state.methods_by_method_name.to_snake_case(source) == transformed_source
-    then
-      -- Ignore to_lower_case if to_snake_case would yield the same result
-    elseif
-      method.method_name == "to_upper_case"
-      and M.state.methods_by_method_name.to_constant_case(source) == transformed_source
-    then
-      -- Ignore to_upper_case if to_constant_case would yield the same result
-    else
+  for _, method in ipairs(M.state.methods_by_command[command]) do
+    -- Skip methods that would yield the same result as another method
+    if filtered_method_names[method.method_name] == true then
+      local transformed_source = method.apply(source)
+      local transformed_dest = dest == "" and "" or method.apply(dest)
+
       local get_match = utils.get_list(utils.escape_string(transformed_source), mode)
       for match in get_match do
         if dest ~= "" then
