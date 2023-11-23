@@ -28,7 +28,7 @@ describe("LSP", function()
       local max_seconds = 30
       local curr_seconds = 0
       local ts_server_started = false
-      vim.print("Starting LSP Server)
+      vim.print("Starting LSP Server")
       while curr_seconds < max_seconds and not ts_server_started do
         curr_seconds = curr_seconds + 0.5
         vim.wait(500, function() end)
