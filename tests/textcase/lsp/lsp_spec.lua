@@ -24,12 +24,21 @@ describe("LSP", function()
       vim.cmd(cmd)
       vim.bo.filetype = "typescriptreact"
       -- allow tsserver start
-      vim.wait(20000, function() end)
-      vim.cmd("LspInfo")
-      local lsp_info_screen = test_helpers.get_buf_lines()
-      local lsp_was_loaded = vim.fn.search("1 client(s) attached to this buffer")
-      test_helpers.execute_keys("q")
-      assert.is.truthy(lsp_was_loaded)
+
+      local max_seconds = 30
+      local curr_seconds = 0
+      local ts_server_started = false
+      vim.print("Starting LSP Server)
+      while curr_seconds < max_seconds and not ts_server_started do
+        curr_seconds = curr_seconds + 0.5
+        vim.wait(500, function() end)
+        vim.cmd("LspInfo")
+        ts_server_started = vim.fn.search("1 client(s) attached to this buffer")
+        test_helpers.execute_keys("q")
+      end
+
+      assert.is.truthy(ts_server_started)
+      vim.print("LSP Server started after " .. curr_seconds .. " seconds")
       -- remove
       vim.wait(200, function() end)
       test_helpers.execute_keys("/variableToBeTested<CR>gaS")
