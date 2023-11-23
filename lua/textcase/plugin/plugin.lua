@@ -132,18 +132,39 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
   local cursor_pos = vim.fn.getpos(".")
   vim.api.nvim_buf_clear_namespace(buf, 1, 0, -1)
 
+  -- Create a map from transformed source to method name in order to prevent
+  -- double replacements when two methods would yield the same result.
+  --
+  -- Examples for this are:
+  --   - to_lower_case and to_snake_case
+  --   - to_upper_case and to_constant_case
+  local method_names_by_transform_result = {}
   for _, method in ipairs(M.state.methods_by_command[command]) do
     local transformed_source = method.apply(source)
-    local transformed_dest = dest == "" and "" or method.apply(dest)
+    method_names_by_transform_result[transformed_source] = method.method_name
+  end
+  -- The filtered_method_names list contains all methods that are allowed to be applied.
+  -- This is a map for faster lookups.
+  local filtered_method_names = {}
+  for _, method_name in pairs(method_names_by_transform_result) do
+    filtered_method_names[method_name] = true
+  end
 
-    local get_match = utils.get_list(utils.escape_string(transformed_source), mode)
-    for match in get_match do
-      if dest ~= "" then
-        conversion.replace_matches(match, transformed_source, transformed_dest, false, buf)
-      end
-      local length = transformed_dest == "" and #transformed_source or #transformed_dest
-      if preview_ns ~= nil then
-        vim.api.nvim_buf_add_highlight(buf, preview_ns, "Search", match[1] - 1, match[2] - 1, match[2] - 1 + length)
+  for _, method in ipairs(M.state.methods_by_command[command]) do
+    -- Skip methods that would yield the same result as another method
+    if filtered_method_names[method.method_name] == true then
+      local transformed_source = method.apply(source)
+      local transformed_dest = dest == "" and "" or method.apply(dest)
+
+      local get_match = utils.get_list(utils.escape_string(transformed_source), mode)
+      for match in get_match do
+        if dest ~= "" then
+          conversion.replace_matches(match, transformed_source, transformed_dest, false, buf)
+        end
+        local length = transformed_dest == "" and #transformed_source or #transformed_dest
+        if preview_ns ~= nil then
+          vim.api.nvim_buf_add_highlight(buf, preview_ns, "Search", match[1] - 1, match[2] - 1, match[2] - 1 + length)
+        end
       end
     end
   end
