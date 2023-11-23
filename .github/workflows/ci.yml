@@ -27,6 +27,8 @@ jobs:
       with:
         tool_versions: |
           neovim ${{ matrix.neovim }}
+          nodejs
+    - run: npm install -g typescript-language-server typescript
     - name: Run tests
       run: |
         nvim --version
