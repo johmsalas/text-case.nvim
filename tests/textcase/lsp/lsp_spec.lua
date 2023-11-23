@@ -20,19 +20,25 @@ describe("LSP", function()
 
     it("Should be triggered on keybinding", function()
       local path = cur_dir .. "/tests/textcase/lsp/fixtures/component-camel-case.tsx"
-      vim.print(path)
       local cmd = " silent exe 'e " .. path .. "'"
       vim.cmd(cmd)
       vim.bo.filetype = "typescriptreact"
       -- allow tsserver start
+      vim.wait(20000, function() end)
+      vim.cmd("LspInfo")
+      local lsp_info_screen = test_helpers.get_buf_lines()
+      local lsp_was_loaded = vim.fn.search("1 client(s) attached to this buffer")
+      test_helpers.execute_keys("q")
+      assert.is.truthy(lsp_was_loaded)
+      -- remove
       vim.wait(200, function() end)
       test_helpers.execute_keys("/variableToBeTested<CR>gaS")
-
-      -- allow tsserver to rename the variable
-      vim.wait(200, function() end)
+      --
+      -- -- allow tsserver to rename the variable
+      vim.wait(2000, function() end)
       local content = test_helpers.get_buf_lines()
-      assert.is.truthy(string.find(content[4], "variable_to_be_tested"))
-      assert.is.truthy(string.find(content[7], "variable_to_be_tested"))
+      assert.are.same(content, "aaaa")
+      vim.wait(2000, function() end)
     end)
   end)
 end)
