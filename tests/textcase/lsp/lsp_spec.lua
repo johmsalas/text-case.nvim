@@ -28,7 +28,6 @@ describe("LSP", function()
       local max_seconds = 30
       local curr_seconds = 0
       local ts_server_started = false
-      vim.print("Starting LSP Server")
       while curr_seconds < max_seconds and not ts_server_started do
         curr_seconds = curr_seconds + 0.5
         vim.wait(500, function() end)
@@ -38,7 +37,6 @@ describe("LSP", function()
       end
 
       assert.is.truthy(ts_server_started)
-      vim.print("LSP Server started after " .. curr_seconds .. " seconds")
       -- remove
       vim.wait(200, function() end)
       test_helpers.execute_keys("/variableToBeTested<CR>gaS")
@@ -46,7 +44,9 @@ describe("LSP", function()
       -- -- allow tsserver to rename the variable
       vim.wait(2000, function() end)
       local content = test_helpers.get_buf_lines()
-      assert.are.same(content, "aaaa")
+
+      local expected_code = M.read_file("./tests/textcase/lsp/fixtures/component-snake-case.tsx")
+      assert.are.same(table.concat(content, "\n"), expected_code)
       vim.wait(2000, function() end)
     end)
   end)
