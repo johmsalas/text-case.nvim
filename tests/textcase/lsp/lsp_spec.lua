@@ -12,6 +12,17 @@ function M.read_file(path)
   return contents
 end
 
+function M.waitFor(max_time, callback)
+  local max_seconds = max_time
+  local curr_seconds = 0
+  local task_finished = false
+  while curr_seconds < max_seconds and not task_finished do
+    curr_seconds = curr_seconds + 0.5
+    task_finished = callback()
+    vim.wait(500, function() end)
+  end
+end
+
 describe("LSP", function()
   describe("Rename", function()
     before_each(function()
@@ -25,29 +36,27 @@ describe("LSP", function()
       vim.bo.filetype = "typescriptreact"
       -- allow tsserver start
 
-      local max_seconds = 30
-      local curr_seconds = 0
       local ts_server_started = false
-      while curr_seconds < max_seconds and not ts_server_started do
-        curr_seconds = curr_seconds + 0.5
-        vim.wait(500, function() end)
+      M.waitFor(30, function()
         vim.cmd("LspInfo")
-        ts_server_started = vim.fn.search("1 client(s) attached to this buffer")
+        ts_server_started = not not vim.fn.search("1 client(s) attached to this buffer")
         test_helpers.execute_keys("q")
-      end
+        return ts_server_started
+      end)
 
       assert.is.truthy(ts_server_started)
-      -- remove
-      vim.wait(200, function() end)
+      vim.wait(1000, function() end)
+
       test_helpers.execute_keys("/variableToBeTested<CR>gaS")
-      --
-      -- -- allow tsserver to rename the variable
-      vim.wait(2000, function() end)
-      local content = test_helpers.get_buf_lines()
+      local content = nil
+      M.waitFor(5000, function()
+        content = test_helpers.get_buf_lines()
+        local found_modified_variable = not not string.find(content[4], "variable_to_be_tested")
+        return found_modified_variable
+      end)
 
       local expected_code = M.read_file("./tests/textcase/lsp/fixtures/component-snake-case.tsx")
       assert.are.same(table.concat(content, "\n"), expected_code)
-      vim.wait(2000, function() end)
     end)
   end)
 end)
