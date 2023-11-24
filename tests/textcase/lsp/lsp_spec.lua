@@ -23,11 +23,15 @@ describe("LSP", function()
       end)
 
       assert.is.truthy(ts_server_started)
+
+      -- This is required for the 'just ci'. 'just test' runs fine with 50ms.
+      -- It isn't clear why it is required since the previous wait_for call already makes sure the LSP
+      -- was loaded and it has closed the LspInfo window.
       vim.wait(1000, function() end)
 
       test_helpers.execute_keys("/variableToBeTested<CR>gaS")
       local content = nil
-      M.wait_for(5 * 1000, function()
+      test_helpers.wait_for(5 * 1000, function()
         content = test_helpers.get_buf_lines()
         local found_modified_variable = not not string.find(content[4], "variable_to_be_tested")
         return found_modified_variable

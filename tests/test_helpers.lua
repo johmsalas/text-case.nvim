@@ -1,4 +1,4 @@
-M = {}
+local M = {}
 
 M.get_buf_lines = function()
   local result = vim.api.nvim_buf_get_lines(0, 0, vim.api.nvim_buf_line_count(0), false)
