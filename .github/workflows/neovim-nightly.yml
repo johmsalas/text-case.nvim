@@ -16,6 +16,8 @@ jobs:
       with:
         tool_versions: |
           neovim nightly
+          nodejs
+    - run: npm install -g typescript-language-server typescript
     - name: Run Tests on Nightly Neovim
       run: |
         nvim --version

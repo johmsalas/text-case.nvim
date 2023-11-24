@@ -66,7 +66,9 @@ function M.do_lsp_rename(method)
   local current_word = vim.fn.expand("<cword>")
   local params = lsp.util.make_position_params()
   params.newName = method(current_word)
-  lsp.buf_request(0, "textDocument/rename", params)
+  lsp.buf_request(0, "textDocument/rename", params, function(err, result, context, config)
+    vim.lsp.handlers["textDocument/rename"](nil, result, context)
+  end)
 end
 
 return M

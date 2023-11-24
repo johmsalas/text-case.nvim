@@ -13,7 +13,10 @@ function M.init()
   local feature_flags = require("feature_flags")
 
   if feature_flags.is_feature_available("telescope") then
-    vim.opt.packpath = { M.root(".tests/telescope/site") }
+    vim.opt.packpath = {
+      M.root(".tests/telescope/site"),
+      M.root("tests"),
+    }
 
     vim.cmd([[
     packadd plenary.nvim
