@@ -175,4 +175,4 @@ Useful commands are defined in the [`Justfile`](Justfile) and can be listed with
 
 ```console
 npm install -g typescript-language-server typescript
-```console
+```
