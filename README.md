@@ -69,9 +69,9 @@ It is also a library of text case conversion methods. Useful for your LUA code.
 
 ## Setup
 
-Install with your favorite plugin manager. The setup function, sets up the default keybinding. To setup custom key maps, do not call `require('textcase').setup{}`, and follow the example bellow
+Install with your favorite plugin manager.
 
-Example in LUA using Packer.nvim. Default keybinding
+### Example in LUA using Packer.nvim with default options
 
 ```lua
 use { "johmsalas/text-case.nvim",
@@ -81,7 +81,20 @@ use { "johmsalas/text-case.nvim",
 }
 ```
 
-Example in VimScript using Plug. Custom keybinding
+### All options with their default value
+
+```lua
+{
+  -- Set `default_keymappings_enabled` to false if you don't want automatic keymappings to be registered.
+  default_keymappings_enabled = true,
+  -- `prefix` is only considered if `default_keymappings_enabled` is true. It configures the prefix
+  -- of the keymappings, e.g. `gau ` executes the `current_word` method with `to_upper_case`
+  -- and `gaou` executes the `operator` method with `to_upper_case`.
+  prefix = "ga",
+}
+```
+
+### Example in VimScript using Plug with custom keybindings
 
 ```vimscript
 call plug#begin('~/.local/share/nvim/plugged')
