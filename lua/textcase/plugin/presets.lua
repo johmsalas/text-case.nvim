@@ -4,7 +4,7 @@ M.options = {}
 local plugin = require("textcase.plugin.plugin")
 local api = require("textcase.plugin.api")
 local whichkey = require("textcase.extensions.whichkey")
-local allMethods = {
+local all_methods = {
   "to_upper_case",
   "to_lower_case",
   "to_snake_case",
@@ -62,7 +62,7 @@ end
 
 M.Initialize = function()
   local replace_command_methods = {}
-  for _, method_name in ipairs(allMethods) do
+  for _, method_name in ipairs(all_methods) do
     plugin.register_methods(api[method_name])
     table.insert(replace_command_methods, api[method_name])
   end
@@ -80,7 +80,7 @@ M.setup = function(opts)
     M.options.default_keymappings_enabled = opts.default_keymappings_enabled
   end
 
-  M.options.enabled_methods = opts and opts.enabled_methods or allMethods
+  M.options.enabled_methods = opts and opts.enabled_methods or all_methods
   -- Turn the enabled_methods into a set for faster lookup
   M.options.enabled_methods_set = {}
   for _, method_name in ipairs(M.options.enabled_methods) do
