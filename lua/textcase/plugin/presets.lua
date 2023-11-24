@@ -70,7 +70,8 @@ M.Initialize = function()
   plugin.register_replace_command("Subs", replace_command_methods)
 end
 
-M.enabled_methods_set = {}
+-- Set all methods as default in case the setup function is not called.
+M.enabled_methods_set = all_methods
 
 M.setup = function(opts)
   M.options.prefix = opts and opts.prefix or "ga"
