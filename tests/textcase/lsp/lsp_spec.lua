@@ -1,6 +1,24 @@
 local test_helpers = require("tests.test_helpers")
 local textcase = require("textcase")
 
+-- Allow Typescript language server to start.
+-- Even though the language server is attached, it doesn't mean it is ready
+-- to receive requests. Hence, we send a request and wait for response.
+-- Then we know the language server is ready.
+local wait_for_language_server_to_start = function()
+  test_helpers.execute_keys("ww") -- Move to `doSomething`
+  local hover = ""
+  test_helpers.wait_for(30 * 1000, function()
+    -- This prints one "Error detected while processing command line:" but this can be ignored
+    vim.lsp.buf_request_all(0, "textDocument/hover", vim.lsp.util.make_position_params(), function(results)
+      -- Hover will print the type definition of the variable under the cursor. Hence,
+      -- it should contain "doSomething".
+      hover = results[1].result.contents.value
+    end)
+    return string.find(hover, "doSomething")
+  end)
+end
+
 describe("LSP", function()
   describe("Rename", function()
     before_each(function()
@@ -12,22 +30,8 @@ describe("LSP", function()
       local cmd = " silent exe 'e " .. path .. "'"
       vim.cmd(cmd)
       vim.bo.filetype = "typescript"
-      -- allow tsserver start
 
-      local ts_server_started = false
-      test_helpers.wait_for(30 * 1000, function()
-        vim.cmd("LspInfo")
-        ts_server_started = not not vim.fn.search("1 client(s) attached to this buffer")
-        test_helpers.execute_keys("q")
-        return ts_server_started
-      end)
-
-      assert.is.truthy(ts_server_started)
-
-      -- This is required for the 'just ci'. 'just test' runs fine with 50ms.
-      -- It isn't clear why it is required since the previous wait_for call already makes sure the LSP
-      -- was loaded and it has closed the LspInfo window.
-      vim.wait(1000, function() end)
+      wait_for_language_server_to_start()
 
       test_helpers.execute_keys("/variableToBeTested<CR>gaS")
       local content = nil
