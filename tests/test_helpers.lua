@@ -19,13 +19,14 @@ M.read_file = function(path)
   return contents
 end
 
-M.wait_for = function(max_seconds, callback)
-  local curr_seconds = 0
+M.wait_for = function(max_milliseconds, callback)
+  local step = 100
+  local curr_milliseconds = 0
   local task_finished = false
-  while curr_seconds < max_seconds and not task_finished do
-    curr_seconds = curr_seconds + 0.1
+  while curr_milliseconds < max_milliseconds and not task_finished do
     task_finished = callback()
-    vim.wait(100, function() end)
+    vim.wait(step, function() end)
+    curr_milliseconds = curr_milliseconds + step
   end
 end
 
