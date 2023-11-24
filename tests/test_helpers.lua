@@ -25,7 +25,7 @@ M.wait_for = function(max_seconds, callback)
   while curr_seconds < max_seconds and not task_finished do
     curr_seconds = curr_seconds + 0.1
     task_finished = callback()
-    vim.wait(500, function() end)
+    vim.wait(100, function() end)
   end
 end
 
