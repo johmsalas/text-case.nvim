@@ -7,7 +7,6 @@ local M = {}
 
 M.state = {
   register = nil,
-  methods_by_desc = {},
   methods_by_method_name = {},
   methods_by_command = {},
   change_type = nil,
@@ -22,8 +21,6 @@ M.state = {
 
 function M.register_methods(method_table, opts)
   -- TODO: validate method_table
-  M.state.methods_by_desc[method_table.desc] = method_table
-  M.state.methods_by_desc[method_table.desc].opts = opts
   M.state.methods_by_method_name[method_table.method_name] = method_table
   M.state.methods_by_method_name[method_table.method_name].opts = opts
 end
