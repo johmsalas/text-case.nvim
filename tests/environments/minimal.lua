@@ -8,6 +8,7 @@ end
 function M.init()
   vim.cmd([[set runtimepath=$VIMRUNTIME]])
   vim.opt.runtimepath:append(M.root())
+  vim.opt.swapfile = false
   vim.opt.packpath = {
     M.root(".tests/minimal/site"),
     M.root("tests"),
