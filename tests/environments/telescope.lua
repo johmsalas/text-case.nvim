@@ -8,6 +8,7 @@ end
 function M.init()
   vim.cmd([[set runtimepath=$VIMRUNTIME]])
   vim.opt.runtimepath:append(M.root())
+  vim.opt.swapfile = false
 
   -- This require needs to come after the runtimepath is set
   local feature_flags = require("feature_flags")

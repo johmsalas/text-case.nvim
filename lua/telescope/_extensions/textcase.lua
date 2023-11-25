@@ -1,4 +1,5 @@
 local plugin = require("textcase.plugin.plugin")
+local presets = require("textcase.plugin.presets")
 local constants = require("textcase.shared.constants")
 local api = require("textcase").api
 local actions = require("telescope.actions")
@@ -8,6 +9,9 @@ local function invoke_replacement(prompt_bufnr)
   return function()
     actions.close(prompt_bufnr)
     local selection = action_state.get_selected_entry()
+    if not selection then
+      return
+    end
     local change = selection.value
     if type(change) ~= "table" then
       return
@@ -40,11 +44,13 @@ local function Create_resulting_cases(prefix_text, conversion_type)
     api.to_title_case,
     api.to_path_case,
   }) do
-    table.insert(results, {
-      display = prefix_text .. method.desc,
-      method_name = method.method_name,
-      type = conversion_type,
-    })
+    if presets.options.enabled_methods_set[method.method_name] then
+      table.insert(results, {
+        display = prefix_text .. method.desc,
+        method_name = method.method_name,
+        type = conversion_type,
+      })
+    end
   end
 
   return results

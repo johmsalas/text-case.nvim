@@ -1,7 +1,7 @@
 local textcase = require("textcase")
 local test_helpers = require("tests.test_helpers")
 
-describe("plugin options default_keymappings=false", function()
+describe("plugin options enabled_methods=...", function()
   before_each(function()
     textcase.setup({
       enabled_methods = { "to_snake_case" },
