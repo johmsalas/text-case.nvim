@@ -187,5 +187,6 @@ return require("telescope").register_extension({
     visual_mode = telescope_visual_mode_change,
     normal_mode_quick_change = telescope_normal_mode_quick_change,
     normal_mode_lsp_change = telescope_normal_mode_lsp_change,
+    textcase = telescope_normal_mode_change,
   },
 })

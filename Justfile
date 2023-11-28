@@ -4,11 +4,11 @@ default:
 
 # Run all pull request checks from CI via act
 ci:
-  act --container-architecture=linux/amd64 pull_request
+  act --reuse --container-architecture=linux/amd64 pull_request
 
 # Run Neovim nightly tests from CI via act
 ci-nightly:
-  act --container-architecture=linux/amd64 -j TestsOnNightly
+  act --reuse --container-architecture=linux/amd64 -j TestsOnNightly
 
 # Run all pull request checks from CI via local commnds (faster than ci via act)
 ci-local: format test

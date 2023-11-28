@@ -36,4 +36,42 @@ describe("Telescope Integration", function()
       end)
     end
   end)
+
+  describe("via :Telescope textcase", function()
+    -- stylua: ignore start
+    local test_cases = {
+      { name = "constant", query = "const", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "LOREM_IPSUM DolorSit" } },
+    }
+    -- stylua: ignore end
+
+    for _, test_case in ipairs(test_cases) do
+      it("Should open Telescope and apply `" .. test_case.name .. " case`", function()
+        vim.api.nvim_buf_set_lines(0, 0, -1, true, test_case.buffer_lines)
+        test_helpers.execute_keys("<CMD>Telescope textcase<CR>")
+        test_helpers.execute_keys("i" .. test_case.query, "xmt")
+        vim.wait(50, function() end)
+        test_helpers.execute_keys("<CR>i")
+        assert.are.same(test_case.expected, test_helpers.get_buf_lines())
+      end)
+    end
+  end)
+
+  describe("via :Telescope textcase normal_mode", function()
+    -- stylua: ignore start
+    local test_cases = {
+      { name = "constant", query = "const", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "LOREM_IPSUM DolorSit" } },
+    }
+    -- stylua: ignore end
+
+    for _, test_case in ipairs(test_cases) do
+      it("Should open Telescope and apply `" .. test_case.name .. " case`", function()
+        vim.api.nvim_buf_set_lines(0, 0, -1, true, test_case.buffer_lines)
+        test_helpers.execute_keys("<CMD>Telescope textcase<CR>")
+        test_helpers.execute_keys("i" .. test_case.query, "xmt")
+        vim.wait(50, function() end)
+        test_helpers.execute_keys("<CR>i")
+        assert.are.same(test_case.expected, test_helpers.get_buf_lines())
+      end)
+    end
+  end)
 end)
