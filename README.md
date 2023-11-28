@@ -2,8 +2,8 @@
 
 An all in one plugin for converting text case in Neovim. It converts a piece of text to an indicated string case and also is capable of bulk replacing texts without changing cases
 
-![CI/CD](https://github.com/johmsalas/text-case.nvim/actions/workflows/ci.yml/badge.svg)
-![Tests Neovim Nightly](https://github.com/johmsalas/text-case.nvim/actions/workflows/neovim-nightly.yml/badge.svg)
+![CI/CD](https://github.com/johmsalas/text-case.nvim/actions/workflows/ci.yml/badge.svg?branch=main)
+![Tests Neovim Nightly](https://github.com/johmsalas/text-case.nvim/actions/workflows/neovim-nightly.yml/badge.svg?branch=main)
 
 This plugin runs its tests against the following versions of Neovim:
 
