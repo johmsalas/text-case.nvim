@@ -70,6 +70,33 @@ describe("plugin", function()
         buffer_lines = { "a" },
         expected = { "aa" },
       },
+      -- Test visual block mode
+      {
+        keys = "<C-V>ej:Subs/lorem/nunc/<CR>",
+        buffer_lines = {
+          "LoremIpsum LoremDolorSit amet",
+          "LOREM_IPSUM lorem_dolor_sit amet",
+          "lorem-ipsum lorem-dolor-sit amet",
+        },
+        expected = {
+          "NuncIpsum LoremDolorSit amet",
+          "NUNC_IPSUM lorem_dolor_sit amet",
+          "lorem-ipsum lorem-dolor-sit amet",
+        },
+        {
+          keys = "/lorem_dolor<CR><C-V>ej:Subs/lorem/nunc/<CR>",
+          buffer_lines = {
+            "LoremIpsum LoremDolorSit amet",
+            "LOREM_IPSUM lorem_dolor_sit amet",
+            "lorem-ipsum lorem-dolor-sit amet",
+          },
+          expected = {
+            "LoremIpsum LoremDolorSit amet",
+            "LOREM_IPSUM nunc_dolor_sit amet",
+            "lorem-ipsum nunc-dolor-sit amet",
+          },
+        },
+      },
     }
 
     for _, test_case in ipairs(test_cases) do
