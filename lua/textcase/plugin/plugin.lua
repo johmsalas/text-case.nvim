@@ -274,7 +274,11 @@ function M.visual(case_method)
 
   if M.state.telescope_previous_visual_region ~= nil then
     utils.set_visual_region(M.state.telescope_previous_visual_region)
-    vim.api.nvim_feedkeys("gvg@", "i", false)
+    if M.state.telescope_previous_visual_region.mode == constants.visual_mode.BLOCK then
+      vim.api.nvim_feedkeys("g@`[", "i", false)
+    else
+      vim.api.nvim_feedkeys("g@`<", "i", false)
+    end
   else
     vim.api.nvim_feedkeys("g@`>", "i", false)
   end
@@ -327,7 +331,7 @@ function M.open_telescope(filter)
     if mode == "n" then
       vim.cmd("Telescope textcase normal_mode")
     else
-      M.state.telescope_previous_visual_region = utils.get_visual_region(0, true, nil, "v")
+      M.state.telescope_previous_visual_region = utils.get_visual_region(0, true, nil, utils.get_mode_at_operator(mode))
       vim.cmd("Telescope textcase visual_mode")
     end
   end
