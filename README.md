@@ -209,3 +209,7 @@ Useful commands are defined in the [`Justfile`](Justfile) and can be listed with
 ```console
 npm install -g typescript-language-server typescript
 ```
+
+### Testing with Neotest
+
+The test runs executed in [`tests/run.sh`](tests/run.sh) work via different environments defined in the folder [`tests/environments`](tests/environments). This is not compatible with the default [Neotest setup](https://github.com/nvim-neotest/neotest-plenary#minimal-initlua) though, because it will look for a `tests/minimal_init.lua` file. Hence, there is a universal [`tests/minimal_init.lua` file](tests/minimal_init.lua) that is just used for running tests with Neotest and that contains the setup of all environments combined. Neotest enables us to run single tests easily.
