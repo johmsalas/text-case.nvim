@@ -2,44 +2,6 @@ local utils = require("textcase.shared.utils")
 
 local M = {}
 
--- This function takes a string and applies a keybinding to it. This is done by
--- creating a temporary buffer and open this buffer in a temporary window. There is no
--- other way to apply a keybinding to a string.
-local function apply_keybinding_to_string(str, keybinding)
-  -- Create a temporary buffer and open a window. A window is needed to apply the keybinding.
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "" .. str })
-  local win = vim.api.nvim_open_win(buf, true, { relative = "editor", width = 80, height = 20, row = 10, col = 10 })
-
-  -- Apply the keybinding
-  -- The <ESC> is needed for Telescope to work
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<ESC>", true, false, true), "x", false)
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keybinding, true, false, true), "x", false)
-
-  local modified_str = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-
-  vim.api.nvim_win_close(win, true)
-  vim.api.nvim_buf_delete(buf, { force = true })
-
-  return table.concat(modified_str, "\n")
-end
-
--- "some-string":upper() does not handle unicode characters like á => Á
--- while "gU" does. This function is a workaround for that.
-local function vim_string_to_upper(str)
-  return apply_keybinding_to_string(str, "VgU")
-end
-
--- See vim_string_to_upper
-local function vim_string_to_lower(str)
-  return apply_keybinding_to_string(str, "Vgu")
-end
-
-local is_special = function(char)
-  local b = char:byte(1)
-  return b <= 0x2F or (b >= 0x3A and b <= 0x3F) or (b >= 0x5B and b <= 0x60) or (b >= 0x7B and b <= 0x7F)
-end
-
 -- Check the bytes of a char for upper case characters. We only consider chars
 -- with one or two bytes.
 --
@@ -56,6 +18,45 @@ local is_upper = function(char)
   return single_byte_upper or dual_byte_upper
 end
 
+local function is_lower(char)
+  return not is_upper(char)
+end
+
+local function string_change_case_native(str, direction)
+  local result = ""
+
+  if direction == "upper" then
+    result = str:upper()
+  else
+    result = str:lower()
+  end
+
+  return result
+end
+
+-- According to https://www.utf8-chartable.de/unicode-utf8-table.pl?names=-&utf8=dec
+-- the difference between upper and lower case is 0x20 (32).
+local upper_to_lower_diff = 0x20
+local function string_change_case_special_chars(char, direction)
+  -- Create a list of bytes for the current char.
+  local bytes = {}
+  for byte in char:gmatch(".") do
+    table.insert(bytes, byte:byte(1))
+  end
+
+  if direction == "upper" then
+    if is_lower(char) then
+      bytes[2] = bytes[2] - upper_to_lower_diff
+    end
+  else
+    if is_upper(char) then
+      bytes[2] = bytes[2] + upper_to_lower_diff
+    end
+  end
+
+  return string.char(bytes[1], bytes[2])
+end
+
 local function split_string_into_chars(str)
   local chars = {}
   for uchar in str:gmatch("([%z\1-\127\194-\244][\128-\191]*)") do
@@ -64,12 +65,51 @@ local function split_string_into_chars(str)
   return chars
 end
 
+-- This function changes the case of a string. It has to be used instead of
+-- string.upper and string.lower because those functions don't work with
+-- multi-byte chars.
+--
+-- NOTE: If Neovim eventually supports UTF-8 string functions, we can use the string.upper/lower
+-- functions from there again.
+local function string_change_case(str, direction)
+  local result = ""
+
+  -- Go char by char and change the case of each char
+  for _, char in ipairs(split_string_into_chars(str)) do
+    if #char == 1 then
+      -- If the char is a single byte, we can use the built-in string.upper and string.lower functions
+      result = result .. string_change_case_native(char, direction)
+    else
+      -- If the char is a multi-byte char, we need to do some extra work
+      result = result .. string_change_case_special_chars(char, direction)
+    end
+  end
+
+  return result
+end
+
+-- Use this instead of string.upper to handle multi-byte chars
+local string_to_upper = function(str)
+  return string_change_case(str, "upper")
+end
+
+-- Use this instead of string.lower to handle multi-byte chars
+local string_to_lower = function(str)
+  return string_change_case(str, "lower")
+end
+
+local is_special = function(char)
+  local b = char:byte(1)
+  return b <= 0x2F or (b >= 0x3A and b <= 0x3F) or (b >= 0x5B and b <= 0x60) or (b >= 0x7B and b <= 0x7F)
+end
+
 local toTitle = function(str)
   local chars = split_string_into_chars(str)
   local first_char = chars[1]
-  local rest_char = { unpack(chars, 2) }
-  local rest_str = table.concat(rest_char, "")
-  return vim_string_to_upper(first_char) .. vim_string_to_lower(rest_str)
+  local rest_chars = { unpack(chars, 2) }
+  local rest_str = table.concat(rest_chars, "")
+
+  return string_to_upper(first_char) .. string_to_lower(rest_str)
 end
 
 function M.to_parts(str)
@@ -105,35 +145,35 @@ end
 function M.to_camel_case(str)
   local parts = vim.split(M.to_dash_case(str), "-")
   if #parts == 1 then
-    return vim_string_to_lower(parts[1])
+    return string_to_lower(parts[1])
   end
   if #parts > 1 then
-    return vim_string_to_lower(parts[1]) .. table.concat(utils.map({ unpack(parts, 2) }, toTitle), "")
+    return string_to_lower(parts[1]) .. table.concat(utils.map({ unpack(parts, 2) }, toTitle), "")
   end
 
   return ""
 end
 
 function M.to_upper_phrase_case(str)
-  return vim_string_to_upper(M.to_dash_case(str)):gsub("-", " ")
+  return string_to_upper(M.to_dash_case(str)):gsub("-", " ")
 end
 
 function M.to_lower_phrase_case(str)
-  return vim_string_to_lower(M.to_dash_case(str)):gsub("-", " ")
+  return string_to_lower(M.to_dash_case(str)):gsub("-", " ")
 end
 
 function M.to_phrase_case(str)
-  local lower = vim_string_to_lower(M.to_dash_case(str))
+  local lower = string_to_lower(M.to_dash_case(str))
   lower = lower:gsub("-", " ")
-  return vim_string_to_upper(lower:sub(1, 1)) .. lower:sub(2, #lower)
+  return string_to_upper(lower:sub(1, 1)) .. lower:sub(2, #lower)
 end
 
 function M.to_lower_case(str)
-  return vim_string_to_lower(str)
+  return string_to_lower(str)
 end
 
 function M.to_upper_case(str)
-  return vim_string_to_upper(str)
+  return string_to_upper(str)
 end
 
 function M.to_title_case(str)
@@ -158,7 +198,7 @@ end
 
 function M.to_constant_case(str)
   local parts = vim.split(M.to_dash_case(str), "-")
-  return table.concat(utils.map(parts, vim_string_to_upper), "_")
+  return table.concat(utils.map(parts, string_to_upper), "_")
 end
 
 function M.to_title_dash_case(str)
@@ -170,7 +210,7 @@ function M.to_dash_case(str)
   local trim_info, s = utils.trim_str(str)
 
   local parts = M.to_parts(s)
-  local result = table.concat(utils.map(parts, vim_string_to_lower), "-")
+  local result = table.concat(utils.map(parts, string_to_lower), "-")
 
   return utils.untrim_str(result, trim_info)
 end
