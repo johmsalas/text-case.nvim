@@ -82,34 +82,34 @@ describe("to_parts", function()
   end)
 end)
 
-local UNFORMATTED_STRING = "lorem ipsum dolor sit amet"
-local UPPER_STRING = "LOREM IPSUM DOLOR SIT AMET"
-local LOWER_STRING = "lorem ipsum dolor sit amet"
-local SNAKE_STRING = "lorem_ipsum_dolor_sit_amet"
-local DASH_STRING = "lorem-ipsum-dolor-sit-amet"
-local TITLE_DASH_STRING = "Lorem-Ipsum-Dolor-Sit-Amet"
-local CONSTANT_STRING = "LOREM_IPSUM_DOLOR_SIT_AMET"
-local DOT_STRING = "lorem.ipsum.dolor.sit.amet"
-local PHRASE_STRING = "Lorem ipsum dolor sit amet"
-local CAMEL_STRING = "loremIpsumDolorSitAmet"
-local PASCAL_STRING = "LoremIpsumDolorSitAmet"
-local TITLE_STRING = "Lorem Ipsum Dolor Sit Amet"
-local PATH_STRING = "lorem/ipsum/dolor/sit/amet"
+local UNFORMATTED_STRING = "lorem ipsum dolor sit amet ááaa"
+local UPPER_STRING = "LOREM IPSUM DOLOR SIT AMET ÁÁAA"
+local LOWER_STRING = "lorem ipsum dolor sit amet ááaa"
+local SNAKE_STRING = "lorem_ipsum_dolor_sit_amet_ááaa"
+local DASH_STRING = "lorem-ipsum-dolor-sit-amet-ááaa"
+local TITLE_DASH_STRING = "Lorem-Ipsum-Dolor-Sit-Amet-Ááaa"
+local CONSTANT_STRING = "LOREM_IPSUM_DOLOR_SIT_AMET_ÁÁAA"
+local DOT_STRING = "lorem.ipsum.dolor.sit.amet.ááaa"
+local PHRASE_STRING = "Lorem ipsum dolor sit amet ááaa"
+local CAMEL_STRING = "loremIpsumDolorSitAmetÁáaa"
+local PASCAL_STRING = "LoremIpsumDolorSitAmetÁáaa"
+local TITLE_STRING = "Lorem Ipsum Dolor Sit Amet Ááaa"
+local PATH_STRING = "lorem/ipsum/dolor/sit/amet/ááaa"
 
 describe("to_upper_case", function()
   it("should convert from other cases to upper_case", function()
     assert.are.same(UPPER_STRING, casing.to_upper_case(UNFORMATTED_STRING))
     assert.are.same(UPPER_STRING, casing.to_upper_case(UPPER_STRING))
     assert.are.same(UPPER_STRING, casing.to_upper_case(LOWER_STRING))
-    assert.are.same(SNAKE_STRING:upper(), casing.to_upper_case(SNAKE_STRING))
-    assert.are.same(DASH_STRING:upper(), casing.to_upper_case(DASH_STRING))
+    assert.are.same(CONSTANT_STRING, casing.to_upper_case(SNAKE_STRING))
+    assert.are.same(CONSTANT_STRING:gsub("_", "-"), casing.to_upper_case(DASH_STRING))
     assert.are.same(CONSTANT_STRING, casing.to_upper_case(CONSTANT_STRING))
-    assert.are.same(DOT_STRING:upper(), casing.to_upper_case(DOT_STRING))
+    assert.are.same(CONSTANT_STRING:gsub("_", "."), casing.to_upper_case(DOT_STRING))
     assert.are.same(UPPER_STRING, casing.to_upper_case(PHRASE_STRING))
-    assert.are.same(CAMEL_STRING:upper(), casing.to_upper_case(CAMEL_STRING))
-    assert.are.same(PASCAL_STRING:upper(), casing.to_upper_case(PASCAL_STRING))
+    assert.are.same(CONSTANT_STRING:gsub("_", ""), casing.to_upper_case(CAMEL_STRING))
+    assert.are.same(CONSTANT_STRING:gsub("_", ""), casing.to_upper_case(PASCAL_STRING))
     assert.are.same(UPPER_STRING, casing.to_upper_case(TITLE_STRING))
-    assert.are.same(PATH_STRING:upper(), casing.to_upper_case(PATH_STRING))
+    assert.are.same(CONSTANT_STRING:gsub("_", "/"), casing.to_upper_case(PATH_STRING))
   end)
 end)
 
@@ -118,15 +118,15 @@ describe("to_lower_case", function()
     assert.are.same(LOWER_STRING, casing.to_lower_case(UNFORMATTED_STRING))
     assert.are.same(LOWER_STRING, casing.to_lower_case(UPPER_STRING))
     assert.are.same(LOWER_STRING, casing.to_lower_case(LOWER_STRING))
-    assert.are.same(SNAKE_STRING:lower(), casing.to_lower_case(SNAKE_STRING))
-    assert.are.same(DASH_STRING:lower(), casing.to_lower_case(DASH_STRING))
-    assert.are.same(CONSTANT_STRING:lower(), casing.to_lower_case(CONSTANT_STRING))
-    assert.are.same(DOT_STRING:lower(), casing.to_lower_case(DOT_STRING))
+    assert.are.same(SNAKE_STRING, casing.to_lower_case(SNAKE_STRING))
+    assert.are.same(SNAKE_STRING:gsub("_", "-"), casing.to_lower_case(DASH_STRING))
+    assert.are.same(SNAKE_STRING, casing.to_lower_case(CONSTANT_STRING))
+    assert.are.same(SNAKE_STRING:gsub("_", "."), casing.to_lower_case(DOT_STRING))
     assert.are.same(LOWER_STRING, casing.to_lower_case(PHRASE_STRING))
-    assert.are.same(CAMEL_STRING:lower(), casing.to_lower_case(CAMEL_STRING))
-    assert.are.same(PASCAL_STRING:lower(), casing.to_lower_case(PASCAL_STRING))
+    assert.are.same(SNAKE_STRING:gsub("_", ""), casing.to_lower_case(CAMEL_STRING))
+    assert.are.same(SNAKE_STRING:gsub("_", ""), casing.to_lower_case(PASCAL_STRING))
     assert.are.same(LOWER_STRING, casing.to_lower_case(TITLE_STRING))
-    assert.are.same(PATH_STRING:lower(), casing.to_lower_case(PATH_STRING))
+    assert.are.same(SNAKE_STRING:gsub("_", "/"), casing.to_lower_case(PATH_STRING))
   end)
 end)
 

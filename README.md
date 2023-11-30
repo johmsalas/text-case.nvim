@@ -67,6 +67,10 @@ It is also a library of text case conversion methods. Useful for your LUA code.
 | Path case       | lorem/ipsum | textcase.api.to_path_case       |
 | Phrase case     | Lorem ipsum | textcase.api.to_phrase_case     |
 
+### Character compatibility
+
+It is possible to transform the letter case of the latin alphabet (`[a-z]`) as well as the special characters related to the latin alphabet (e.g. `á = Á` or `ö` => `Ö`).
+
 ## Setup
 
 Install with your favorite plugin manager.
