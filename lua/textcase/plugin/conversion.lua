@@ -1,7 +1,8 @@
 local utils = require("textcase.shared.utils")
 local lsp = vim.lsp
 
-local flag_buf_request_all = vim.fn.has("nvim-0.10") == 1
+-- local flag_buf_request_all = vim.fn.has("nvim-0.10") == 1
+local flag_buf_request_all = false
 
 local M = {}
 
@@ -68,6 +69,7 @@ function M.do_lsp_rename(method)
   local did_apply_lsp_rename = false
 
   local lsp_clients = vim.lsp.get_active_clients()
+  local clients_count = vim.tbl_count(lsp_clients)
 
   local lsp_handler_rename = vim.lsp.handlers["textDocument/rename"]
   local handleLSPRenameFinished = function(applied_lsp_rename, reason)
@@ -77,40 +79,30 @@ function M.do_lsp_rename(method)
     end
   end
 
-  local current_word = vim.fn.expand("<cword>")
-  local params = lsp.util.make_position_params()
-  params.newName = method(current_word)
-  if flag_buf_request_all then
-    lsp.buf_request_all(0, "textDocument/rename", params, function(results)
-      for _, res in pairs(results or {}) do
-        if res.result and vim.tbl_count(res.result.changes) > 0 then
-          -- TODO: Call default handler
-          -- lsp_handler_rename(res.result.err, result, context)
-          did_apply_lsp_rename = true
-        end
-      end
-      handleLSPRenameFinished(did_apply_lsp_rename)
-    end)
+  local is_lsp_rename_supported = false
+  for _, client in pairs(lsp_clients or {}) do
+    if client.supports_method("textDocument/rename") then
+      is_lsp_rename_supported = true
+    end
+  end
+
+  -- On LSP Sync Renaming happens when there are no attached clients
+  if clients_count == 0 then
+    handleLSPRenameFinished(false, "LSP rename failed. No attached Language Server found.")
+  elseif not is_lsp_rename_supported then
+    handleLSPRenameFinished(
+      false,
+      "method textDocument/rename is not supported by any of the servers registered for the current buffer"
+    )
   else
-    local processed_clients = 0
-    local clients_count = vim.tbl_count(lsp_clients)
-    lsp.buf_request(0, "textDocument/rename", params, function(err, result, context)
-      lsp_handler_rename(err, result, context)
+    local current_word = vim.fn.expand("<cword>")
+    local params = lsp.util.make_position_params()
+    params.newName = method(current_word)
 
-      processed_clients = processed_clients + 1
-      if not err then
-        did_apply_lsp_rename = true
-      end
-
-      -- On LSP Async Renaming happens when there are attached clients
-      if processed_clients == clients_count then
-        handleLSPRenameFinished(did_apply_lsp_rename)
-      end
-    end)
-
-    -- On LSP Sync Renaming happens when there are no attached clients
-    if clients_count == 0 then
-      handleLSPRenameFinished(false, "LSP rename failed. No attached Language Servers found.")
+    if flag_buf_request_all then
+      -- lsp.buf_request_all(0, "textDocument/rename", params)
+    else
+      lsp.buf_request(0, "textDocument/rename", params)
     end
   end
 end
