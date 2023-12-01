@@ -11,6 +11,7 @@ local make_position_params_fn = vim.lsp.util.make_position_params
 -- The spies override the default behavior of nvim.
 -- If the tests are run in parallel there will be unexpected behaviors.
 -- That's why the override does not happen into (before/after)_each statements
+-- but as close as possible where they are required
 describe("LSP renaming", function()
   describe("when no buffers are attached", function()
     local err_spy = nil
