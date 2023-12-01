@@ -79,9 +79,12 @@ local function string_change_case(str, direction)
     if #char == 1 then
       -- If the char is a single byte, we can use the built-in string.upper and string.lower functions
       result = result .. string_change_case_native(char, direction)
-    else
+    elseif #char == 2 then
       -- If the char is a multi-byte char, we need to do some extra work
       result = result .. string_change_case_special_chars(char, direction)
+    else
+      -- If the char is neither a single byte nor a multi-byte char, we just append it to the result
+      result = result .. char
     end
   end
 

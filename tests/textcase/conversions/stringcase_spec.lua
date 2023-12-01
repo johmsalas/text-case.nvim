@@ -110,6 +110,8 @@ describe("to_upper_case", function()
     assert.are.same(CONSTANT_STRING:gsub("_", ""), casing.to_upper_case(PASCAL_STRING))
     assert.are.same(UPPER_STRING, casing.to_upper_case(TITLE_STRING))
     assert.are.same(CONSTANT_STRING:gsub("_", "/"), casing.to_upper_case(PATH_STRING))
+
+    assert.are.same("SOME UNICODE あいうえお", casing.to_upper_case("some unicode あいうえお"))
   end)
 end)
 
