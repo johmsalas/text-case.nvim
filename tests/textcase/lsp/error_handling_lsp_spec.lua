@@ -1,8 +1,13 @@
 local test_helpers = require("tests.test_helpers")
 local textcase = require("textcase")
+local spy = require("luassert.spy")
 
-describe("LSP", function()
-  describe("Rename", function()
+local err_fn = vim.api.nvim_err_writeln
+
+describe("LSP renaming", function()
+  describe("when there are attached buffers supporting textDocument/rename", function()
+    local err_spy = nil
+
     before_each(function()
       textcase.setup({})
 
@@ -12,14 +17,17 @@ describe("LSP", function()
       vim.bo.filetype = "typescript"
 
       test_helpers.wait_for_language_server_to_start()
+
+      err_spy = spy.new(function() end)
+      vim.api.nvim_err_writeln = err_spy
     end)
 
     after_each(function()
-      -- Close the buffer so the next test can open it again.
+      vim.api.nvim_err_writeln = err_fn
       vim.cmd("silent exe 'bd! %'")
     end)
 
-    it("Should be triggered on keybinding for snake case", function()
+    it("should not show an error message", function()
       test_helpers.execute_keys("/variableToBeTested<CR>gaS")
       local content = nil
       test_helpers.wait_for(5 * 1000, function()
@@ -30,19 +38,8 @@ describe("LSP", function()
 
       local expected_code = test_helpers.read_file("./tests/textcase/lsp/fixtures/snake-case.ts")
       assert.are.same(table.concat(content, "\n"), expected_code)
-    end)
 
-    it("Should be triggered on keybinding for constant case", function()
-      test_helpers.execute_keys("/variableToBeTested<CR>gaN")
-      local content = nil
-      test_helpers.wait_for(5 * 1000, function()
-        content = test_helpers.get_buf_lines()
-        local found_modified_variable = not not string.find(content[2], "VARIABLE_TO_BE_TESTED")
-        return found_modified_variable
-      end)
-
-      local expected_code = test_helpers.read_file("./tests/textcase/lsp/fixtures/constant-case.ts")
-      assert.are.same(table.concat(content, "\n"), expected_code)
+      assert.spy(err_spy).was.not_called()
     end)
   end)
 end)

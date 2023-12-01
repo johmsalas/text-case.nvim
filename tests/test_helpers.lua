@@ -30,4 +30,22 @@ M.wait_for = function(max_milliseconds, callback)
   end
 end
 
+-- Allow Typescript language server to start.
+-- Even though the language server is attached, it doesn't mean it is ready
+-- to receive requests. Hence, we send a request and wait for response.
+-- Then we know the language server is ready.
+M.wait_for_language_server_to_start = function()
+  M.execute_keys("ww") -- Move to `doSomething`
+  local hover = ""
+  M.wait_for(30 * 1000, function()
+    -- This prints one "Error detected while processing command line:" but this can be ignored
+    vim.lsp.buf_request_all(0, "textDocument/hover", vim.lsp.util.make_position_params(), function(results)
+      -- Hover will print the type definition of the variable under the cursor. Hence,
+      -- it should contain "doSomething".
+      hover = results[1].result.contents.value
+    end)
+    return string.find(hover, "doSomething")
+  end)
+end
+
 return M
