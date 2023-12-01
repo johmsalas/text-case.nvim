@@ -54,11 +54,6 @@ describe("LSP renaming", function()
       end)
     end)
 
-    after_each(function()
-      vim.api.nvim_err_writeln = err_fn
-      vim.lsp.util.make_position_params = make_position_params_fn
-    end)
-
     local disabled_rename_method = function(method)
       if method == "textDocument/rename" then
         return false
