@@ -66,14 +66,10 @@ function M.do_block_substitution(start_row, start_col, end_row, end_col, method)
 end
 
 function M.do_lsp_rename(method)
-  local did_apply_lsp_rename = false
-
   local lsp_clients = vim.lsp.get_active_clients()
   local clients_count = vim.tbl_count(lsp_clients)
 
-  local lsp_handler_rename = vim.lsp.handlers["textDocument/rename"]
   local handleLSPRenameFinished = function(applied_lsp_rename, reason)
-    reason = reason or "LSP rename failed. Verify attached Language Servers support it."
     if not applied_lsp_rename then
       vim.api.nvim_err_writeln(reason)
     end
