@@ -107,8 +107,7 @@ use { "johmsalas/text-case.nvim",
     require("telescope").load_extension("textcase")
   end,
   keys = {
-    { "ga.", "<cmd>TextCaseOpenTelescope<CR>", mode = "n", desc = "Telescope" },
-    { "ga.", "<cmd>TextCaseOpenTelescope<CR>", mode = "v", desc = "Telescope" },
+    { "ga.", "<cmd>TextCaseOpenTelescope<CR>", mode = { "n", "v" }, desc = "Telescope" },
   },
 }
 ```
