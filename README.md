@@ -92,18 +92,7 @@ use { "johmsalas/text-case.nvim",
   "johmsalas/text-case.nvim",
   dependencies = { "nvim-telescope/telescope.nvim" },
   config = function()
-    require("textcase").setup({
-      enabled_methods = {
-        "to_snake_case",
-        "to_dash_case",
-        "to_title_dash_case",
-        "to_constant_case",
-        "to_camel_case",
-        "to_pascal_case",
-        "to_title_case",
-        "to_path_case",
-      },
-    })
+    require("textcase").setup({})
     require("telescope").load_extension("textcase")
   end,
   keys = {
