@@ -85,6 +85,22 @@ use { "johmsalas/text-case.nvim",
 }
 ```
 
+### Example for LazyVim
+
+```lua
+{
+  "johmsalas/text-case.nvim",
+  dependencies = { "nvim-telescope/telescope.nvim" },
+  config = function()
+    require("textcase").setup({})
+    require("telescope").load_extension("textcase")
+  end,
+  keys = {
+    { "ga.", "<cmd>TextCaseOpenTelescope<CR>", mode = { "n", "v" }, desc = "Telescope" },
+  },
+}
+```
+
 ### All options with their default value
 
 ```lua
