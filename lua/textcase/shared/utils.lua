@@ -243,6 +243,21 @@ function utils.trim_str(str, _trimmable_chars)
   return trim_info, trimmed_str
 end
 
+function utils.get_current_word_info()
+  local cursor_pos = vim.fn.getpos(".")
+  local start_the_search_at_cursor_position = "W"
+  local word = "\\w"
+  local current_word_pos = vim.fn.searchpos(word, start_the_search_at_cursor_position)
+  vim.fn.setpos(".", cursor_pos)
+
+  local line = current_word_pos[1] - 1
+  local character = current_word_pos[2]
+
+  local position = { line = line, character = character }
+
+  return { position = position, word = vim.fn.expand("<cword>") }
+end
+
 function utils.get_list(str, mode)
   local limit = 0
   local initial = nil
