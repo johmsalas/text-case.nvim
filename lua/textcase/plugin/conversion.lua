@@ -1,9 +1,6 @@
 local utils = require("textcase.shared.utils")
 local lsp = vim.lsp
 
--- local flag_buf_request_all = vim.fn.has("nvim-0.10") == 1
-local flag_buf_request_all = false
-
 local M = {}
 
 function M.replace_matches(match, source, dest, try_lsp, buf)
