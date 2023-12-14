@@ -95,11 +95,21 @@ function M.do_lsp_rename(method)
     local params = lsp.util.make_position_params()
     params.newName = method(current_word)
 
-    if flag_buf_request_all then
-      -- lsp.buf_request_all(0, "textDocument/rename", params)
-    else
-      lsp.buf_request(0, "textDocument/rename", params)
-    end
+    lsp.buf_request_all(0, "textDocument/rename", params, function(results)
+      local total_files = 0
+      for client_id, response in pairs(results) do
+        if not response.error then
+          local client = vim.lsp.get_client_by_id(client_id)
+          vim.lsp.util.apply_workspace_edit(response.result, client.offset_encoding)
+
+          -- after the edits are applied, the files are not saved automatically.
+          -- let's remind ourselves to save those...
+          -- TODO: This will be modified to include only one of the clients count
+          total_files = vim.tbl_count(response.result.changes)
+        end
+      end
+      print(string.format("Changed %s file%s. To save them run ':wa'", total_files, total_files > 1 and "s" or ""))
+    end)
   end
 end
 
