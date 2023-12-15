@@ -175,12 +175,16 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
 
       local get_match = utils.get_list(utils.escape_string(transformed_source), mode)
       for match in get_match do
-        if dest ~= "" then
-          conversion.replace_matches(match, transformed_source, transformed_dest, false, buf)
-        end
-        local length = transformed_dest == "" and #transformed_source or #transformed_dest
-        if preview_ns ~= nil then
-          vim.api.nvim_buf_add_highlight(buf, preview_ns, "Search", match[1] - 1, match[2] - 1, match[2] - 1 + length)
+        local match_is_inside_visual_range = match[1] >= opts.line1 and match[1] <= opts.line2
+
+        if match_is_inside_visual_range then
+          if dest ~= "" then
+            conversion.replace_matches(match, transformed_source, transformed_dest, false, buf)
+          end
+          local length = transformed_dest == "" and #transformed_source or #transformed_dest
+          if preview_ns ~= nil then
+            vim.api.nvim_buf_add_highlight(buf, preview_ns, "Search", match[1] - 1, match[2] - 1, match[2] - 1 + length)
+          end
         end
       end
     end

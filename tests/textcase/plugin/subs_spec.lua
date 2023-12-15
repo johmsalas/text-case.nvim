@@ -24,6 +24,32 @@ describe("plugin", function()
           "elit-sed dolor-sit amet",
         },
       },
+      {
+        keys = "Vj:Subs/lorem_ipsum/elit_sed/<CR>",
+        buffer_lines = {
+          "LoremIpsum DolorSit amet",
+          "lorem_ipsum dolor_sit amet",
+          "lorem-ipsum dolor-sit amet",
+        },
+        expected = {
+          "ElitSed DolorSit amet",
+          "elit_sed dolor_sit amet",
+          "lorem-ipsum dolor-sit amet",
+        },
+      },
+      {
+        keys = "V:Subs/lorem_ipsum/elit_sed/<CR>",
+        buffer_lines = {
+          "LoremIpsum DolorSit amet",
+          "lorem_ipsum dolor_sit amet",
+          "lorem-ipsum dolor-sit amet",
+        },
+        expected = {
+          "ElitSed DolorSit amet",
+          "lorem_ipsum dolor_sit amet",
+          "lorem-ipsum dolor-sit amet",
+        },
+      },
       -- This test case adds a word in the Subs command
       {
         keys = "Vjj:Subs/lorem ipsum/lorem ipsum nunc/<CR>",
@@ -94,6 +120,20 @@ describe("plugin", function()
             "LoremIpsum LoremDolorSit amet",
             "LOREM_IPSUM nunc_dolor_sit amet",
             "lorem-ipsum nunc-dolor-sit amet",
+          },
+        },
+        -- Test case for whole buffer
+        {
+          keys = "<CMD>Subs/lorem/nunc<CR>",
+          buffer_lines = {
+            "LoremIpsum LoremDolorSit amet",
+            "LOREM_IPSUM lorem_dolor_sit amet",
+            "lorem-ipsum lorem-dolor-sit amet",
+          },
+          expected = {
+            "NuncIpsum NuncDolorSit amet",
+            "NUNC_IPSUM nunc_dolor_sit amet",
+            "nunc-ipsum nunc-dolor-sit amet",
           },
         },
       },
