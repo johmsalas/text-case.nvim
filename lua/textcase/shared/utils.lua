@@ -243,8 +243,19 @@ function utils.trim_str(str, _trimmable_chars)
   return trim_info, trimmed_str
 end
 
+-- Gets the position and text of the current word under the cursor
+-- If the cursor is located on a word it returns information about that word
+-- If the cursor is not on a word, it returns information about the next word
+-- The method could have some validation when there is no word to be returned
+--   not required at the moment
+-- One of the cases where this method is useful is on LSP rename,
+--   If there cursor is not on a word, TextDocument/rename acts on the previous
+--   word, while vim.fn.expand returns information about the following word
+--   By using this method the plugin has a way of referring to the same word
 function utils.get_current_word_info()
   local cursor_pos = vim.fn.getpos(".")
+  -- This could be customized to read exactly the word under the cursor, ignoring
+  -- close words, or even considering words before the cursor. Consult values like Wn and Wb
   local start_the_search_at_cursor_position = "W"
   local word = "\\w"
   local current_word_pos = vim.fn.searchpos(word, start_the_search_at_cursor_position)
