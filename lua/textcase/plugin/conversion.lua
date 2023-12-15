@@ -88,8 +88,10 @@ function M.do_lsp_rename(method)
       "method textDocument/rename is not supported by any of the servers registered for the current buffer"
     )
   else
-    local current_word = vim.fn.expand("<cword>")
+    local current_word_info = utils.get_current_word_info()
+    local current_word = current_word_info.word
     local params = lsp.util.make_position_params()
+    params.position = current_word_info.position
     params.newName = method(current_word)
 
     lsp.buf_request_all(0, "textDocument/rename", params, function(results)

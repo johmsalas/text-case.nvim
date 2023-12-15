@@ -48,4 +48,21 @@ M.wait_for_language_server_to_start = function()
   end)
 end
 
+-- This method duplicates wait_for_language_server_to_start for
+-- the destructuring file. Using Write Everything Twice and
+-- avoiding to come up with a wrong abstraction too early
+M.wait_for_language_server_to_start_on_destructuring_file = function()
+  M.execute_keys("ww") -- Move to `foovar`
+  local hover = ""
+  M.wait_for(30 * 1000, function()
+    -- This prints one "Error detected while processing command line:" but this can be ignored
+    vim.lsp.buf_request_all(0, "textDocument/hover", vim.lsp.util.make_position_params(), function(results)
+      -- Hover will print the type definition of the variable under the cursor. Hence,
+      -- it should contain "fooVar".
+      hover = results[1].result.contents.value
+    end)
+    return string.find(hover, "fooVar")
+  end)
+end
+
 return M
