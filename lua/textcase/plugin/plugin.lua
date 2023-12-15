@@ -91,6 +91,9 @@ function M.register_replace_command(command, method_keys)
     table.insert(M.state.methods_by_command[command], method)
   end
 
+  -- The registered command for Subs replacements depends on the
+  -- availability of the "incremental command preview" feature
+  -- https://github.com/neovim/neovim/pull/18194
   if flag_incremental_preview then
     vim.api.nvim_create_user_command(
       command,
@@ -117,13 +120,30 @@ function M.clear_match(command_namespace)
   ]])
 end
 
+-- This method is called for previewing the result and also
+-- for computing the final result and to modify the buffer
+-- with the replacements
+
+-- Sample for preview mode:
+-- :Subs/source/dest
+-- In this case preview ~= nil and preview_buf ~= nil
+
+-- Sample for final replacement
+-- :Subs/source/dest<CR>
+-- In this case preview_ns == nil and preview_buf == nil
+
+-- <cmd>h command-preview
 function M.incremental_substitute(opts, preview_ns, preview_buf)
   local command = "Subs"
+  -- Equivalent to the method TextCaseSubstituteLauncher (start.vim) computing
+  -- if it is a multiline selection to use either normal or visual mode
   local mode = (opts.range < 2 or opts.line1 == opts.line2) and "n" or "\22"
   local params = vim.split(opts.args, "/")
   local source, dest = params[2], params[3]
   source = MixStringConectors(source)
   dest = MixStringConectors(dest or "")
+
+  -- preview_ns and preview_buf indicates the buffer to be modified
   local buf = (preview_ns ~= nil) and preview_buf or vim.api.nvim_get_current_buf()
 
   local cursor_pos = vim.fn.getpos(".")
@@ -169,6 +189,7 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
   vim.fn.setpos(".", cursor_pos)
 
   if preview_ns ~= nil then
+    -- 2: Preview is shown and preview window is opened
     return 2
   end
 end
