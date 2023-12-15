@@ -137,6 +137,41 @@ describe("plugin", function()
           "nunc-ipsum nunc-dolor-sit amet",
         },
       },
+      -- Test case for a shorter second line
+      -- This tests visual line mode vs visual block mode
+      {
+        keys = "<C-V>ej:Subs/lorem/nunc<CR>",
+        buffer_lines = {
+          "  LoremIpsum LoremDolorSit amet",
+          "short",
+        },
+        expected = {
+          "  NuncIpsum LoremDolorSit amet",
+          "short",
+        },
+      },
+      {
+        keys = "Vj:Subs/lorem/nunc<CR>",
+        buffer_lines = {
+          "  LoremIpsum LoremDolorSit amet",
+          "short",
+        },
+        expected = {
+          "  NuncIpsum NuncDolorSit amet",
+          "short",
+        },
+      },
+      {
+        keys = ":Subs/lorem/nunc<CR>",
+        buffer_lines = {
+          "  LoremIpsum LoremDolorSit amet",
+          "short",
+        },
+        expected = {
+          "  NuncIpsum NuncDolorSit amet",
+          "short",
+        },
+      },
     }
 
     for _, test_case in ipairs(test_cases) do
