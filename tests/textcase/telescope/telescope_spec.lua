@@ -67,6 +67,33 @@ describe("Telescope Integration", function()
     end)
   end)
 
+  describe("visual mode lines via ga. keymapping", function()
+    before_each(function()
+      vim.api.nvim_set_keymap("n", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
+      vim.api.nvim_set_keymap("v", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
+    end)
+
+    local buffer_lines = {
+      "LoremIpsum LoremIpsum DolorSit",
+      "LoremIpsum LoremIpsum DolorSit",
+      "LoremIpsum DolorSit",
+    }
+    local expected = {
+      "LOREM_IPSUM_LOREM_IPSUM_DOLOR_SIT",
+      "LOREM_IPSUM_LOREM_IPSUM_DOLOR_SIT",
+      "LoremIpsum DolorSit",
+    }
+
+    it("Should open Telescope and apply the selected method only for selected block", function()
+      vim.api.nvim_buf_set_lines(0, 0, -1, true, buffer_lines)
+      test_helpers.execute_keys("Vjga.")
+      test_helpers.execute_keys("iconst", "xmt")
+      vim.wait(50, function() end)
+      test_helpers.execute_keys("<CR>i")
+      assert.are.same(expected, test_helpers.get_buf_lines())
+    end)
+  end)
+
   describe("visual block mode via ga. keymapping", function()
     before_each(function()
       vim.api.nvim_set_keymap("n", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
@@ -149,7 +176,7 @@ describe("Telescope Integration", function()
     for _, test_case in ipairs(test_cases) do
       it("Should open Telescope and apply `" .. test_case.name .. " case`", function()
         vim.api.nvim_buf_set_lines(0, 0, -1, true, test_case.buffer_lines)
-        test_helpers.execute_keys("<CMD>Telescope textcase<CR>")
+        test_helpers.execute_keys("<CMD>Telescope textcase normal_mode<CR>")
         test_helpers.execute_keys("i" .. test_case.query, "xmt")
         vim.wait(50, function() end)
         test_helpers.execute_keys("<CR>i")
