@@ -32,7 +32,6 @@ mkdir -p $TEST_ALL_DIR
 clone $GITHUB_PLENARY "$TEST_ALL_DIR/plenary.nvim"
 clone $GITHUB_TELESCOPE "$TEST_ALL_DIR/telescope.nvim"
 clone $GITHUB_LSPCONFIG "$TEST_ALL_DIR/lspconfig.nvim"
-nvim --headless -u tests/environments/all.lua -c "PlenaryBustedDirectory tests/textcase/all/ {minimal_init = 'tests/environments/all.lua', sequential = true}"
 
 mkdir -p $TEST_MINIMAL_DIR
 ln -s "$TEST_ALL_DIR/plenary.nvim" "$TEST_MINIMAL_DIR/plenary.nvim"
@@ -48,3 +47,6 @@ mkdir -p $TEST_TELESCOPE_DIR
 ln -s "$TEST_ALL_DIR/plenary.nvim" "$TEST_TELESCOPE_DIR/plenary.nvim"
 ln -s "$TEST_ALL_DIR/telescope.nvim" "$TEST_TELESCOPE_DIR/telescope.nvim"
 nvim --headless -u tests/environments/telescope.lua -c "PlenaryBustedDirectory tests/textcase/telescope/telescope_spec.lua {minimal_init = 'tests/environments/telescope.lua', sequential = true}"
+
+# "all" is run at the end because it uses other environments as fallbacks
+nvim --headless -u tests/environments/all.lua -c "PlenaryBustedDirectory tests/textcase/all/ {minimal_init = 'tests/environments/all.lua', sequential = true}"
