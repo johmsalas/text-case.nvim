@@ -42,7 +42,7 @@ M.wait_for_language_server_to_start = function()
     vim.lsp.buf_request_all(0, "textDocument/hover", vim.lsp.util.make_position_params(), function(results)
       -- Hover will print the type definition of the variable under the cursor. Hence,
       -- it should contain "doSomething".
-      hover = results[1].result.contents.value
+      hover = results[1].result and results[1].result.contents.value
     end)
     return string.find(hover, "doSomething")
   end)
