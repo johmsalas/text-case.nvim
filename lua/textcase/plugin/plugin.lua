@@ -135,16 +135,27 @@ end
 -- <cmd>h command-preview
 function M.incremental_substitute(opts, preview_ns, preview_buf)
   local command = "Subs"
+
+  -- preview_ns and preview_buf indicates the buffer to be modified
+  local buf = (preview_ns ~= nil) and preview_buf or vim.api.nvim_get_current_buf()
+
+  local range_start_mark = vim.api.nvim_buf_get_mark(buf, "<")
+  local range_end_mark = vim.api.nvim_buf_get_mark(buf, ">")
+
+  local visual_mode = "\22" -- Visual block mode as default
+  if range_start_mark[2] > 1000000 or range_end_mark[2] > 1000000 then
+    -- If one of the mark has a huge value, it means that "the range
+    -- goes until the end of lines" aka Visual line mode
+    visual_mode = "v" -- Visual line mode
+  end
+
   -- Equivalent to the method TextCaseSubstituteLauncher (start.vim) computing
   -- if it is a multiline selection to use either normal or visual mode
-  local mode = (opts.range < 2 or opts.line1 == opts.line2) and "n" or "\22"
+  local mode = (opts.range < 2 or opts.line1 == opts.line2) and "n" or visual_mode
   local params = vim.split(opts.args, "/")
   local source, dest = params[2], params[3]
   source = MixStringConectors(source)
   dest = MixStringConectors(dest or "")
-
-  -- preview_ns and preview_buf indicates the buffer to be modified
-  local buf = (preview_ns ~= nil) and preview_buf or vim.api.nvim_get_current_buf()
 
   local cursor_pos = vim.fn.getpos(".")
   vim.api.nvim_buf_clear_namespace(buf, 1, 0, -1)
