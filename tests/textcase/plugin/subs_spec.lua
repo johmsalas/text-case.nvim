@@ -172,6 +172,16 @@ describe("plugin", function()
           "short",
         },
       },
+      -- Test the selection of a part of a single line
+      {
+        keys = "ve:Subs/lorem/nunc<CR>",
+        buffer_lines = {
+          "LoremIpsum LoremDolorSit amet",
+        },
+        expected = {
+          "NuncIpsum LoremDolorSit amet",
+        },
+      },
     }
 
     for _, test_case in ipairs(test_cases) do
