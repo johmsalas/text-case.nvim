@@ -150,8 +150,12 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
   end
 
   -- Equivalent to the method TextCaseSubstituteLauncher (start.vim) computing
-  -- if it is a multiline selection to use either normal or visual mode
-  local mode = (opts.range < 2 or opts.line1 == opts.line2) and "n" or visual_mode
+  -- if it is a multiline selection to use either normal or visual mode.
+  --
+  -- If the count is -1, it means that the command was NOT called from a visual
+  -- mode. We only care about visual modes or normal mode, so we can set the
+  -- mode to "n" in that case.
+  local mode = opts.count == -1 and "n" or visual_mode
   local params = vim.split(opts.args, "/")
   local source, dest = params[2], params[3]
   source = MixStringConectors(source)
