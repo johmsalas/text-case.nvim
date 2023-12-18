@@ -96,17 +96,31 @@ function M.do_lsp_rename(method)
 
     lsp.buf_request_all(0, "textDocument/rename", params, function(results)
       local total_files = 0
+      local results_to_be_applied = nil
+      local offset_encoding_to_be_applied = nil
+
+      -- Loop through the results and find the one that touches the most files
+      -- and save its results to be applied.
       for client_id, response in pairs(results) do
         if not response.error then
           local client = vim.lsp.get_client_by_id(client_id)
-          vim.lsp.util.apply_workspace_edit(response.result, client.offset_encoding)
+          local files_count_by_current_response = vim.tbl_count(response.result.changes)
 
-          -- after the edits are applied, the files are not saved automatically.
-          -- let's remind ourselves to save those...
-          -- TODO: This will be modified to include only one of the clients count
-          total_files = vim.tbl_count(response.result.changes)
+          if files_count_by_current_response > total_files then
+            total_files = files_count_by_current_response
+            results_to_be_applied = response.result
+            offset_encoding_to_be_applied = client.offset_encoding
+          end
         end
       end
+
+      if total_files > 0 and offset_encoding_to_be_applied ~= nil then
+        -- If there are results to be applied, apply them.
+        vim.lsp.util.apply_workspace_edit(results_to_be_applied, offset_encoding_to_be_applied)
+      end
+
+      -- After the edits are applied, the files are not saved automatically.
+      -- Let's remind ourselves to save those...
       print(string.format("Changed %s file%s. To save them run ':wa'", total_files, total_files > 1 and "s" or ""))
     end)
   end
