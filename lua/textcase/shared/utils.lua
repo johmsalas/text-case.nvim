@@ -331,4 +331,40 @@ function utils.get_list(str, mode)
   end
 end
 
+-- Function to extract the current word under the cursor with different casings
+local function get_current_word_with_casings()
+  local line = vim.api.nvim_get_current_line()
+  local col = vim.api.nvim_win_get_cursor(0)[2] + 1
+  local pattern = "[%w%-_%.%/]" -- Pattern includes forward slash for paths/URLs
+
+  -- Find the start of the word
+  local start_index = col
+  while start_index > 0 and string.match(string.sub(line, start_index, start_index), pattern) do
+    start_index = start_index - 1
+  end
+
+  -- Find the end of the word
+  local end_index = col
+  while end_index <= #line and string.match(string.sub(line, end_index, end_index), pattern) do
+    end_index = end_index + 1
+  end
+
+  -- Extract the word from start to end
+  return string.sub(line, start_index + 1, end_index - 1)
+end
+
+function utils.define_highlight_group(highlight_group)
+  vim.api.nvim_command(
+    "highlight " .. highlight_group .. " guibg=#4f5b66 ctermbg=235 guifg=#ff0000 ctermfg=15 gui=reverse"
+  )
+end
+
+function utils.start_with(str, start)
+  return str:sub(1, #start) == start
+end
+
+function utils.apply_highlight_to_range(buf, hl_group, start_pos, end_pos)
+  vim.api.nvim_buf_add_highlight(buf, -1, hl_group, start_pos[1] - 1, start_pos[2], end_pos[2])
+end
+
 return utils

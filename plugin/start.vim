@@ -7,6 +7,8 @@ command! -range TextCaseOpenTelescopeLSPChange <line1>,<line2>lua require("textc
 command! -range TextCaseStartReplacingCommand <line1>,<line2>lua require("textcase").start_replacing_command()
 
 
+command! -range TextCaseStartChangingWordPreservingCase lua require("textcase").start_changing_word_preserving_case()
+
 function! TextCaseSubstituteLauncher(...) range
   " Stores the first argument as a global variable
   let g:TextCaseSubsArgs = a:1
