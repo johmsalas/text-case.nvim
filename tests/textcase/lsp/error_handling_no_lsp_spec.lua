@@ -5,7 +5,8 @@ local match = require("luassert.match")
 
 local err_fn = vim.api.nvim_err_writeln
 local get_active_clients_fn = vim.lsp.get_active_clients
-local buf_request_fn = vim.lsp.buf_request
+local buf_request_all_fn = vim.lsp.buf_request_all
+local buf_request_all_results = {}
 local make_position_params_fn = vim.lsp.util.make_position_params
 
 -- The spies override the default behavior of nvim.
@@ -38,7 +39,7 @@ describe("LSP renaming", function()
 
   describe("LS textDocument/rename failure", function()
     local err_spy = nil
-    local buf_request_spy = nil
+    local buf_request_all_spy = nil
     local make_position_params_spy = nil
 
     before_each(function()
@@ -48,7 +49,9 @@ describe("LSP renaming", function()
       vim.api.nvim_command("buffer " .. buf)
 
       err_spy = spy.new(function() end)
-      buf_request_spy = spy.new(function() end)
+      buf_request_all_spy = spy.new(function(buffer, method, params, callback)
+        callback(buf_request_all_results)
+      end)
       make_position_params_spy = spy.new(function()
         return {}
       end)
@@ -104,14 +107,15 @@ describe("LSP renaming", function()
 
       vim.api.nvim_err_writeln = err_spy
       vim.lsp.get_active_clients = get_clients
-      vim.lsp.buf_request = buf_request_spy
+      vim.lsp.buf_request_all = buf_request_all_spy
       vim.lsp.util.make_position_params = make_position_params_spy
       test_helpers.execute_keys("<CMD>lua require('textcase').lsp_rename('to_upper_case')<CR>")
       vim.lsp.get_active_clients = get_active_clients_fn
-      vim.lsp.buf_request = buf_request_fn
+      vim.lsp.buf_request_all = buf_request_all_fn
       vim.lsp.util.make_position_params = make_position_params_fn
       vim.api.nvim_err_writeln = err_fn
 
+      assert.spy(buf_request_all_spy).was.called_with(0, "textDocument/rename", match._, match._)
       assert.spy(err_spy).was.not_called()
     end)
   end)
