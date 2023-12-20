@@ -61,13 +61,11 @@ local function setup_default_keymappings()
 end
 
 local function register_replace_command(substitude_command_name)
-  local replace_command_methods = {}
   for _, method_name in ipairs(all_methods) do
     plugin.register_methods(api[method_name])
-    table.insert(replace_command_methods, api[method_name])
   end
 
-  plugin.register_replace_command(substitude_command_name, replace_command_methods)
+  plugin.register_replace_command(substitude_command_name)
 end
 
 M.Initialize = function()
