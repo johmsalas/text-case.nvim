@@ -28,24 +28,34 @@ clone() {
 	fi
 }
 
+create_symlink() {
+	src=$1
+	dest=$2
+	if [ ! -d "$dest" ]; then
+		ln -s "$src" "$dest"
+	else
+		echo "$2 already exists"
+	fi
+}
+
 mkdir -p $TEST_ALL_DIR
 clone $GITHUB_PLENARY "$TEST_ALL_DIR/plenary.nvim"
 clone $GITHUB_TELESCOPE "$TEST_ALL_DIR/telescope.nvim"
 clone $GITHUB_LSPCONFIG "$TEST_ALL_DIR/lspconfig.nvim"
 
 mkdir -p $TEST_MINIMAL_DIR
-ln -s "$TEST_ALL_DIR/plenary.nvim" "$TEST_MINIMAL_DIR/plenary.nvim"
+create_symlink "$TEST_ALL_DIR/plenary.nvim" "$TEST_MINIMAL_DIR/plenary.nvim"
 nvim --headless -u tests/environments/minimal.lua -c "PlenaryBustedDirectory tests/textcase/conversions {minimal_init = 'tests/environments/minimal.lua', sequential = true}"
 nvim --headless -u tests/environments/minimal.lua -c "PlenaryBustedDirectory tests/textcase/plugin {minimal_init = 'tests/environments/minimal.lua', sequential = true}"
 
 mkdir -p $TEST_LSP_DIR
-ln -s "$TEST_ALL_DIR/plenary.nvim" "$TEST_LSP_DIR/plenary.nvim"
-ln -s "$TEST_ALL_DIR/lspconfig.nvim" "$TEST_LSP_DIR/lspconfig.nvim"
+create_symlink "$TEST_ALL_DIR/plenary.nvim" "$TEST_LSP_DIR/plenary.nvim"
+create_symlink "$TEST_ALL_DIR/lspconfig.nvim" "$TEST_LSP_DIR/lspconfig.nvim"
 nvim --headless -u tests/environments/lsp.lua -c "PlenaryBustedDirectory tests/textcase/lsp {minimal_init = 'tests/environments/lsp.lua', sequential = true}"
 
 mkdir -p $TEST_TELESCOPE_DIR
-ln -s "$TEST_ALL_DIR/plenary.nvim" "$TEST_TELESCOPE_DIR/plenary.nvim"
-ln -s "$TEST_ALL_DIR/telescope.nvim" "$TEST_TELESCOPE_DIR/telescope.nvim"
+create_symlink "$TEST_ALL_DIR/plenary.nvim" "$TEST_TELESCOPE_DIR/plenary.nvim"
+create_symlink "$TEST_ALL_DIR/telescope.nvim" "$TEST_TELESCOPE_DIR/telescope.nvim"
 nvim --headless -u tests/environments/telescope.lua -c "PlenaryBustedDirectory tests/textcase/telescope/telescope_spec.lua {minimal_init = 'tests/environments/telescope.lua', sequential = true}"
 
 # "all" is run at the end because it uses other environments as fallbacks
