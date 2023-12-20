@@ -8,7 +8,6 @@ local M = {}
 M.state = {
   register = nil,
   methods_by_method_name = {},
-  methods_by_command = {},
   change_type = nil,
   current_method = nil, -- Since curried vim func operators are not yet supported
   match = nil,
@@ -84,13 +83,7 @@ function M.register_keys(prefix, method_table, keybindings)
   })
 end
 
-function M.register_replace_command(command, method_keys)
-  M.state.methods_by_command[command] = {}
-
-  for _, method in ipairs(method_keys) do
-    table.insert(M.state.methods_by_command[command], method)
-  end
-
+function M.register_replace_command(command)
   -- The registered command for Subs replacements depends on the
   -- availability of the "incremental command preview" feature
   -- https://github.com/neovim/neovim/pull/18194
@@ -134,8 +127,6 @@ end
 
 -- <cmd>h command-preview
 function M.incremental_substitute(opts, preview_ns, preview_buf)
-  local command = "Subs"
-
   -- preview_ns and preview_buf indicates the buffer to be modified
   local buf = (preview_ns ~= nil) and preview_buf or vim.api.nvim_get_current_buf()
 
@@ -171,7 +162,7 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
   --   - to_lower_case and to_snake_case
   --   - to_upper_case and to_constant_case
   local method_names_by_transform_result = {}
-  for _, method in ipairs(M.state.methods_by_command[command]) do
+  for _, method in pairs(M.state.methods_by_method_name) do
     local transformed_source = method.apply(source)
     method_names_by_transform_result[transformed_source] = method.method_name
   end
@@ -182,7 +173,7 @@ function M.incremental_substitute(opts, preview_ns, preview_buf)
     filtered_method_names[method_name] = true
   end
 
-  for _, method in ipairs(M.state.methods_by_command[command]) do
+  for _, method in pairs(M.state.methods_by_method_name) do
     -- Skip methods that would yield the same result as another method
     if filtered_method_names[method.method_name] == true then
       local transformed_source = method.apply(source)
@@ -226,7 +217,7 @@ function M.dispatcher(mode, args)
   local cursor_pos = vim.fn.getpos(".")
   -- vim.api.nvim_feedkeys("g@", "i", false)
 
-  for _, method in ipairs(M.state.methods_by_command["Subs"]) do
+  for _, method in pairs(M.state.methods_by_method_name) do
     local transformed_source = method.apply(source)
     local transformed_dest = method.apply(dest)
 
