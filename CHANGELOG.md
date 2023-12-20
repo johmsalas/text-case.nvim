@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/johmsalas/text-case.nvim/compare/v1.0.0...v1.1.0) (2023-12-20)
+
+
+### Features
+
+* **Subs:** adjustable name for substitude command ([25f965c](https://github.com/johmsalas/text-case.nvim/commit/25f965c9a6f440b1a9f4cfb6388257f227945652))
+
 ## 1.0.0 (2023-12-18)
 
 
