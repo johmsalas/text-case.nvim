@@ -60,14 +60,18 @@ local function setup_default_keymappings()
   end
 end
 
-M.Initialize = function()
+local function register_replace_command(substitude_command_name)
   local replace_command_methods = {}
   for _, method_name in ipairs(all_methods) do
     plugin.register_methods(api[method_name])
     table.insert(replace_command_methods, api[method_name])
   end
 
-  plugin.register_replace_command("Subs", replace_command_methods)
+  plugin.register_replace_command(substitude_command_name, replace_command_methods)
+end
+
+M.Initialize = function()
+  register_replace_command("Subs")
 end
 
 -- Set all methods as default in case the setup function is not called.
@@ -75,6 +79,12 @@ M.enabled_methods_set = all_methods
 
 M.setup = function(opts)
   M.options.prefix = opts and opts.prefix or "ga"
+
+  if opts and opts.substitude_command_name ~= nil then
+    -- Register the substitude command with the passed in name again.
+    -- This is needed because we don't require the user to call the setup function.
+    register_replace_command(opts.substitude_command_name)
+  end
 
   M.options.default_keymappings_enabled = true
   if opts and opts.default_keymappings_enabled ~= nil then

@@ -91,7 +91,7 @@ use { "johmsalas/text-case.nvim",
 {
   "johmsalas/text-case.nvim",
   dependencies = { "nvim-telescope/telescope.nvim" },
-  -- Author's Note: If default keymappings fail to register (possible config issue in my local setup), 
+  -- Author's Note: If default keymappings fail to register (possible config issue in my local setup),
   -- verify lazy loading functionality. On failure, disable lazy load and report issue
   -- lazy = false,
   config = function()
@@ -114,6 +114,9 @@ use { "johmsalas/text-case.nvim",
   -- of the keymappings, e.g. `gau ` executes the `current_word` method with `to_upper_case`
   -- and `gaou` executes the `operator` method with `to_upper_case`.
   prefix = "ga",
+  -- If `substitude_command_name` is not nil, an additional command with the passed in name
+  -- will be created that does the same thing as "Subs" does.
+  substitude_command_name = nil,
   -- By default, all methods are enabled. If you set this option with some methods omitted,
   -- these methods will not be registered in the default keymappings. The methods will still
   -- be accessible when calling the exact lua function e.g.:
