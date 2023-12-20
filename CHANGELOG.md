@@ -6,8 +6,6 @@
 ### Features
 
 * **Subs:** adjustable name for substitude command ([25f965c](https://github.com/johmsalas/text-case.nvim/commit/25f965c9a6f440b1a9f4cfb6388257f227945652))
-* **Subs:** adjustable name for substitude command ([25f965c](https://github.com/johmsalas/text-case.nvim/commit/25f965c9a6f440b1a9f4cfb6388257f227945652))
-* **Subs:** adjustable name for substitude command ([4cc7275](https://github.com/johmsalas/text-case.nvim/commit/4cc727581cfb090dd1842caa478d23afc0af516f))
 
 ## 1.0.0 (2023-12-18)
 
