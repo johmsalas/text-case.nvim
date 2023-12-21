@@ -1,6 +1,7 @@
 local utils = require("textcase.shared.utils")
 local constants = require("textcase.shared.constants")
 local conversion = require("textcase.plugin.conversion")
+local stringcase = require("textcase.conversions.stringcase")
 local flag_incremental_preview = vim.fn.has("nvim-0.8-dev+374-ge13dcdf16") == 1
 
 local M = {}
@@ -383,6 +384,21 @@ function M.start_replacing_command()
 
     local clean_range_key = vim.api.nvim_replace_termcodes("<C-u>", true, false, true)
     vim.api.nvim_feedkeys(":" .. clean_range_key .. "Subs/" .. text[1] .. "/", "i", false)
+  end
+end
+
+function M.start_replacing_command_with_first_part()
+  local mode = vim.api.nvim_get_mode().mode
+  M.state.telescope_previous_mode = mode
+  M.state.telescope_previous_buffer = vim.api.nvim_get_current_buf()
+
+  if mode == "n" then
+    local current_word = vim.fn.expand("<cword>")
+    local first_part = stringcase.to_parts(current_word)[1]
+
+    vim.api.nvim_feedkeys(":Subs/" .. first_part .. "/", "i", true)
+  else
+    M.start_replacing_command()
   end
 end
 
