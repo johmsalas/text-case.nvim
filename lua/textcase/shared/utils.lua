@@ -353,17 +353,31 @@ local function get_current_word_with_casings()
 end
 
 function utils.define_highlight_group(highlight_group)
-  vim.api.nvim_command(
-    "highlight " .. highlight_group .. " guibg=#4f5b66 ctermbg=235 guifg=#ff0000 ctermfg=15 gui=reverse"
+  local visual_attrs = vim.api.nvim_get_hl_by_name("Search", true)
+
+  -- Prepare the highlight command with the fetched attributes
+  local highlight_cmd = string.format(
+    "highlight %s guibg=%s guifg=%s gui=%s",
+    highlight_group,
+    visual_attrs.background and string.format("#%06x", visual_attrs.background) or "NONE",
+    visual_attrs.foreground and string.format("#%06x", visual_attrs.foreground) or "NONE",
+    visual_attrs.reverse and "reverse" or "NONE"
   )
+
+  -- Execute the highlight command
+  vim.api.nvim_command(highlight_cmd)
+  -- vim.api.nvim_command(
+  --   "highlight " .. highlight_group .. " guibg=#4f5b66 ctermbg=235 guifg=#ff0000 ctermfg=15 gui=reverse"
+  -- )
 end
 
 function utils.start_with(str, start)
   return str:sub(1, #start) == start
 end
 
-function utils.apply_highlight_to_range(buf, hl_group, start_pos, end_pos)
-  vim.api.nvim_buf_add_highlight(buf, -1, hl_group, start_pos[1] - 1, start_pos[2], end_pos[2])
+function utils.apply_highlight_to_range(buf, ns, hl_group, start_pos, end_pos)
+  vim.highlight.range(buf, ns, hl_group, start_pos, end_pos)
+  -- vim.api.nvim_buf_add_highlight(buf, -1, hl_group, start_pos[1] - 1, start_pos[2], end_pos[2])
 end
 
 function utils.get_text_cases(presets)

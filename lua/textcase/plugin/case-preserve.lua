@@ -22,11 +22,8 @@ function M.start_inserting_preserving_case()
     local cursors = multicursor.get_occurrence_locations()
     local line_number = vim.api.nvim_win_get_cursor(0)[1]
     for i, cursor in ipairs(cursors) do
-      if cursor.lineno ~= line_number then
-        -- vim.print("cursor")
-        -- vim.print(cursor)
-        multicursor.set_occurrence(i, "")
-      end
+      local modify_buffer = cursor.lineno ~= line_number
+      multicursor.set_occurrence(i, "", { modify_buffer = modify_buffer })
     end
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>bvec", true, false, true), "n", false)
     vim.api.nvim_exec(
@@ -120,9 +117,16 @@ function M.insert_preserving_case()
         -- vim.print("cursor")
         -- vim.print(cursor)
         if cursor.lineno ~= line_number then
-          -- vim.print(cursor.lineno)
+          -- vim.print(true)
           user_action = false
-          multicursor.set_occurrence(i, transformed_text)
+          multicursor.set_occurrence(i, transformed_text, { modify_buffer = true })
+          user_action = true
+        else
+          -- vim.print("============================")
+          -- vim.print(cursor.lineno)
+          -- vim.print(line_number)
+          user_action = false
+          multicursor.set_occurrence(i, transformed_text, { modify_buffer = false })
           user_action = true
         end
       end
@@ -136,7 +140,6 @@ end
 function M.leave_insert_mode()
   -- Get the text that was canceled during insert mode
   canceled_text = { initial_insert_text }
-  multicursor.clear_highlights_and_reset()
 
   -- Reset the initial_insert_text variable
   initial_insert_text = {}

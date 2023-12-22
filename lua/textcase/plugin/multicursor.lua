@@ -3,7 +3,6 @@ local M = {}
 local case_variations = require("textcase.conversions.case-variations")
 local utils = require("textcase.shared.utils")
 
--- Variables for occurrence tracking
 local base_search = nil
 local occurrence_locations = {}
 local current_occurrence_index = 1
@@ -13,34 +12,49 @@ local highlight_group = "MyHighlightGroup"
 local ns = vim.api.nvim_create_namespace(highlight_group)
 utils.define_highlight_group(highlight_group)
 
+local function dec(value)
+  return value - 1
+end
+
+local function highlight_occurrence(occurrence)
+  local start_pos = { dec(occurrence.lineno), dec(occurrence.start) }
+  local end_pos = { dec(occurrence.lineno), dec(occurrence.end_) }
+
+  utils.apply_highlight_to_range(occurrence.buf, ns, highlight_group, start_pos, end_pos)
+end
+
 function M.get_occurrence_locations()
   return occurrence_locations
 end
 
-function M.set_occurrence(index, value)
+function M.set_occurrence(index, value, opts)
   local item = occurrence_locations[index]
+  local original_end = item.start + #item.text
+  local modify_buffer = opts and opts.modify_buffer == nil and true or opts.modify_buffer
 
-  local line = item.lineno - 1
-  local start_idx = item.start - 1
-  local end_idx = start_idx + #item.text
-  vim.api.nvim_buf_clear_namespace(0, -1, line - 1, line - 2)
-  vim.api.nvim_buf_set_text(0, line, start_idx, line, end_idx, { value })
   occurrence_locations[index].text = value
-  occurrence_locations[index].end_ = end_idx
+  occurrence_locations[index].end_ = item.start + #item.text
 
-  local start_pos = { line + 1, start_idx }
-  local end_pos = { line + 1, end_idx }
-  utils.apply_highlight_to_range(0, highlight_group, start_pos, end_pos)
-end
+  if modify_buffer then
+    vim.api.nvim_buf_set_text(0, dec(item.lineno), dec(item.start), dec(item.lineno), dec(original_end), { value })
+    -- For the Proof Of Conecpt, remove all highlights and create them all again
+    -- TODO: Remove only the changed highlight
+    vim.api.nvim_buf_clear_namespace(item.buf, ns, 0, -1)
+    for _, cursor in ipairs(occurrence_locations) do
+      highlight_occurrence(cursor)
+    end
+  end
 
-local function dec(value)
-  return value - 1
+  vim.schedule(function()
+    -- vim.print("--------------------")
+    -- vim.print(index)
+    -- vim.print(modify_buffer)
+  end)
 end
 
 function M.add_occurrence(occurrence)
   local buf = vim.api.nvim_get_current_buf()
   local start = occurrence.start
-  local end_ = occurrence.end_
   local line = occurrence.lineno
 
   local id = vim.api.nvim_buf_set_extmark(buf, ns, dec(line), dec(start), {
@@ -52,10 +66,7 @@ function M.add_occurrence(occurrence)
 
   occurrence.id = id
   occurrence.buf = buf
-  local start_pos = { line, dec(start) }
-  local end_pos = { line, dec(end_) }
-
-  utils.apply_highlight_to_range(0, highlight_group, start_pos, end_pos)
+  highlight_occurrence(occurrence)
   return table.insert(occurrence_locations, occurrence)
 end
 
@@ -201,6 +212,8 @@ end
 -- Function to clear highlights and reset tracking
 function M.reset()
   vim.cmd("hi clear " .. highlight_group)
+  base_search = nil
+  -- todo: remove extmarkers
   occurrence_locations = {}
   current_occurrence_index = 1
   previous_occurrences = {}
