@@ -4,8 +4,18 @@ local test_helpers = require("tests.test_helpers")
 describe("plugin start_replacing_command_with_part", function()
   before_each(function()
     textcase.setup()
-    vim.api.nvim_set_keymap("n", "gar", "<cmd>lua require('textcase').start_replacing_command_with_part(1)<CR>", {})
-    vim.api.nvim_set_keymap("n", "ga2r", "<cmd>lua require('textcase').start_replacing_command_with_part(2)<CR>", {})
+    vim.api.nvim_set_keymap(
+      "n",
+      "gar",
+      "<cmd>lua require('textcase').start_replacing_command_with_part({ parts_count = 1 })<CR>",
+      {}
+    )
+    vim.api.nvim_set_keymap(
+      "n",
+      "ga2r",
+      "<cmd>lua require('textcase').start_replacing_command_with_part({ parts_count = 2 })<CR>",
+      {}
+    )
 
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_command("buffer " .. buf)

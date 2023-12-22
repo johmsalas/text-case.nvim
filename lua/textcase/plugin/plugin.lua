@@ -387,22 +387,24 @@ function M.start_replacing_command()
   end
 end
 
--- This function is like start_replacing_command but it only uses <parts_count> parts
+-- This function is like start_replacing_command but it only uses <opts.parts_count> parts
 -- for the Subs command. For example, if the current word is "LoremIpsumDolorSit" and
--- <parts_count> is 2 and the cursor is on the first part, then the prefille dSubs command
+-- <opts.parts_count> is 2 and the cursor is on the first part, then the prefille dSubs command
 -- will be ":Subs/LoremIpsum/".
 --
 -- For more examples, see the tests.
 --
 -- The keybindings to make use of this could be the following:
--- vim.api.nvim_set_keymap("n", "gar", "<cmd>lua require('textcase').start_replacing_command_with_part(1)<CR>", {})
--- vim.api.nvim_set_keymap("n", "ga2r", "<cmd>lua require('textcase').start_replacing_command_with_part(2)<CR>", {})
--- vim.api.nvim_set_keymap("n", "ga3r", "<cmd>lua require('textcase').start_replacing_command_with_part(3)<CR>", {})
+-- vim.api.nvim_set_keymap("n", "gar", "<cmd>lua require('textcase').start_replacing_command_with_part({ parts_count = 1 })<CR>", {})
+-- vim.api.nvim_set_keymap("n", "ga2r", "<cmd>lua require('textcase').start_replacing_command_with_part({ parts_count = 2 })<CR>", {})
+-- vim.api.nvim_set_keymap("n", "ga3r", "<cmd>lua require('textcase').start_replacing_command_with_part({ parts_count = 3 })<CR>", {})
 --
 -- Then you can use "gar" to use the Subs command with the current part of the current word
 -- and "ga2r" to use the Subs command with the current part and the next part of the current word.
 -- And so on ...
-function M.start_replacing_command_with_part(parts_count)
+function M.start_replacing_command_with_part(opts)
+  local parts_count = opts.parts_count or 1
+
   local mode = vim.api.nvim_get_mode().mode
   M.state.telescope_previous_mode = mode
   M.state.telescope_previous_buffer = vim.api.nvim_get_current_buf()
