@@ -387,18 +387,74 @@ function M.start_replacing_command()
   end
 end
 
-function M.start_replacing_command_with_first_part()
+-- This function is like start_replacing_command but it only uses <parts_count> parts
+-- for the Subs command. For example, if the current word is "LoremIpsumDolorSit" and
+-- <parts_count> is 2 and the cursor is on the first part, then the prefille dSubs command
+-- will be ":Subs/LoremIpsum/".
+--
+-- For more examples, see the tests.
+--
+-- The keybindings to make use of this could be the following:
+-- vim.api.nvim_set_keymap("n", "gar", "<cmd>lua require('textcase').start_replacing_command_with_part(1)<CR>", {})
+-- vim.api.nvim_set_keymap("n", "ga2r", "<cmd>lua require('textcase').start_replacing_command_with_part(2)<CR>", {})
+-- vim.api.nvim_set_keymap("n", "ga3r", "<cmd>lua require('textcase').start_replacing_command_with_part(3)<CR>", {})
+--
+-- Then you can use "gar" to use the Subs command with the current part of the current word
+-- and "ga2r" to use the Subs command with the current part and the next part of the current word.
+-- And so on ...
+function M.start_replacing_command_with_part(parts_count)
   local mode = vim.api.nvim_get_mode().mode
   M.state.telescope_previous_mode = mode
   M.state.telescope_previous_buffer = vim.api.nvim_get_current_buf()
 
   if mode == "n" then
     local current_word = vim.fn.expand("<cword>")
-    local first_part = stringcase.to_parts(current_word)[1]
+    local cursor_pos = M.get_cursor_position_in_word()
+    local parts = stringcase.to_parts(current_word)
 
-    vim.api.nvim_feedkeys(":Subs/" .. first_part .. "/", "i", true)
+    -- Check on which part of the word the cursor is and assign it to current_part_index
+    local current_word_pos = 0
+    local current_part_index = 0
+    for index, part in ipairs(parts) do
+      current_word_pos = current_word_pos + #part
+      if cursor_pos <= current_word_pos then
+        current_part_index = index
+        break
+      end
+    end
+
+    -- Use parts_count to construct the current part
+    local subs_first_arg = ""
+    for i = 1, parts_count do
+      subs_first_arg = subs_first_arg .. " " .. parts[current_part_index + i - 1]
+    end
+
+    vim.api.nvim_feedkeys(":Subs/" .. subs_first_arg .. "/", "i", true)
   else
     M.start_replacing_command()
+  end
+end
+
+function M.get_cursor_position_in_word()
+  local current_word = vim.fn.expand("<cword>")
+  -- Get the cursor position
+  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+  -- local row = cursor_pos[1]
+  local col = cursor_pos[2] + 1
+
+  -- Get the current line
+  local line = vim.api.nvim_get_current_line()
+
+  -- Find the bounds of the current word
+  -- Adjust the pattern as needed to define what you consider a word
+  local word_start, word_end = line:find(current_word)
+
+  if word_start and word_end then
+    -- Calculate the position in the word
+    local pos_in_word = col - word_start + 2 -- Lua is 1-indexed
+    return pos_in_word
+  else
+    return nil -- Cursor is not on a word
   end
 end
 

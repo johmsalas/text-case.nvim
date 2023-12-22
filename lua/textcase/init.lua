@@ -54,7 +54,7 @@ local M = {
   clear_match = plugin.clear_match,
   open_telescope = plugin.open_telescope,
   start_replacing_command = plugin.start_replacing_command,
-  start_replacing_command_with_first_part = plugin.start_replacing_command_with_first_part,
+  start_replacing_command_with_part = plugin.start_replacing_command_with_part,
 }
 
 return M
