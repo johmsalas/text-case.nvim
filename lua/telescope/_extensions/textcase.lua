@@ -1,4 +1,5 @@
 local plugin = require("textcase.plugin.plugin")
+local utils = require("textcase.shared.utils")
 local presets = require("textcase.plugin.presets")
 local constants = require("textcase.shared.constants")
 local api = require("textcase").api
@@ -30,20 +31,7 @@ end
 local function Create_resulting_cases(prefix_text, conversion_type)
   local results = {}
 
-  for _, method in pairs({
-    api.to_upper_case,
-    api.to_lower_case,
-    api.to_snake_case,
-    api.to_dash_case,
-    api.to_title_dash_case,
-    api.to_constant_case,
-    api.to_dot_case,
-    api.to_phrase_case,
-    api.to_camel_case,
-    api.to_pascal_case,
-    api.to_title_case,
-    api.to_path_case,
-  }) do
+  for _, method in pairs(utils.get_text_cases(presets)) do
     if presets.options.enabled_methods_set[method.method_name] then
       table.insert(results, {
         display = prefix_text .. method.desc,

@@ -1,4 +1,6 @@
 local plugin = require("textcase.plugin.plugin")
+local casePreserve = require("textcase.plugin.case-preserve")
+local multicursor = require("textcase.plugin.multicursor")
 local utils = require("textcase.shared.utils")
 local sniplua = require("textcase.extensions.sniplua")
 local presets = require("textcase.plugin.presets")
@@ -54,6 +56,15 @@ local M = {
   clear_match = plugin.clear_match,
   open_telescope = plugin.open_telescope,
   start_replacing_command = plugin.start_replacing_command,
+  start_inserting_preserving_case = casePreserve.start_inserting_preserving_case,
+  stop_inserting_preserving_case = casePreserve.stop_inserting_preserving_case,
+  insert_preserving_case = casePreserve.insert_preserving_case,
+  leave_insert_mode = casePreserve.leave_insert_mode,
+  next_occurrence = multicursor.next_occurrence,
+  skip_current_occurrence = multicursor.skip_current_occurrence,
+  highlight_occurrences = multicursor.highlight_occurrences,
+  remove_last_matched_item = multicursor.remove_last_matched_item,
+  clear_highlights_and_reset = multicursor.clear_highlights_and_reset,
 }
 
 return M
