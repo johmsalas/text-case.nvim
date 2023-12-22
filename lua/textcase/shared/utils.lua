@@ -101,7 +101,6 @@ end
 
 function utils.nvim_buf_get_text(buffer, start_row, start_col, end_row, end_col)
   local lines = vim.api.nvim_buf_get_lines(buffer, start_row, end_row + 1, false)
-
   lines[vim.tbl_count(lines)] = string.sub(lines[vim.tbl_count(lines)], 0, end_col)
   lines[1] = string.sub(lines[1], start_col + 1)
 

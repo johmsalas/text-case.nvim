@@ -21,11 +21,11 @@ function M.start_inserting_preserving_case()
     -- clean multicursor locations
     local cursors = multicursor.get_occurrence_locations()
     local line_number = vim.api.nvim_win_get_cursor(0)[1]
-    for _, cursor in ipairs(cursors) do
+    for i, cursor in ipairs(cursors) do
       if cursor.lineno ~= line_number then
         -- vim.print("cursor")
         -- vim.print(cursor)
-        vim.api.nvim_buf_set_text(0, cursor.lineno - 1, cursor.start - 1, cursor.lineno - 1, cursor.end_ - 1, { "" })
+        multicursor.set_occurrence(i, "")
       end
     end
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>bvec", true, false, true), "n", false)
@@ -115,6 +115,7 @@ function M.insert_preserving_case()
       -- vim.print(diff_text)
       local transformed_text = stringcase.to_camel_case(diff_text)
       local cursors = multicursor.get_occurrence_locations()
+      -- multicursor.clear_highlights()
       for i, cursor in ipairs(cursors) do
         -- vim.print("cursor")
         -- vim.print(cursor)
@@ -122,6 +123,7 @@ function M.insert_preserving_case()
           -- vim.print(cursor.lineno)
           user_action = false
           multicursor.set_occurrence(i, transformed_text)
+          user_action = true
         end
       end
     end)
@@ -143,10 +145,10 @@ function M.leave_insert_mode()
   local replacement_text = "Replacement Text"
 
   -- Replace the canceled text with replacement text
-  local line = vim.fn.line(".")
-  vim.api.nvim_set_current_line(
-    vim.api.nvim_get_current_line():gsub(vim.fn.escape(canceled_text[1], "/"), vim.fn.escape(replacement_text, "/"))
-  )
+  -- local line = vim.fn.line(".")
+  -- vim.api.nvim_set_current_line(
+  --   vim.api.nvim_get_current_line():gsub(vim.fn.escape(canceled_text[1], "/"), vim.fn.escape(replacement_text, "/"))
+  -- )
 end
 
 -- function M.start_changing_word_preserving_case()
