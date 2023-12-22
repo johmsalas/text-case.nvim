@@ -1,5 +1,6 @@
 local utils = {}
 local constants = require("textcase.shared.constants")
+-- local presets = require("textcase.plugin.presets")
 
 function utils.get_mode_at_operator(vmode)
   local visual_mode = nil
@@ -364,6 +365,31 @@ end
 
 function utils.apply_highlight_to_range(buf, hl_group, start_pos, end_pos)
   vim.api.nvim_buf_add_highlight(buf, -1, hl_group, start_pos[1] - 1, start_pos[2], end_pos[2])
+end
+
+function utils.get_text_cases(presets)
+  local results = {}
+  local api = require("textcase").api
+
+  for _, method in pairs({
+    api.to_upper_case,
+    api.to_lower_case,
+    api.to_snake_case,
+    api.to_dash_case,
+    api.to_title_dash_case,
+    api.to_constant_case,
+    api.to_dot_case,
+    api.to_phrase_case,
+    api.to_camel_case,
+    api.to_pascal_case,
+    api.to_title_case,
+    api.to_path_case,
+  }) do
+    if presets.options.enabled_methods_set[method.method_name] then
+      table.insert(results, method)
+    end
+  end
+  return results
 end
 
 return utils
