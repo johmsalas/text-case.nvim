@@ -237,5 +237,11 @@ vim.api.nvim_set_keymap(
   '<cmd>lua require("textcase").clear_highlights_and_reset()<CR>',
   { noremap = true, silent = true }
 )
+vim.api.nvim_set_keymap(
+  "n",
+  "<leader><esc>",
+  '<cmd>lua require("textcase.plugin.multicursor").reset()<CR>',
+  { noremap = true, silent = true }
+)
 
 return M

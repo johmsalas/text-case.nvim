@@ -158,6 +158,7 @@ end
 --   M.start_inserting_preserving_case()
 --   vim.api.nvim_feedkeys("ciw", "i", false)
 -- end
+
 vim.api.nvim_set_keymap(
   "v",
   "gax",
