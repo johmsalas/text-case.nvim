@@ -1,6 +1,5 @@
 local utils = {}
 local constants = require("textcase.shared.constants")
--- local presets = require("textcase.plugin.presets")
 
 function utils.get_mode_at_operator(vmode)
   local visual_mode = nil

@@ -1,6 +1,7 @@
 local M = {}
 
-local stringcase = require("textcase.conversions.stringcase")
+local presets = require("textcase.plugin.presets")
+local utils = require("textcase.shared.utils")
 
 local function to_camel_case(str)
   return str
@@ -14,14 +15,11 @@ end
 function M.get_word_casing_variations(word)
   local variations = {}
 
-  -- Lowercase
-  table.insert(variations, word:lower())
-
-  -- CamelCase
-  table.insert(variations, stringcase.to_camel_case(word))
-
-  -- Uppercase
-  table.insert(variations, word:upper())
+  for _, method in pairs(utils.get_text_cases(presets)) do
+    if presets.options.enabled_methods_set[method.method_name] then
+      table.insert(variations, method(word))
+    end
+  end
 
   return variations
 end
