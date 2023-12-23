@@ -352,6 +352,13 @@ function M.quick_replace(case_method)
 end
 
 function M.open_telescope(filter)
+  if vim.g.vscode then
+    -- In vscode, Telescope isn't available, then Open the commands palette
+    -- there is no way to populate the command bar, it will show all the commands
+    vim.cmd("call VSCodeNotify('workbench.action.showCommands')")
+    return
+  end
+
   local mode = vim.api.nvim_get_mode().mode
   M.state.telescope_previous_mode = mode
   M.state.telescope_previous_buffer = vim.api.nvim_get_current_buf()
