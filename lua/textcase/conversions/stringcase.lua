@@ -59,6 +59,10 @@ end
 
 local function split_string_into_chars(str)
   local chars = {}
+  if str == "" or str == nil then
+    return chars
+  end
+
   for uchar in str:gmatch("([%z\1-\127\194-\244][\128-\191]*)") do
     table.insert(chars, uchar)
   end
