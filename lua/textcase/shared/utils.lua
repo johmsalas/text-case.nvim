@@ -270,9 +270,17 @@ function utils.get_current_word_info()
 end
 
 function utils.get_list(str, mode)
+  -- Assuming forward lookup, if Foo is modified to BarFoo, the cursor will remain in Bar,
+  -- using searchpos, the next occurrence of Foo will be the second part of BarFoo which was
+  -- already modified, entering an infinite loop, that will result into: BarBarBarBar...BarFoo
+  --
+  -- for that reason, search should be executed backwards to avoid including an edited match.
+
+  -- TODO: Optimize replacement to run only in a selected region, currently it is running in the whole buffer
+  local search_options = "b"
   local limit = 0
   local initial = nil
-  local next = vim.fn.searchpos(str)
+  local next = vim.fn.searchpos(str, search_options)
 
   local region = utils.get_visual_region(nil, true, mode)
 
@@ -283,7 +291,7 @@ function utils.get_list(str, mode)
         initial = { next[1], next[2] }
       end
     end
-    next = vim.fn.searchpos(str)
+    next = vim.fn.searchpos(str, search_options)
 
     if initial == nil then
       initial = false
@@ -294,7 +302,7 @@ function utils.get_list(str, mode)
 
   return function()
     limit = limit - 1
-    next = vim.fn.searchpos(str)
+    next = vim.fn.searchpos(str, search_options)
 
     if utils.is_empty_position(next) then
       return nil
@@ -310,7 +318,7 @@ function utils.get_list(str, mode)
 
     while not utils.is_cursor_in_range(next, region) do
       limit = limit - 1
-      next = vim.fn.searchpos(str)
+      next = vim.fn.searchpos(str, search_options)
       if utils.is_empty_position(next) then
         return nil
       end
