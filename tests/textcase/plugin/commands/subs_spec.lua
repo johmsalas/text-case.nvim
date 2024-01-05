@@ -182,6 +182,16 @@ describe("plugin", function()
           "NuncIpsum LoremDolorSit amet",
         },
       },
+      -- Test when destination ends with origin
+      {
+        keys = ":Subs/FooBar/TestFooBar<CR>",
+        buffer_lines = {
+          "FooBar FooBar FooBar",
+        },
+        expected = {
+          "TestFooBar TestFooBar TestFooBar",
+        },
+      },
     }
 
     for _, test_case in ipairs(test_cases) do
