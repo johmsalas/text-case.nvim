@@ -271,10 +271,12 @@ end
 
 function utils.get_list(str, mode)
   -- Assuming forward lookup, if Foo is modified to BarFoo, the cursor will remain in Bar,
-  -- and searchpos the next occurrence of Foo will be the second part of BarFoo, that was
+  -- using searchpos, the next occurrence of Foo will be the second part of BarFoo which was
   -- already modified, entering an infinite loop, that will result into: BarBarBarBar...BarFoo
   --
-  -- for that reason, search is executed backwards to avoid including an edited match.
+  -- for that reason, search should be executed backwards to avoid including an edited match.
+
+  -- TODO: Optimize replacement to run only in a selected region, currently it is running in the whole buffer
   local search_options = "b"
   local limit = 0
   local initial = nil
