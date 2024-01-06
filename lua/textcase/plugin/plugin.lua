@@ -354,8 +354,7 @@ end
 function M.open_telescope(filter)
   if vim.g.vscode then
     -- In vscode, Telescope isn't available, then Open the commands palette
-    -- there is no way to populate the command bar, it will show all the commands
-    vim.cmd("call VSCodeNotify('workbench.action.showCommands')")
+    require("vscode-neovim").action("workbench.action.quickOpen", { args = { ">Transform to " } })
     return
   end
 
