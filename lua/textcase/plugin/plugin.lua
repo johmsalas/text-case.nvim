@@ -248,23 +248,6 @@ function M.operator_callback(vmode)
     local mode = M.state.telescope_previous_mode or vim.api.nvim_get_mode().mode
     local region = M.state.telescope_previous_visual_region
       or utils.get_visual_region(nil, false, nil, utils.get_mode_at_operator(vmode))
-    local should_guess_region = M.state.change_type == constants.change_type.CURRENT_WORD
-      or (M.state.change_type == constants.change_type.QUICK_REPLACE and mode == "n")
-
-    if should_guess_region then
-      local jumper = method.opts and method.opts.jumper or nil
-
-      if jumper ~= nil then
-        local lines = utils.nvim_buf_get_text(
-          M.state.telescope_previous_buffer or 0,
-          region.start_row,
-          region.start_col,
-          region.end_row,
-          region.end_col
-        )
-        region = jumper(lines, region)
-      end
-    end
 
     if region.mode == constants.visual_mode.BLOCK then
       conversion.do_block_substitution(region.start_row, region.start_col, region.end_row, region.end_col, apply)
