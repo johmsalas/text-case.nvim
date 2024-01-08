@@ -248,10 +248,8 @@ function M.operator_callback(vmode)
   elseif M.state.change_type == constants.change_type.CURRENT_WORD then
     local count = vim.v.count
     local current_word_info = utils.get_current_words_info(count)
+    vim.print(current_word_info)
     if current_word_info then
-      -- local line = current_word_info.position.line
-      -- local start = current_word_info.position.character
-      -- local _end = start + string.len(current_word_info.text)
       conversion.do_substitution(
         current_word_info.start_pos[1] + 1,
         current_word_info.start_pos[2],

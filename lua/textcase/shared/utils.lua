@@ -315,9 +315,7 @@ function utils.get_current_word_info(start_pos)
   local line = current_part_pos[1] - 1
   local character = current_part_pos[2]
   local chars = {
-    ["_"] = true,
     ["-"] = true,
-    ["/"] = true,
   }
   local line_text = vim.fn.getline(line + 1)
   local break_char = utils.find_previous_non_letter_or_number_char(line_text, character)
@@ -340,7 +338,7 @@ function utils.get_current_word_info(start_pos)
     utils.find_next_non_letter_or_number_char(line_text, character, break_char and break_char.char or nil)
 
   local start = start_of_word and start_of_word.pos + 1 or 1
-  local _end = end_of_word and end_of_word.pos - 1 or string.len(line_text) - 1
+  local _end = end_of_word and end_of_word.pos - 1 or string.len(line_text)
 
   local position = { line = line, character = start }
   local found_word = string.sub(line_text, start, _end)
@@ -391,7 +389,7 @@ function utils.get_current_words_info(amount_of_words)
     },
     end_pos = {
       curr_word_info.position.line,
-      curr_word_info.position.character + string.len(curr_word_info.word),
+      curr_word_info.position.character + string.len(curr_word_info.word) - 1,
     },
     text = text,
   } or nil
