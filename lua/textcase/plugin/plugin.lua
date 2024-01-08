@@ -234,6 +234,7 @@ end
 function M.operator(method_key)
   M.state.register = vim.v.register
   M.state.current_method = method_key
+  M.state.change_type = nil
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@", "i", false)
 end
@@ -244,8 +245,22 @@ function M.operator_callback(vmode)
 
   if M.state.change_type == constants.change_type.LSP_RENAME then
     conversion.do_lsp_rename(apply)
+  elseif M.state.change_type == constants.change_type.CURRENT_WORD then
+    local count = vim.v.count
+    local current_word_info = utils.get_current_words_info(count)
+    if current_word_info then
+      -- local line = current_word_info.position.line
+      -- local start = current_word_info.position.character
+      -- local _end = start + string.len(current_word_info.text)
+      conversion.do_substitution(
+        current_word_info.start_pos[1] + 1,
+        current_word_info.start_pos[2],
+        current_word_info.end_pos[1] + 1,
+        current_word_info.end_pos[2],
+        apply
+      )
+    end
   else
-    local mode = M.state.telescope_previous_mode or vim.api.nvim_get_mode().mode
     local region = M.state.telescope_previous_visual_region
       or utils.get_visual_region(nil, false, nil, utils.get_mode_at_operator(vmode))
 
@@ -265,6 +280,7 @@ end
 function M.line(case_method)
   M.state.register = vim.v.register
   M.state.current_method = case_method
+  M.state.change_type = nil
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   local keys = vim.api.nvim_replace_termcodes(
     string.format("g@:normal! 0v%s$<cr>", vim.v.count > 0 and vim.v.count - 1 .. "j" or ""),
@@ -278,6 +294,7 @@ end
 function M.eol(case_method)
   M.state.register = vim.v.register
   M.state.current_method = case_method
+  M.state.change_type = nil
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
   vim.api.nvim_feedkeys("g@$", "i", false)
 end
@@ -285,6 +302,7 @@ end
 function M.visual(case_method)
   M.state.register = vim.v.register
   M.state.current_method = case_method
+  M.state.change_type = constants.change_type.VISUAL
   vim.o.operatorfunc = "v:lua.require'" .. constants.namespace .. "'.operator_callback"
 
   if M.state.telescope_previous_visual_region ~= nil then

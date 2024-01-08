@@ -64,7 +64,7 @@ function utils.get_visual_region(buffer, updated, forced_mode, detected_mode)
     eln = { eln[1], vim.fn.getline(eln[1]):len() - 1 }
   end
 
-  -- Make sure we we change start and end if end is higher than start.
+  -- Make sure we change start and end if end is higher than start.
   -- This happens when we select from bottom to top or from right to left.
   local start_row = math.min(sln[1], eln[1])
   local start_col = math.min(sln[2] + 1, eln[2] + 1)
@@ -243,6 +243,56 @@ function utils.trim_str(str, _trimmable_chars)
   return trim_info, trimmed_str
 end
 
+-- Finds the previous character that is not a letter or a number
+-- or is not in the unicode range of letters
+-- or is not in the list of provided characters
+---@param str string
+---@param start number
+---@param _char string | nil
+---@return {pos: integer, char: string} | nil
+function utils.find_previous_non_letter_or_number_char(str, start, _char)
+  local chars = vim.split(str, "")
+  local startCount = start or #chars
+  local isLetterOrNumberOrChar = function(char)
+    if not char then
+      return false
+    end
+    return string.match(char, "%w") ~= nil or char == _char
+  end
+  for i = startCount, 1, -1 do
+    local char = chars[i]
+    if not isLetterOrNumberOrChar(char) then
+      return { pos = i, char = char }
+    end
+  end
+  return nil
+end
+
+-- Finds the next character that is not a letter or a number
+-- or is not in the unicode range of letters
+-- or is not in the list of provided characters
+---@param str string
+---@param start number
+---@param _char string | nil
+---@return {pos: integer, char: string} | nil
+function utils.find_next_non_letter_or_number_char(str, start, _char)
+  local chars = vim.split(str, "")
+  local startCount = start
+  local isLetterOrNumberOrChar = function(char)
+    if not char then
+      return false
+    end
+    return string.match(char, "%w") ~= nil or char == _char
+  end
+  for i = startCount, #chars, 1 do
+    local char = chars[i]
+    if not isLetterOrNumberOrChar(char) then
+      return { pos = i, char = char }
+    end
+  end
+  return nil
+end
+
 -- Gets the position and text of the current word under the cursor
 -- If the cursor is located on a word it returns information about that word
 -- If the cursor is not on a word, it returns information about the next word
@@ -252,21 +302,99 @@ end
 --   If there cursor is not on a word, TextDocument/rename acts on the previous
 --   word, while vim.fn.expand returns information about the following word
 --   By using this method the plugin has a way of referring to the same word
-function utils.get_current_word_info()
-  local cursor_pos = vim.fn.getpos(".")
+---@param start_pos {line: integer, character: integer}
+---@return {position: {line: integer, character: integer}, word: string} | nil
+function utils.get_current_word_info(start_pos)
   -- This could be customized to read exactly the word under the cursor, ignoring
   -- close words, or even considering words before the cursor. Consult values like Wn and Wb
+  vim.fn.setpos(".", { 0, start_pos.line, start_pos.character })
   local start_the_search_at_cursor_position = "W"
   local word = "\\w"
-  local current_word_pos = vim.fn.searchpos(word, start_the_search_at_cursor_position)
+  local current_part_pos = vim.fn.searchpos(word, start_the_search_at_cursor_position)
+
+  local line = current_part_pos[1] - 1
+  local character = current_part_pos[2]
+  local chars = {
+    ["_"] = true,
+    ["-"] = true,
+    ["/"] = true,
+  }
+  local line_text = vim.fn.getline(line + 1)
+  local break_char = utils.find_previous_non_letter_or_number_char(line_text, character)
+  if not break_char or not chars[break_char.char] then
+    break_char = nil
+  end
+
+  if not break_char then
+    break_char = utils.find_next_non_letter_or_number_char(line_text, character)
+  end
+
+  if not break_char or not chars[break_char.char] then
+    break_char = nil
+  end
+
+  local start_of_word = nil
+  start_of_word =
+    utils.find_previous_non_letter_or_number_char(line_text, character, break_char and break_char.char or nil)
+  local end_of_word =
+    utils.find_next_non_letter_or_number_char(line_text, character, break_char and break_char.char or nil)
+
+  local start = start_of_word and start_of_word.pos + 1 or 1
+  local _end = end_of_word and end_of_word.pos - 1 or string.len(line_text) - 1
+
+  local position = { line = line, character = start }
+  local found_word = string.sub(line_text, start, _end)
+
+  return { position = position, word = found_word }
+end
+
+-- Gets the position and text of the current words under the cursor
+---@param amount_of_words integer
+---@return {start_pos: integer[], end_pos: integer[], text: string} | nil
+function utils.get_current_words_info(amount_of_words)
+  local n = amount_of_words or 1
+  local cursor_pos = vim.fn.getpos(".")
+  local initial_word_info = utils.get_current_word_info(cursor_pos)
+  if not initial_word_info then
+    return nil
+  end
+
+  local curr_pos = initial_word_info.position
+  local curr_word_info = initial_word_info
+  for i = 2, n, 1 do
+    if curr_pos then
+      local end_curr_pos = {
+        line = curr_pos.line + 1,
+        character = curr_pos.character + string.len(curr_word_info.word) + 1,
+      }
+      local word_info = utils.get_current_word_info(end_curr_pos)
+      if word_info then
+        curr_word_info = word_info
+        curr_pos = word_info and word_info.position or nil
+      end
+    end
+  end
+
+  local text = utils.nvim_buf_get_text(
+    0,
+    initial_word_info.position.line,
+    initial_word_info.position.character - 1,
+    curr_word_info.position.line,
+    curr_word_info.position.character + string.len(curr_word_info.word) - 1
+  )
+
   vim.fn.setpos(".", cursor_pos)
-
-  local line = current_word_pos[1] - 1
-  local character = current_word_pos[2]
-
-  local position = { line = line, character = character }
-
-  return { position = position, word = vim.fn.expand("<cword>") }
+  return {
+    start_pos = {
+      initial_word_info.position.line,
+      initial_word_info.position.character,
+    },
+    end_pos = {
+      curr_word_info.position.line,
+      curr_word_info.position.character + string.len(curr_word_info.word),
+    },
+    text = text,
+  } or nil
 end
 
 function utils.get_list(str, mode)

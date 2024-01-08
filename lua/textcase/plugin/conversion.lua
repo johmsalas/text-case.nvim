@@ -88,10 +88,16 @@ function M.do_lsp_rename(method)
       "method textDocument/rename is not supported by any of the servers registered for the current buffer"
     )
   else
-    local current_word_info = utils.get_current_word_info()
-    local current_word = current_word_info.word
+    local current_word_info = utils.get_current_words_info(1)
+    if not current_word_info then
+      return
+    end
+    local current_word = current_word_info.text[1]
     local params = lsp.util.make_position_params()
-    params.position = current_word_info.position
+    params.position = {
+      line = current_word_info.start_pos[1],
+      character = current_word_info.start_pos[2],
+    }
     params.newName = method(current_word)
 
     lsp.buf_request_all(0, "textDocument/rename", params, function(results)
@@ -104,12 +110,14 @@ function M.do_lsp_rename(method)
       for client_id, response in pairs(results) do
         if not response.error then
           local client = vim.lsp.get_client_by_id(client_id)
-          local files_count_by_current_response = vim.tbl_count(response.result.changes)
+          if response.result then
+            local files_count_by_current_response = vim.tbl_count(response.result.changes)
 
-          if files_count_by_current_response > total_files then
-            total_files = files_count_by_current_response
-            results_to_be_applied = response.result
-            offset_encoding_to_be_applied = client.offset_encoding
+            if files_count_by_current_response > total_files then
+              total_files = files_count_by_current_response
+              results_to_be_applied = response.result
+              offset_encoding_to_be_applied = client.offset_encoding
+            end
           end
         end
       end
