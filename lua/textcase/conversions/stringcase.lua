@@ -22,6 +22,16 @@ local function split_string_into_chars(str)
   return chars
 end
 
+local function has_lower(str)
+  local chars = split_string_into_chars(str)
+
+  for _, char in ipairs(chars) do
+    if vim.fn.tolower(char) == char and vim.fn.toupper(char) ~= vim.fn.tolower(char) then
+      return true
+    end
+  end
+end
+
 local is_special = function(char)
   local b = char:byte(1)
   return b <= 0x2F or (b >= 0x3A and b <= 0x3F) or (b >= 0x5B and b <= 0x60) or (b >= 0x7B and b <= 0x7F)
@@ -41,15 +51,13 @@ local toTitle = function(str)
 end
 
 function M.to_parts(str)
-  local has_lower = str:find("[a-z]") ~= nil
-
   local parts = {}
   local new_part = true
   for _, char in ipairs(split_string_into_chars(str)) do
     if is_special(char) then
       new_part = true
     else
-      if is_upper(char) and has_lower then
+      if is_upper(char) and has_lower(str) then
         new_part = true
       end
 
