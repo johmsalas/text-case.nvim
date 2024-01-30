@@ -9,8 +9,8 @@ function M.register(mode, mappings)
       noremap = true,
       nowait = true,
     },
-    v = {
-      mode = "v",
+    x = {
+      mode = "x",
       buffer = nil,
       silent = true,
       noremap = true,

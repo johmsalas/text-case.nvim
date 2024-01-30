@@ -23,7 +23,7 @@ local all_methods = {
 
 -- Setup default keymappings for the plugin but only for the methods that are enabled.
 local function setup_default_keymappings()
-  whichkey.register("v", {
+  whichkey.register("x", {
     [M.options.prefix] = {
       name = "text-case",
     },
