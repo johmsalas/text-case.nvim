@@ -37,7 +37,7 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
     if keybindings[feature] ~= nil then
       local mode = "n"
       if feature == "visual" then
-        mode = "v"
+        mode = "x"
       end
       local desc = method_table.desc
 
@@ -68,7 +68,7 @@ function M.register_keybindings(prefix, method_table, keybindings, opts)
       .. "')<cr>"
 
     vim.keymap.set("n", keybind, command, { desc = desc })
-    vim.keymap.set("v", keybind, command, { desc = desc })
+    vim.keymap.set("x", keybind, command, { desc = desc })
   end
 end
 

@@ -97,7 +97,7 @@ use { "johmsalas/text-case.nvim",
   end,
   keys = {
     "ga", -- Default invocation prefix
-    { "ga.", "<cmd>TextCaseOpenTelescope<CR>", mode = { "n", "v" }, desc = "Telescope" },
+    { "ga.", "<cmd>TextCaseOpenTelescope<CR>", mode = { "n", "x" }, desc = "Telescope" },
   },
 }
 ```
