@@ -43,7 +43,7 @@ describe("Telescope Integration", function()
   describe("visual mode via ga. keymapping", function()
     before_each(function()
       vim.api.nvim_set_keymap("n", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
-      vim.api.nvim_set_keymap("v", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
+      vim.api.nvim_set_keymap("x", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
     end)
 
     local buffer_lines = {
@@ -70,7 +70,7 @@ describe("Telescope Integration", function()
   describe("visual mode lines via ga. keymapping", function()
     before_each(function()
       vim.api.nvim_set_keymap("n", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
-      vim.api.nvim_set_keymap("v", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
+      vim.api.nvim_set_keymap("x", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
     end)
 
     local buffer_lines = {
@@ -97,7 +97,7 @@ describe("Telescope Integration", function()
   describe("visual block mode via ga. keymapping", function()
     before_each(function()
       vim.api.nvim_set_keymap("n", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
-      vim.api.nvim_set_keymap("v", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
+      vim.api.nvim_set_keymap("x", "ga.", "<cmd>TextCaseOpenTelescope<CR>", { desc = "Telescope" })
     end)
 
     describe("when the words are aligned", function()
