@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.0](https://github.com/johmsalas/text-case.nvim/compare/v1.1.0...v1.2.0) (2024-02-23)
+
+
+### Features
+
+* Add start_replacing_command_with_first_part ([0b0afd6](https://github.com/johmsalas/text-case.nvim/commit/0b0afd658abb1a393f7eb103cac75774ed6b0f55))
+* **VSCode:** Open the Command Palette instead of Telescope ([#140](https://github.com/johmsalas/text-case.nvim/issues/140)) ([d6f121e](https://github.com/johmsalas/text-case.nvim/commit/d6f121ec471118afb4fc7ed8cafb08eef3e9b307))
+
+
+### Bug Fixes
+
+* **docs:** Update LazyVim config - lazy loading commands ([f4735e2](https://github.com/johmsalas/text-case.nvim/commit/f4735e218bfc8330a84041b058833c5de8b3c8c1))
+* **docs:** Updates LazyVim example setup to lazy load on all default invocations ([#155](https://github.com/johmsalas/text-case.nvim/issues/155)) ([6bc91cd](https://github.com/johmsalas/text-case.nvim/commit/6bc91cde614bbec6f0befbaf7fcd302415d803fb))
+* don't create select mode mappings ([5d85b74](https://github.com/johmsalas/text-case.nvim/commit/5d85b7495c3cf8e842e4d2528edc68e6fe7c92c8))
+* Error when passing an empty string via API methods ([#146](https://github.com/johmsalas/text-case.nvim/issues/146)) ([51fba4b](https://github.com/johmsalas/text-case.nvim/commit/51fba4b76ff39e2a3264a7201be3c9310cfcdb58))
+* **subs:** Avoid modifying a match that has already been altered. ([#147](https://github.com/johmsalas/text-case.nvim/issues/147)) ([b812d89](https://github.com/johmsalas/text-case.nvim/commit/b812d890220bf9df358df3a5683b171b46d29c75))
+
 ## [1.1.0](https://github.com/johmsalas/text-case.nvim/compare/v1.0.0...v1.1.0) (2023-12-20)
 
 
