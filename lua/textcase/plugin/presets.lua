@@ -46,6 +46,11 @@ local function setup_default_keymappings()
     { method_name = "to_pascal_case", quick_replace = "p", operator = "op", lsp_rename = "P" },
     { method_name = "to_upper_case", quick_replace = "u", operator = "ou", lsp_rename = "U" },
     { method_name = "to_lower_case", quick_replace = "l", operator = "ol", lsp_rename = "L" },
+    { method_name = "to_title_case", quick_replace = "t", operator = "ot", lsp_rename = "T" },
+    -- Some of the available methods (dot case, path case, etc) are primarily useful with the Subs
+    -- command, so default keybindings are not provided.
+    -- { method_name = "to_dot_case", quick_replace = "o", operator = "oo", lsp_rename = "O" },
+    -- { method_name = "to_path_case", quick_replace = "a", operator = "oa", lsp_rename = "A" },
   }
 
   for _, keymapping_definition in ipairs(default_keymapping_definitions) do
