@@ -61,6 +61,7 @@ It is also a library of text case conversion methods. Useful for your LUA code.
 | Title Dash case | Lorem-Ipsum | textcase.api.to_title_dash_case |
 | Constant case   | LOREM_IPSUM | textcase.api.to_constant_case   |
 | Dot case        | lorem.ipsum | textcase.api.to_dot_case        |
+| Comma case      | lorem,ipsum | textcase.api.to_comma_case      |
 | Camel case      | loremIpsum  | textcase.api.to_camel_case      |
 | Pascal case     | LoremIpsum  | textcase.api.to_pascal_case     |
 | Title case      | Lorem Ipsum | textcase.api.to_title_case      |
@@ -139,6 +140,7 @@ use { "johmsalas/text-case.nvim",
     "to_title_dash_case",
     "to_constant_case",
     "to_dot_case",
+    "to_comma_case",
     "to_phrase_case",
     "to_camel_case",
     "to_pascal_case",
@@ -164,6 +166,7 @@ nnoremap gas :lua require('textcase').current_word('to_snake_case')<CR>
 nnoremap gad :lua require('textcase').current_word('to_dash_case')<CR>
 nnoremap gan :lua require('textcase').current_word('to_constant_case')<CR>
 nnoremap gad :lua require('textcase').current_word('to_dot_case')<CR>
+nnoremap gac :lua require('textcase').current_word('to_comma_case')<CR>
 nnoremap gaa :lua require('textcase').current_word('to_phrase_case')<CR>
 nnoremap gac :lua require('textcase').current_word('to_camel_case')<CR>
 nnoremap gap :lua require('textcase').current_word('to_pascal_case')<CR>
@@ -176,6 +179,7 @@ nnoremap gaS :lua require('textcase').lsp_rename('to_snake_case')<CR>
 nnoremap gaD :lua require('textcase').lsp_rename('to_dash_case')<CR>
 nnoremap gaN :lua require('textcase').lsp_rename('to_constant_case')<CR>
 nnoremap gaD :lua require('textcase').lsp_rename('to_dot_case')<CR>
+nnoremap gaC :lua require('textcase').lsp_rename('to_comma_case')<CR>
 nnoremap gaA :lua require('textcase').lsp_rename('to_phrase_case')<CR>
 nnoremap gaC :lua require('textcase').lsp_rename('to_camel_case')<CR>
 nnoremap gaP :lua require('textcase').lsp_rename('to_pascal_case')<CR>
@@ -188,6 +192,7 @@ nnoremap ges :lua require('textcase').operator('to_snake_case')<CR>
 nnoremap ged :lua require('textcase').operator('to_dash_case')<CR>
 nnoremap gen :lua require('textcase').operator('to_constant_case')<CR>
 nnoremap ged :lua require('textcase').operator('to_dot_case')<CR>
+nnoremap gec :lua require('textcase').operator('to_comma_case')<CR>
 nnoremap gea :lua require('textcase').operator('to_phrase_case')<CR>
 nnoremap gec :lua require('textcase').operator('to_camel_case')<CR>
 nnoremap gep :lua require('textcase').operator('to_pascal_case')<CR>
