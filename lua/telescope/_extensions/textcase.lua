@@ -38,6 +38,7 @@ local function Create_resulting_cases(prefix_text, conversion_type)
     api.to_title_dash_case,
     api.to_constant_case,
     api.to_dot_case,
+    api.to_comma_case,
     api.to_phrase_case,
     api.to_camel_case,
     api.to_pascal_case,
