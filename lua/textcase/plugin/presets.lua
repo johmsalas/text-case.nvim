@@ -12,6 +12,7 @@ local all_methods = {
   "to_title_dash_case",
   "to_constant_case",
   "to_dot_case",
+  "to_comma_case",
   "to_phrase_case",
   "to_camel_case",
   "to_pascal_case",
