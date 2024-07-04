@@ -278,12 +278,11 @@ describe("LSP renaming", function()
 
       err_spy = spy.new(function() end)
       get_client_by_id_spy = spy.new(function(id)
-        local clients = {}
-        clients["1"] = {
+        assert(id == "1", "Bad client id")
+        return {
           id = 1,
           offset_encoding = "utf-8",
         }
-        return clients[id]
       end)
       buf_request_all_spy = spy.new(function(buffer, method, params, callback)
         callback(buf_request_all_results)
@@ -322,6 +321,7 @@ describe("LSP renaming", function()
     end)
 
     it("should count `documentChanges` if it is set instead of `changes`", function()
+      buf_request_all_results = {}
       buf_request_all_results["1"] = {
         result = {
           documentChanges = {
