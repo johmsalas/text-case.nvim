@@ -1,339 +1,135 @@
-local test_helpers = require("tests.test_helpers")
-local textcase = require("textcase")
-local spy = require("luassert.spy")
-local match = require("luassert.match")
+local utils = require("textcase.shared.utils")
+local lsp = vim.lsp
 
-local err_fn = vim.api.nvim_err_writeln
-local get_active_clients_fn = vim.lsp.get_active_clients
-local buf_request_all_fn = vim.lsp.buf_request_all
-local buf_request_all_results = {}
-local make_position_params_fn = vim.lsp.util.make_position_params
-local get_client_by_id_fn = vim.lsp.get_client_by_id
-local apply_workspace_edit_fn = vim.lsp.util.apply_workspace_edit
+local M = {}
 
--- The spies override the default behavior of nvim.
--- If the tests are run in parallel there will be unexpected behaviors.
--- That's why the override does not happen into (before/after)_each statements
--- but as close as possible where they are required
-describe("LSP renaming", function()
-  describe("when no buffers are attached", function()
-    local err_spy = nil
+function M.replace_matches(match, source, dest, try_lsp, buf)
+  if utils.is_empty_position(match) then
+    return
+  end
+  buf = buf or 0
 
-    before_each(function()
-      textcase.setup({})
-
-      local buf = vim.api.nvim_create_buf(false, true)
-      vim.api.nvim_command("buffer " .. buf)
-
-      err_spy = spy.new(function() end)
-    end)
-
-    it("should show an error message", function()
-      vim.api.nvim_buf_set_lines(0, 0, -1, true, { "plain text" })
-
-      vim.api.nvim_err_writeln = err_spy
-      test_helpers.execute_keys("<CMD>lua require('textcase').lsp_rename('to_upper_case')<CR>")
-      vim.api.nvim_err_writeln = err_fn
-
-      assert.spy(err_spy).was.called_with(match.has_match("No attached Language Server"))
-    end)
-  end)
-
-  describe("LS textDocument/rename failure", function()
-    local err_spy = nil
-    local buf_request_all_spy = nil
-    local make_position_params_spy = nil
-
-    before_each(function()
-      textcase.setup({})
-
-      local buf = vim.api.nvim_create_buf(false, true)
-      vim.api.nvim_command("buffer " .. buf)
-
-      err_spy = spy.new(function() end)
-      buf_request_all_spy = spy.new(function(buffer, method, params, callback)
-        callback(buf_request_all_results)
-      end)
-      make_position_params_spy = spy.new(function()
-        return {}
-      end)
-    end)
-
-    local disabled_rename_method = function(method)
-      if method == "textDocument/rename" then
-        return false
-      end
-      return true
+  local row, start_col = match[1] - 1, match[2] - 1
+  local source_end_col = start_col + string.len(source)
+  local current = utils.nvim_buf_get_text(buf, row, start_col, row, source_end_col)
+  if current[1] == source then
+    if try_lsp then
+      -- not used yet, hard coded to false
+      local params = lsp.util.make_position_params()
+      params.newName = dest
+      lsp.buf_request(buf, "textDocument/rename", params)
+    else
+      vim.api.nvim_buf_set_text(buf, row, start_col, row, source_end_col, { dest })
     end
+  end
+end
 
-    local all_methods_enabled = function()
-      return true
+function M.do_substitution(start_row, start_col, end_row, end_col, method, buf)
+  buf = buf or 0
+  local lines = utils.nvim_buf_get_text(buf, start_row - 1, start_col - 1, end_row - 1, end_col)
+
+  local transformed = utils.map(lines, method)
+
+  local cursor_pos = vim.fn.getpos(".")
+  vim.api.nvim_buf_set_text(buf, start_row - 1, start_col - 1, end_row - 1, end_col, transformed)
+  local new_cursor_pos = cursor_pos
+  if cursor_pos[1] ~= start_row or (cursor_pos[2] < start_col) then
+    new_cursor_pos = { 0, start_row, start_col }
+  end
+  vim.fn.setpos(".", new_cursor_pos)
+end
+
+function M.do_block_substitution(start_row, start_col, end_row, end_col, method)
+  local cursor_pos = vim.fn.getpos(".")
+
+  local s_col = start_col - 1
+  local e_col = end_col
+
+  for row = start_row - 1, end_row - 1 do
+    local line_text = vim.fn.getline(row + 1)
+    local line_e_col = math.min(line_text:len() - 1, e_col)
+    if line_text:len() > 0 then
+      local lines = utils.nvim_buf_get_text(0, row, s_col, row, line_e_col)
+      local transformed = utils.map(lines, method)
+      vim.api.nvim_buf_set_text(0, row, s_col, row, line_e_col, transformed)
     end
+  end
 
-    it("should show an error when the LS do not support textDocument/rename", function()
-      vim.api.nvim_buf_set_lines(0, 0, -1, true, { "plain text" })
+  local new_cursor_pos = cursor_pos
+  if cursor_pos[1] ~= start_row or (cursor_pos[2] < start_col) then
+    new_cursor_pos = { 0, start_row, start_col }
+  end
+  vim.fn.setpos(".", new_cursor_pos)
+end
 
-      local get_clients = function()
-        return {
-          {
-            supports_method = disabled_rename_method,
-          },
-          {
-            supports_method = disabled_rename_method,
-          },
-        }
+function M.do_lsp_rename(method)
+  local lsp_clients = vim.lsp.get_active_clients()
+  local clients_count = vim.tbl_count(lsp_clients)
+
+  local handleLSPRenameFinished = function(applied_lsp_rename, reason)
+    if not applied_lsp_rename then
+      vim.api.nvim_err_writeln(reason)
+    end
+  end
+
+  local is_lsp_rename_supported = false
+  for _, client in pairs(lsp_clients or {}) do
+    if client.supports_method("textDocument/rename") then
+      is_lsp_rename_supported = true
+    end
+  end
+
+  -- On LSP Sync Renaming happens when there are no attached clients
+  if clients_count == 0 then
+    handleLSPRenameFinished(false, "LSP rename failed. No attached Language Server found.")
+  elseif not is_lsp_rename_supported then
+    handleLSPRenameFinished(
+      false,
+      "method textDocument/rename is not supported by any of the servers registered for the current buffer"
+    )
+  else
+    local current_word_info = utils.get_current_word_info()
+    local current_word = current_word_info.word
+    local params = lsp.util.make_position_params()
+    params.position = current_word_info.position
+    params.newName = method(current_word)
+
+    lsp.buf_request_all(0, "textDocument/rename", params, function(results)
+      local total_files = 0
+      local results_to_be_applied = nil
+      local offset_encoding_to_be_applied = nil
+
+      -- Loop through the results and find the one that touches the most files
+      -- and save its results to be applied.
+      for client_id, response in pairs(results) do
+        if not response.error then
+          local client = vim.lsp.get_client_by_id(client_id)
+
+          local files_count_by_current_response
+          if response.result.documentChanges == nil then
+            files_count_by_current_response = vim.tbl_count(response.result.changes)
+          else
+            files_count_by_current_response = vim.tbl_count(response.result.documentChanges)
+          end
+
+          if files_count_by_current_response > total_files then
+            total_files = files_count_by_current_response
+            results_to_be_applied = response.result
+            offset_encoding_to_be_applied = client.offset_encoding
+          end
+        end
       end
 
-      vim.lsp.get_active_clients = get_clients
-      vim.api.nvim_err_writeln = err_spy
-      test_helpers.execute_keys("<CMD>lua require('textcase').lsp_rename('to_upper_case')<CR>")
-      vim.lsp.get_active_clients = get_active_clients_fn
-      vim.api.nvim_err_writeln = err_fn
-
-      assert.spy(err_spy).was.called_with(match.has_match("method textDocument/rename is not supported"))
-    end)
-
-    it("shouldn't show an error when at least one LS supports textDocument/rename", function()
-      local get_clients = function()
-        return {
-          {
-            supports_method = all_methods_enabled,
-          },
-          {
-            supports_method = disabled_rename_method,
-          },
-        }
+      if total_files > 0 and offset_encoding_to_be_applied ~= nil then
+        -- If there are results to be applied, apply them.
+        vim.lsp.util.apply_workspace_edit(results_to_be_applied, offset_encoding_to_be_applied)
       end
 
-      vim.api.nvim_buf_set_lines(0, 0, -1, true, { "plain text" })
-
-      vim.api.nvim_err_writeln = err_spy
-      vim.lsp.get_active_clients = get_clients
-      vim.lsp.buf_request_all = buf_request_all_spy
-      vim.lsp.util.make_position_params = make_position_params_spy
-      test_helpers.execute_keys("<CMD>lua require('textcase').lsp_rename('to_upper_case')<CR>")
-      vim.lsp.get_active_clients = get_active_clients_fn
-      vim.lsp.buf_request_all = buf_request_all_fn
-      vim.lsp.util.make_position_params = make_position_params_fn
-      vim.api.nvim_err_writeln = err_fn
-
-      assert.spy(buf_request_all_spy).was.called_with(0, "textDocument/rename", match._, match._)
-      assert.spy(err_spy).was.not_called()
+      -- After the edits are applied, the files are not saved automatically.
+      -- Let's remind ourselves to save those...
+      print(string.format("Changed %s file%s. To save them run ':wa'", total_files, total_files > 1 and "s" or ""))
     end)
-  end)
+  end
+end
 
-  describe("LS textDocument/rename with multiple language server results", function()
-    local err_spy = nil
-    local buf_request_all_spy = nil
-    local make_position_params_spy = nil
-    local get_client_by_id_spy = nil
-    local apply_workspace_edit_spy = nil
-    local get_clients = nil
-
-    before_each(function()
-      textcase.setup({})
-
-      local buf = vim.api.nvim_create_buf(false, true)
-      vim.api.nvim_command("buffer " .. buf)
-
-      err_spy = spy.new(function() end)
-      get_client_by_id_spy = spy.new(function(id)
-        local clients = {}
-        clients["1"] = {
-          id = 1,
-          offset_encoding = "utf-8",
-        }
-        clients["2"] = {
-          id = 2,
-          offset_encoding = "utf-8",
-        }
-        return clients[id]
-      end)
-      buf_request_all_spy = spy.new(function(buffer, method, params, callback)
-        callback(buf_request_all_results)
-      end)
-      make_position_params_spy = spy.new(function()
-        return {}
-      end)
-      apply_workspace_edit_spy = spy.new(function()
-        return {}
-      end)
-      get_clients = function()
-        return {
-          {
-            supports_method = function()
-              return true
-            end,
-          },
-          {
-            supports_method = function()
-              return true
-            end,
-          },
-        }
-      end
-
-      vim.api.nvim_err_writeln = err_spy
-      vim.lsp.get_active_clients = get_clients
-      vim.lsp.get_client_by_id = get_client_by_id_spy
-      vim.lsp.buf_request_all = buf_request_all_spy
-      vim.lsp.util.make_position_params = make_position_params_spy
-      vim.lsp.util.apply_workspace_edit = apply_workspace_edit_spy
-    end)
-
-    after_each(function()
-      vim.lsp.get_active_clients = get_active_clients_fn
-      vim.lsp.buf_request_all = buf_request_all_fn
-      vim.lsp.get_client_by_id = get_client_by_id_fn
-      vim.lsp.util.make_position_params = make_position_params_fn
-      vim.lsp.util.apply_workspace_edit = apply_workspace_edit_fn
-      vim.api.nvim_err_writeln = err_fn
-    end)
-
-    describe("with different amount of changes", function()
-      before_each(function()
-        buf_request_all_results["1"] = {
-          result = {
-            changes = {
-              ["file1"] = {},
-            },
-          },
-        }
-        buf_request_all_results["2"] = {
-          result = {
-            changes = {
-              ["file1"] = {},
-              ["file2"] = {},
-            },
-          },
-        }
-      end)
-
-      it("should use the results from the language server that touches the most files", function()
-        vim.api.nvim_buf_set_lines(0, 0, -1, true, { "plain text" })
-
-        test_helpers.execute_keys("<CMD>lua require('textcase').lsp_rename('to_upper_case')<CR>")
-
-        assert.spy(buf_request_all_spy).was.called_with(0, "textDocument/rename", match._, match._)
-        assert.spy(apply_workspace_edit_spy).was.called_with({
-          changes = {
-            ["file1"] = {},
-            ["file2"] = {},
-          },
-        }, "utf-8")
-        assert.spy(err_spy).was.not_called()
-      end)
-    end)
-
-    describe("with the same amount of changes", function()
-      before_each(function()
-        buf_request_all_results["1"] = {
-          result = {
-            changes = {
-              ["file1"] = {},
-              ["file2"] = {},
-            },
-          },
-        }
-        buf_request_all_results["2"] = {
-          result = {
-            changes = {
-              ["file1"] = {},
-              ["file2"] = {},
-            },
-          },
-        }
-      end)
-
-      it("should use the results from the language server that touches the most files", function()
-        vim.api.nvim_buf_set_lines(0, 0, -1, true, { "plain text" })
-
-        test_helpers.execute_keys("<CMD>lua require('textcase').lsp_rename('to_upper_case')<CR>")
-
-        assert.spy(buf_request_all_spy).was.called_with(0, "textDocument/rename", match._, match._)
-        assert.spy(apply_workspace_edit_spy).was.called_with({
-          changes = {
-            ["file1"] = {},
-            ["file2"] = {},
-          },
-        }, "utf-8")
-        assert.spy(err_spy).was.not_called()
-      end)
-    end)
-  end)
-
-  describe("LSP changes and documentChanges", function()
-    local err_spy = nil
-    local buf_request_all_spy = nil
-    local make_position_params_spy = nil
-    local get_client_by_id_spy = nil
-    local apply_workspace_edit_spy = nil
-    local get_clients = nil
-
-    before_each(function()
-      textcase.setup({})
-
-      local buf = vim.api.nvim_create_buf(false, true)
-      vim.api.nvim_command("buffer " .. buf)
-
-      err_spy = spy.new(function() end)
-      get_client_by_id_spy = spy.new(function(id)
-        assert(id == "1", "Bad client id")
-        return { id = 1, offset_encoding = "utf-8" }
-      end)
-      buf_request_all_spy = spy.new(function(buffer, method, params, callback)
-        callback(buf_request_all_results)
-      end)
-      make_position_params_spy = spy.new(function()
-        return {}
-      end)
-      apply_workspace_edit_spy = spy.new(function()
-        return {}
-      end)
-      get_clients = function()
-        return {
-          {
-            supports_method = function()
-              return true
-            end,
-          },
-        }
-      end
-
-      vim.api.nvim_err_writeln = err_spy
-      vim.lsp.get_active_clients = get_clients
-      vim.lsp.get_client_by_id = get_client_by_id_spy
-      vim.lsp.buf_request_all = buf_request_all_spy
-      vim.lsp.util.make_position_params = make_position_params_spy
-      vim.lsp.util.apply_workspace_edit = apply_workspace_edit_spy
-    end)
-
-    after_each(function()
-      vim.api.nvim_err_writeln = err_fn
-      vim.lsp.get_active_clients = get_active_clients_fn
-      vim.lsp.get_client_by_id = get_client_by_id_fn
-      vim.lsp.buf_request_all = buf_request_all_fn
-      vim.lsp.util.make_position_params = make_position_params_fn
-      vim.lsp.util.apply_workspace_edit = apply_workspace_edit_fn
-    end)
-
-    it("should work when `documentChanges` field is set instead of `changes`", function()
-      buf_request_all_results = {}
-      buf_request_all_results["1"] = {
-        result = {
-          documentChanges = { { "first document change" }, { "second document change" } },
-        },
-      }
-
-      vim.api.nvim_buf_set_lines(0, 0, -1, true, { "plain text" })
-
-      test_helpers.execute_keys("<CMD>lua require('textcase').lsp_rename('to_upper_case')<CR>")
-
-      assert.spy(buf_request_all_spy).was.called_with(0, "textDocument/rename", match._, match._)
-      assert.spy(apply_workspace_edit_spy).was.called_with({
-        documentChanges = { { "first document change" }, { "second document change" } },
-      }, "utf-8")
-      assert.spy(err_spy).was.not_called()
-    end)
-  end)
-end)
+return M
