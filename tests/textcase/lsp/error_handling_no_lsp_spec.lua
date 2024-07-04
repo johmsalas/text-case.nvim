@@ -260,5 +260,41 @@ describe("LSP renaming", function()
         assert.spy(err_spy).was.not_called()
       end)
     end)
+
+    describe("with the same amount of changes", function()
+      before_each(function()
+        buf_request_all_results["1"] = {
+          result = {
+            changes = {
+              ["file1"] = {},
+              ["file2"] = {},
+            },
+          },
+        }
+        buf_request_all_results["2"] = {
+          result = {
+            changes = {
+              ["file1"] = {},
+              ["file2"] = {},
+            },
+          },
+        }
+      end)
+
+      it("should use the results from the language server that touches the most files", function()
+        vim.api.nvim_buf_set_lines(0, 0, -1, true, { "plain text" })
+
+        test_helpers.execute_keys("<CMD>lua require('textcase').lsp_rename('to_upper_case')<CR>")
+
+        assert.spy(buf_request_all_spy).was.called_with(0, "textDocument/rename", match._, match._)
+        assert.spy(apply_workspace_edit_spy).was.called_with({
+          changes = {
+            ["file1"] = {},
+            ["file2"] = {},
+          },
+        }, "utf-8")
+        assert.spy(err_spy).was.not_called()
+      end)
+    end)
   end)
 end)
