@@ -261,4 +261,87 @@ describe("LSP renaming", function()
       end)
     end)
   end)
+
+  describe("LSP changes and documentChanges", function()
+    local err_spy = nil
+    local buf_request_all_spy = nil
+    local make_position_params_spy = nil
+    local get_client_by_id_spy = nil
+    local apply_workspace_edit_spy = nil
+    local get_clients = nil
+
+    before_each(function()
+      textcase.setup({})
+
+      local buf = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_command("buffer " .. buf)
+
+      err_spy = spy.new(function() end)
+      get_client_by_id_spy = spy.new(function(id)
+        assert(id == "1", "Bad client id")
+        return {
+          id = 1,
+          offset_encoding = "utf-8",
+        }
+      end)
+      buf_request_all_spy = spy.new(function(buffer, method, params, callback)
+        callback(buf_request_all_results)
+      end)
+      make_position_params_spy = spy.new(function()
+        return {}
+      end)
+      apply_workspace_edit_spy = spy.new(function()
+        return {}
+      end)
+      get_clients = function()
+        return {
+          {
+            supports_method = function()
+              return true
+            end,
+          },
+        }
+      end
+
+      vim.api.nvim_err_writeln = err_spy
+      vim.lsp.get_active_clients = get_clients
+      vim.lsp.get_client_by_id = get_client_by_id_spy
+      vim.lsp.buf_request_all = buf_request_all_spy
+      vim.lsp.util.make_position_params = make_position_params_spy
+      vim.lsp.util.apply_workspace_edit = apply_workspace_edit_spy
+    end)
+
+    after_each(function()
+      vim.api.nvim_err_writeln = err_fn
+      vim.lsp.get_active_clients = get_active_clients_fn
+      vim.lsp.get_client_by_id = get_client_by_id_fn
+      vim.lsp.buf_request_all = buf_request_all_fn
+      vim.lsp.util.make_position_params = make_position_params_fn
+      vim.lsp.util.apply_workspace_edit = apply_workspace_edit_fn
+    end)
+
+    it("should count `documentChanges` if it is set instead of `changes`", function()
+      buf_request_all_results = {}
+      buf_request_all_results["1"] = {
+        result = {
+          documentChanges = {
+            { "document change 1" },
+            { "document change 2" },
+          },
+        },
+      }
+      vim.api.nvim_buf_set_lines(0, 0, -1, true, { "plain text" })
+
+      test_helpers.execute_keys("<CMD>lua require('textcase').lsp_rename('to_upper_case')<CR>")
+
+      assert.spy(buf_request_all_spy).was.called_with(0, "textDocument/rename", match._, match._)
+      assert.spy(apply_workspace_edit_spy).was.called_with({
+        documentChanges = {
+          { "document change 1" },
+          { "document change 2" },
+        },
+      }, "utf-8")
+      assert.spy(err_spy).was.not_called()
+    end)
+  end)
 end)

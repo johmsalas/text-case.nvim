@@ -104,7 +104,13 @@ function M.do_lsp_rename(method)
       for client_id, response in pairs(results) do
         if not response.error then
           local client = vim.lsp.get_client_by_id(client_id)
-          local files_count_by_current_response = vim.tbl_count(response.result.changes)
+
+          local files_count_by_current_response
+          if response.result.documentChanges == nil then
+            files_count_by_current_response = vim.tbl_count(response.result.changes)
+          else
+            files_count_by_current_response = vim.tbl_count(response.result.documentChanges)
+          end
 
           if files_count_by_current_response > total_files then
             total_files = files_count_by_current_response
