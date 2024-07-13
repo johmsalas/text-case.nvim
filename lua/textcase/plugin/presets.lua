@@ -23,20 +23,9 @@ local all_methods = {
 
 -- Setup default keymappings for the plugin but only for the methods that are enabled.
 local function setup_default_keymappings()
-  whichkey.register("x", {
-    [M.options.prefix] = {
-      name = "text-case",
-    },
-  })
-
-  whichkey.register("n", {
-    [M.options.prefix] = {
-      name = "text-case",
-      o = {
-        name = "Pending mode operator",
-      },
-    },
-  })
+  whichkey.register_prefix("x", M.options.prefix, "text-case")
+  whichkey.register_prefix("n", M.options.prefix, "text-case")
+  whichkey.register_prefix("n", M.options.prefix .. "o", "Pending mode operator")
 
   local default_keymapping_definitions = {
     { method_name = "to_constant_case", quick_replace = "n", operator = "on", lsp_rename = "N" },
