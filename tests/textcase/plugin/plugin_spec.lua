@@ -53,7 +53,7 @@ describe("plugin", function()
       { method_name = "to_upper_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "LOREMIPSUM DolorSit" } },
       { method_name = "to_lower_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "loremipsum DolorSit" } },
       { method_name = "to_dot_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "lorem.ipsum DolorSit" } },
-      { method_name = "to_comma_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "lorem,ipsum,DolorSit" } },
+      { method_name = "to_comma_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "lorem,ipsum DolorSit" } },
       { method_name = "to_phrase_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "Lorem ipsum DolorSit" } },
       { method_name = "to_title_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "Lorem Ipsum DolorSit" } },
       { method_name = "to_title_dash_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "Lorem-Ipsum DolorSit" } },
