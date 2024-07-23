@@ -9,6 +9,7 @@ This plugin runs its tests against the following versions of Neovim:
 
 | Neovim version | Remarks                                                                                                |
 | -------------- | ------------------------------------------------------------------------------------------------------ |
+| `0.10.0`       | All features work                                                                                      |
 | `0.9.4`        | All features work                                                                                      |
 | `0.8.3`        | The Telescope extension is not working because Telescope itself requires at least Neovim version 0.9.0 |
 
