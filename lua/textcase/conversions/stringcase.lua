@@ -127,6 +127,11 @@ function M.to_dot_case(str)
   return table.concat(parts, ".")
 end
 
+function M.to_comma_case(str)
+  local parts = vim.split(M.to_dash_case(str), "-")
+  return table.concat(parts, ",")
+end
+
 function M.to_path_case(str)
   local parts = vim.split(M.to_dash_case(str), "-")
   return table.concat(parts, "/")

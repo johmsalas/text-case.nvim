@@ -15,6 +15,7 @@ local M = {
     to_title_dash_case = api.to_title_dash_case,
     to_constant_case = api.to_constant_case,
     to_dot_case = api.to_dot_case,
+    to_comma_case = api.to_comma_case,
     to_phrase_case = api.to_phrase_case,
     to_camel_case = api.to_camel_case,
     to_pascal_case = api.to_pascal_case,
