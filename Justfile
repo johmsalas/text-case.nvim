@@ -20,7 +20,11 @@ format:
 # Run the lua tests
 test: test-0-9-4 test-0-8-3
 
-# Run the lua tests against Neovim 0.8.3
+# Run the lua tests against Neovim 0.10.0
+test-0-10-0:
+  bob use 0.10.0 && ./tests/run.sh
+
+# Run the lua tests against Neovim 0.9.4
 test-0-9-4:
   bob use 0.9.4 && ./tests/run.sh
 
