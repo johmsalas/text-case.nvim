@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/johmsalas/text-case.nvim/compare/v1.2.0...v1.3.0) (2024-08-02)
+
+
+### Features
+
+* add `to_comma_case` ([5dd3c2c](https://github.com/johmsalas/text-case.nvim/commit/5dd3c2c761d8a0f2fe022f4b18e0d18d229eb95e))
+
 ## [1.2.0](https://github.com/johmsalas/text-case.nvim/compare/v1.1.0...v1.2.0) (2024-07-13)
 
 
