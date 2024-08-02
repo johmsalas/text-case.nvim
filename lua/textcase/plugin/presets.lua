@@ -2,6 +2,7 @@ local M = {}
 M.options = {}
 
 local plugin = require("textcase.plugin.plugin")
+local substitute = require("strings.substitute.methods")
 local api = require("textcase.plugin.api")
 local whichkey = require("textcase.extensions.whichkey")
 local all_methods = {
@@ -52,10 +53,11 @@ end
 
 local function register_replace_command(substitude_command_name)
   for _, method_name in ipairs(all_methods) do
+    substitute.register_methods(api[method_name])
     plugin.register_methods(api[method_name])
   end
 
-  plugin.register_replace_command(substitude_command_name)
+  substitute.register_replace_command(substitude_command_name)
 end
 
 M.Initialize = function()
