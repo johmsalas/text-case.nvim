@@ -1,6 +1,7 @@
 # text-case.nvim
 
-An all in one plugin for converting text case in Neovim. It converts a piece of text to an indicated string case and also is capable of bulk replacing texts without changing cases
+An all in one plugin for converting text case in Neovim.
+It converts a piece of text to an indicated string case and also is capable of bulk replacing content inside texts without changing the case.
 
 ![CI/CD](https://github.com/johmsalas/text-case.nvim/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Tests Neovim Nightly](https://github.com/johmsalas/text-case.nvim/actions/workflows/neovim-nightly.yml/badge.svg?branch=main)
@@ -12,6 +13,10 @@ This plugin runs its tests against the following versions of Neovim:
 | `0.10.0`       | All features work                                                                                      |
 | `0.9.4`        | All features work                                                                                      |
 | `0.8.3`        | The Telescope extension is not working because Telescope itself requires at least Neovim version 0.9.0 |
+
+Note this plugin is oriented towards code and the cases used for tokens in programming languages.
+If you are looking for title-case or others as used in natural language prose there are contextual grammar considerations not covered here.
+Consider the [decasify](https://github.com/alerque/decasify) plugin for locale and style-guide aware casing functions.
 
 ## Features
 
