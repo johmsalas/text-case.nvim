@@ -104,6 +104,7 @@ local COMMA_STRING = "lorem,ipsum,dolor,sit,amet,ááaa"
 local PHRASE_STRING = "Lorem ipsum dolor sit amet ááaa"
 local CAMEL_STRING = "loremIpsumDolorSitAmetÁáaa"
 local PASCAL_STRING = "LoremIpsumDolorSitAmetÁáaa"
+local PASCAL_SNAKE_STRING = "Lorem_Ipsum_Dolor_Sit_Amet_Ááaa"
 local TITLE_STRING = "Lorem Ipsum Dolor Sit Amet Ááaa"
 local PATH_STRING = "lorem/ipsum/dolor/sit/amet/ááaa"
 
@@ -318,6 +319,25 @@ describe("to_pascal_case", function()
   end)
 end)
 
+describe("to_pascal_snake_case", function()
+  it("should convert from other cases to pascal_snake_case", function()
+    assert.are.same("", casing.to_pascal_snake_case(""))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(UNFORMATTED_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(UPPER_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(LOWER_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(SNAKE_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(DASH_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(CONSTANT_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(DOT_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(COMMA_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(PHRASE_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(CAMEL_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(PASCAL_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(TITLE_STRING))
+    assert.are.same(PASCAL_SNAKE_STRING, casing.to_pascal_snake_case(PATH_STRING))
+  end)
+end)
+
 describe("to_title_case", function()
   it("should convert from other cases to title_case", function()
     assert.are.same("", casing.to_title_case(""))
@@ -374,5 +394,6 @@ end)
 -- to_phrase_case
 -- to_camel_case
 -- to_pascal_case
+-- to_pascal_snake_case
 -- to_title_case
 -- to_path_case

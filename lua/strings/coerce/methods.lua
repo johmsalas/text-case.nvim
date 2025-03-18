@@ -78,6 +78,11 @@ function M.to_pascal_case(str)
   return table.concat(utils.map(parts, toTitle), "")
 end
 
+function M.to_pascal_snake_case(str)
+  local parts = vim.split(M.to_dash_case(str), "-")
+  return table.concat(utils.map(parts, toTitle), "_")
+end
+
 function M.to_camel_case(str)
   local parts = vim.split(M.to_dash_case(str), "-")
   if #parts == 1 then

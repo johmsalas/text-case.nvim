@@ -42,6 +42,7 @@ local function Create_resulting_cases(prefix_text, conversion_type)
     api.to_phrase_case,
     api.to_camel_case,
     api.to_pascal_case,
+    api.to_pascal_snake_case,
     api.to_title_case,
     api.to_path_case,
   }) do

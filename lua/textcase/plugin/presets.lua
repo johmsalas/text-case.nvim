@@ -17,6 +17,7 @@ local all_methods = {
   "to_phrase_case",
   "to_camel_case",
   "to_pascal_case",
+  "to_pascal_snake_case",
   "to_title_case",
   "to_path_case",
   "to_upper_phrase_case",

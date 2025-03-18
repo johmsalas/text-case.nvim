@@ -22,7 +22,8 @@ describe("Telescope Integration", function()
       { name = "camel", query = "cam", buffer_lines = { "lorem_ipsum dolor_sit" }, expected = { "loremIpsum dolor_sit" } },
       { name = "snake", query = "snk", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "lorem_ipsum DolorSit" } },
       { name = "dash", query = "dsh", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "lorem-ipsum DolorSit" } },
-      { name = "pascal", query = "psc", buffer_lines = { "lorem_ipsum dolor_sit" }, expected = { "LoremIpsum dolor_sit" } },
+      { name = "pascal", query = "topas", buffer_lines = { "lorem_ipsum dolor_sit" }, expected = { "LoremIpsum dolor_sit" } },
+      { name = "pascal snake", query = "psc", buffer_lines = { "lorem_ipsum dolor_sit" }, expected = { "Lorem_Ipsum dolor_sit" } },
       { name = "upper", query = "uppr", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "LOREMIPSUM DolorSit" } },
       { name = "lower", query = "low", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "loremipsum DolorSit" } },
     }
