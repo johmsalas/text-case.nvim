@@ -228,6 +228,34 @@ vim.api.nvim_set_keymap('n', 'gaa', "<cmd>TextCaseOpenTelescopeQuickChange<CR>",
 vim.api.nvim_set_keymap('n', 'gai', "<cmd>TextCaseOpenTelescopeLSPChange<CR>", { desc = "Telescope LSP Change" })
 ```
 
+### Snacks picker integration
+
+To list conversion options using [snacks.nvim](https://github.com/folke/snacks.nvim) picker, setup keybindings for normal and visual mode:
+
+```lua
+vim.keymap.set("n", "ga.", function()
+  require("textcase.extensions.snacks").normal_mode()
+end, { desc = "Text Case" })
+
+vim.keymap.set("x", "ga.", function()
+  require("textcase.extensions.snacks").visual_mode()
+end, { desc = "Text Case" })
+```
+
+Similar to Telescope, you can also trigger specific picker modes:
+
+```lua
+-- Quick conversion only (current word)
+vim.keymap.set("n", "gaa", function()
+  require("textcase.extensions.snacks").normal_mode_quick_change()
+end, { desc = "Text Case Quick Change" })
+
+-- LSP rename only
+vim.keymap.set("n", "gai", function()
+  require("textcase.extensions.snacks").normal_mode_lsp_change()
+end, { desc = "Text Case LSP Change" })
+```
+
 ### Which key integration
 
 If which-key is preset, text-case.nvim registers descriptions for the conversion groups
