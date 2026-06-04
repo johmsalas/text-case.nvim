@@ -44,6 +44,7 @@ local function Create_resulting_cases(prefix_text, conversion_type)
     api.to_pascal_case,
     api.to_title_case,
     api.to_path_case,
+    api.to_ada_cas,
   }) do
     if presets.options.enabled_methods_set[method.method_name] then
       table.insert(results, {

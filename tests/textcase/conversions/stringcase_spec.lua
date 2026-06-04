@@ -106,6 +106,7 @@ local CAMEL_STRING = "loremIpsumDolorSitAmetÁáaa"
 local PASCAL_STRING = "LoremIpsumDolorSitAmetÁáaa"
 local TITLE_STRING = "Lorem Ipsum Dolor Sit Amet Ááaa"
 local PATH_STRING = "lorem/ipsum/dolor/sit/amet/ááaa"
+local ADA_STRING = "Lorem_Ipsum_Dolor_Sit_Amet_Ááaa"
 
 describe("to_upper_case", function()
   it("should convert from other cases to upper_case", function()
@@ -363,6 +364,26 @@ describe("to_constant_case", function()
   end)
 end)
 
+describe("to_ada_case", function()
+  it("should convert from other cases to Ada_Case", function()
+    assert.are.same("", casing.to_ada_case(""))
+    assert.are.same(ADA_STRING, casing.to_ada_case(UNFORMATTED_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(UPPER_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(LOWER_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(SNAKE_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(DASH_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(CONSTANT_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(DOT_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(COMMA_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(PHRASE_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(CAMEL_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(PASCAL_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(TITLE_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(PATH_STRING))
+    assert.are.same(ADA_STRING, casing.to_ada_case(ADA_STRING))
+  end)
+end)
+
 -- to_upper_case
 -- to_lower_case
 -- to_snake_case
@@ -376,3 +397,4 @@ end)
 -- to_pascal_case
 -- to_title_case
 -- to_path_case
+-- to_ada_case

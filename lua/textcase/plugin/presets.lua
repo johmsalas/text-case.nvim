@@ -21,6 +21,7 @@ local all_methods = {
   "to_path_case",
   "to_upper_phrase_case",
   "to_lower_phrase_case",
+  "to_ada_case",
 }
 
 -- Setup default keymappings for the plugin but only for the methods that are enabled.

@@ -58,6 +58,7 @@ describe("plugin", function()
       { method_name = "to_title_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "Lorem Ipsum DolorSit" } },
       { method_name = "to_title_dash_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "Lorem-Ipsum DolorSit" } },
       { method_name = "to_path_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "lorem/ipsum DolorSit" } },
+      { method_name = "to_ada_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "Lorem_Ipsum DolorSit" } },
     }
     -- stylua: ignore end
 
@@ -88,6 +89,7 @@ describe("plugin", function()
       { method_name = "to_title_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "Lorem Ipsum Dolor Sit" } },
       { method_name = "to_title_dash_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "Lorem-Ipsum-Dolor-Sit" } },
       { method_name = "to_path_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "lorem/ipsum/dolor/sit" } },
+      { method_name = "to_ada_case", buffer_lines = { "LoremIpsum DolorSit" }, expected = { "Lorem_Ipsum_Dolor_Sit" } },
     }
     -- stylua: ignore end
 

@@ -21,6 +21,7 @@ local M = {
     to_pascal_case = api.to_pascal_case,
     to_title_case = api.to_title_case,
     to_path_case = api.to_path_case,
+    to_ada_case = api.to_ada_case,
   },
   utils = {
     create_wrapped_method = c,

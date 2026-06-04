@@ -156,4 +156,9 @@ function M.to_dash_case(str)
   return utils.untrim_str(result, trim_info)
 end
 
+function M.to_ada_case(str)
+  local parts = vim.split(M.to_dash_case(str), "-")
+  return table.concat(utils.map(parts, toTitle), "_")
+end
+
 return M

@@ -68,6 +68,7 @@ It is also a library of text case conversion methods. Useful for your LUA code.
 | Title case      | Lorem Ipsum | textcase.api.to_title_case      |
 | Path case       | lorem/ipsum | textcase.api.to_path_case       |
 | Phrase case     | Lorem ipsum | textcase.api.to_phrase_case     |
+| Ada case        | Lorem_Ipsum | textcase.api.to_adat_case       |
 
 ### Character compatibility
 
@@ -149,6 +150,7 @@ use { "johmsalas/text-case.nvim",
     "to_path_case",
     "to_upper_phrase_case",
     "to_lower_phrase_case",
+    "to_ada_case",
   },
 }
 ```
