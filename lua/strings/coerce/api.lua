@@ -20,5 +20,6 @@ M.to_title_case = c("to_title_case", stringcase.to_title_case, "To Title Case")
 M.to_path_case = c("to_path_case", stringcase.to_path_case, "to/path/case")
 M.to_upper_phrase_case = c("to_upper_phrase_case", stringcase.to_upper_phrase_case, "TO UPPER PHRASE CASE")
 M.to_lower_phrase_case = c("to_lower_phrase_case", stringcase.to_lower_phrase_case, "to lower phrase case")
+M.to_ada_case = c("to_ada_case", stringcase.to_ada_case, "To_Ada_Case")
 
 return M
